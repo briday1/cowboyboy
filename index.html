@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#191524">
+  <meta name="description" content="A short 8-bit adventure about horse anatomy and a very strange night at Horse University.">
+  <title>Cowboyboy · Horse University</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/hat.svg" type="image/svg+xml">
+  <script defer src="lessons.js"></script>
+  <script defer src="art.js"></script>
+  <script defer src="sound.js"></script>
+  <script defer src="game.js"></script>
+</head>
+<body>
+  <main class="cartridge">
+    <header class="masthead">
+      <div class="brand">
+        <img src="assets/hat.svg" width="34" height="34" alt="">
+        <div><strong>HORSE UNIVERSITY</strong><small>DEPT. OF EQUINE ANATOMY</small></div>
+      </div>
+      <div class="tools">
+        <button id="sound-button" class="quiet" type="button" aria-pressed="false" title="Toggle sound (M)">Sound <span>off</span></button>
+        <button id="journal-button" class="quiet" type="button" title="Open field notes (Q)" hidden>Notes</button>
+        <button id="pause-button" class="quiet" type="button" title="Pause (Escape)" hidden>Pause</button>
+      </div>
+    </header>
+
+    <section class="machine" aria-label="Cowboyboy game">
+      <div id="viewport" data-scene="title">
+        <canvas id="screen" width="384" height="216" aria-label="A cowboy and a ghost horse under a violet rift at Horse University"></canvas>
+        <div id="hero" class="hero">
+          <p class="kicker"><span aria-hidden="true"></span> THE NIGHT PRACTICAL</p>
+          <h1>COWBOY<span>BOY</span></h1>
+          <p class="lede">The anatomy final is tonight. Something else signed up, too.</p>
+          <div class="hero-actions">
+            <button id="start-button" type="button" class="gold">Start game</button>
+            <button id="new-button" type="button" class="quiet" hidden>New game</button>
+          </div>
+        </div>
+      </div>
+      <section id="console" class="console" aria-labelledby="heading" hidden>
+        <div class="readout">
+          <p id="section-label" class="kicker"></p>
+          <h2 id="heading"></h2>
+          <p id="prompt" class="prompt"></p>
+          <p id="feedback" class="feedback" aria-live="polite"></p>
+        </div>
+        <div id="actions" class="actions" aria-label="Available actions"></div>
+      </section>
+      <div id="touchpad" class="touchpad" aria-label="Touch movement controls" hidden>
+        <div class="dpad">
+          <button type="button" data-direction="up" aria-label="Up">↑</button>
+          <button type="button" data-direction="left" aria-label="Left">←</button>
+          <button type="button" data-direction="down" aria-label="Down">↓</button>
+          <button type="button" data-direction="right" aria-label="Right">→</button>
+        </div>
+        <span>HOLD TO MOVE</span>
+      </div>
+    </section>
+
+    <footer class="statusbar">
+      <span><i aria-hidden="true"></i> <span id="status">ANATOMY 101</span></span>
+      <span id="controls">10–15 MIN <b aria-hidden="true">·</b> KEYBOARD / TOUCH</span>
+    </footer>
+    <noscript>Cowboyboy needs JavaScript to run.</noscript>
+  </main>
+
+  <dialog id="sheet" aria-labelledby="sheet-title">
+    <div class="sheet-inner">
+      <div class="sheet-top">
+        <p id="sheet-label" class="kicker"></p>
+        <button id="close-sheet" type="button" class="quiet">Close <span aria-hidden="true">×</span></button>
+      </div>
+      <h2 id="sheet-title"></h2>
+      <div id="sheet-body"></div>
+      <div id="sheet-actions" class="actions"></div>
+    </div>
+  </dialog>
+</body>
+</html>
