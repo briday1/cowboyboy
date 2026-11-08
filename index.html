@@ -5,20 +5,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cowboyboy — The Night Final</title>
 <style>
-:root{color-scheme:dark;--ink:#e9dfc4;--dim:#aaa28e;--red:#ff816e;--gold:#efbd75}
-*{box-sizing:border-box}body{margin:0;background:#080b0b;color:var(--ink);font:16px/1.45 system-ui,sans-serif}button{font:inherit;cursor:pointer}button:disabled{cursor:default}button:focus-visible,a:focus-visible{outline:3px solid #f7a74a;outline-offset:3px}[hidden]{display:none!important}
-main{max-width:1100px;margin:auto;padding:clamp(10px,2.5vw,28px)}header,.hud,.controls,.paper-foot{display:flex;justify-content:space-between;align-items:center;gap:10px}header{margin-bottom:12px}header strong,.mono,.eyebrow,h1,.clock{font-family:ui-monospace,monospace;letter-spacing:.09em}header strong{font-size:clamp(12px,2vw,17px);color:var(--gold)}.utility{display:flex;gap:6px}
-button{border:1px solid #605d4f;background:#1d211e;color:var(--ink);padding:7px 12px;border-radius:3px}.utility button{font-size:13px}.hud{border:1px solid #454338;border-bottom:0;padding:8px 12px;background:#111512;font-size:13px;flex-wrap:wrap}.clock{color:var(--gold);font-weight:bold;font-variant-numeric:tabular-nums}.danger,.clock.low{color:var(--red)}
-.stage{position:relative;min-height:430px;aspect-ratio:16/9;overflow:hidden;border:1px solid #454338;background:#101411;isolation:isolate}canvas{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;image-rendering:pixelated}.vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 95px 24px #000a;background:repeating-linear-gradient(transparent 0 3px,#0002 4px 5px)}.stage.hit .vignette{background:#9a271b65}
-.look{position:absolute;top:12px;left:12px;font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.12em;background:#080b0bdd;padding:5px 8px;color:#ddd8c3}.cue{position:absolute;bottom:10px;left:10px;right:10px;width:fit-content;margin:0 auto;max-width:calc(100% - 20px);background:#080b0bef;padding:6px 10px;text-align:center;font:13px/1.35 ui-monospace,monospace;color:#ffb18c}.cue:empty{display:none}
-.controls{margin-top:8px;justify-content:center;flex-wrap:wrap}.controls button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}.controls button:disabled{opacity:.48}.hint{text-align:center;color:var(--dim);font-size:13px;margin:9px 0 0}.overlay{position:absolute;inset:0;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:18px}.panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}.panel .eyebrow{color:var(--gold);font-size:12px}.panel h1{font-size:clamp(25px,5vw,47px);line-height:1;margin:7px 0 14px;text-transform:uppercase;color:#f4e3be}.panel p{margin:8px 0}.panel ul{padding-left:19px;margin:8px 0 15px}.panel button{margin-top:5px}.primary{background:#ddb57b;color:#19140d;border-color:#e3c491;font-weight:700}.panel a{color:#f2ca91}.review{max-height:180px;overflow:auto;padding-right:7px;font-size:14px}.review li{margin-bottom:7px}
-@media(max-width:520px){.controls{gap:5px}.controls button{padding:7px 8px;font-size:13px}.panel ul{font-size:14px}.hint{font-size:12px}}
-.stage{min-height:510px}
-#room{object-fit:fill}
-.bean{color:#e9ac66}
-.vignette{z-index:1}.look,.cue{z-index:2}.overlay{z-index:3}.cue{pointer-events:none}
-#act{touch-action:none}
 @font-face{font-family:ExamPixel;src:url("./assets/PressStart2P.ttf") format("truetype");font-display:swap}
+:root{color-scheme:dark;--ink:#e9dfc4;--dim:#aaa28e;--red:#ff816e;--gold:#efbd75;--pixel:ExamPixel,ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:#080b0b;color:var(--ink);font:16px/1.45 system-ui,sans-serif}
+main{max-width:1200px;margin:auto;padding:clamp(4px,1vw,12px)}
+button{cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3px}
+[hidden]{display:none!important}
+.stage{position:relative;min-height:510px;aspect-ratio:16/9;overflow:hidden;border:1px solid #454338;background:#101411;isolation:isolate}
+#room{width:100%;height:100%;position:absolute;inset:0;display:block;image-rendering:pixelated}
+.vignette{position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 95px 24px #000a;background:repeating-linear-gradient(transparent 0 3px,#0002 4px 5px)}
+.stage.hit .vignette{background:#9a271b65}
+.hud,.utility,.controls,.look,.cue{position:absolute;color:var(--ink);font:9px/1.65 var(--pixel);text-transform:uppercase}
+.hud,.controls,.look{z-index:2}
+.hud,.utility{display:flex;gap:4px}
+.hud{align-items:center;top:12px;left:12px;flex-wrap:wrap;max-width:calc(100% - 200px)}
+.hud span{padding:5px 7px;background:#0e1410e6;border-bottom:2px solid #544a34}
+.hud .clock{font-size:12px;color:var(--gold)}
+.hud .danger,.hud .clock.low{color:var(--red)}
+.hud .bean{color:#e9ac66}
+.utility{z-index:4;top:12px;right:12px}
+.stage:not(.in-exam) .hud,.stage:not(.in-exam) .controls,.stage:not(.in-exam) #pause{display:none}
+.look{right:12px;top:47px;padding:3px 6px;background:#0e1410d9;color:#cbc2a8;font-size:8px;text-align:right;pointer-events:none}
+.cue{z-index:2;top:70px;left:50%;transform:translateX(-50%);margin:0;width:max-content;max-width:calc(100% - 24px);
+  padding:5px 8px;text-align:center;background:#0e1410ef;color:#ffb18c;pointer-events:none}
+.cue:empty{display:none}
+.controls{display:flex;gap:5px;bottom:12px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 16px)}
+.controls button,.utility button{font:inherit;text-transform:inherit;border:1px solid #817253;border-bottom:2px solid #534732;border-radius:0;
+  background:#111812ed;color:#e8d9b2;padding:6px 9px;min-height:32px;white-space:nowrap}
+.controls button[aria-pressed=true],.utility button[aria-pressed=true]{background:#332b1c;color:#ffd58b;border-color:#b28d54}
+.controls button:not(:disabled):hover,.utility button:not(:disabled):hover{background:#4e3a25;color:#ffe4b2}
+.controls button:disabled{opacity:.5}
+#act{position:absolute;right:0;bottom:40px;touch-action:none;background:#4c3421;color:#ffe5b7;border-color:#d4a46c}
+#act:disabled{visibility:hidden}
+.overlay{position:absolute;inset:0;z-index:3;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:52px 18px 18px}
+.panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}
+.panel .eyebrow{font:10px/1.65 var(--pixel);color:var(--gold)}
+.panel h1{font:clamp(21px,4vw,35px)/1.35 var(--pixel);margin:8px 0 14px;text-transform:uppercase;color:#f4e3be}
+.panel p{margin:8px 0}
+.panel ul{padding-left:19px;margin:8px 0 15px}
+.panel button{margin-top:5px;padding:10px 12px;font:10px/1.6 var(--pixel);text-transform:uppercase;border-radius:0}
+.primary{background:#ddb57b;color:#19140d;border:1px solid #e3c491}
+.panel a{color:#f2ca91}
+.review{max-height:180px;overflow:auto;padding-right:7px;font-size:14px}
+.review li{margin-bottom:7px}
+@media(max-width:600px){
+  .stage{min-height:min(540px,calc(100svh - 8px))}
+  .hud,.utility,.controls,.cue{font-size:7px}
+  .hud,.utility{top:8px}
+  .hud{left:8px;max-width:calc(100% - 135px);gap:2px}
+  .hud span{padding:4px 5px}
+  .hud .clock{font-size:9px}
+  .utility,.look{right:8px}
+  .controls{bottom:8px;gap:3px}
+  .controls button,.utility button{padding:5px 6px;min-height:34px}
+  .look{top:50px;font-size:7px}
+  .cue{top:76px}
+  .panel ul{font-size:14px}
+}
 .paper{position:absolute;top:0;left:0;transform-origin:0 0;box-sizing:border-box;width:540px;height:464px;
   display:flex;flex-direction:column;padding:28px 28px 22px;color:#342818;
   background:repeating-linear-gradient(0deg,#9a71351a 0 1px,transparent 1px 25px),#deca98;
@@ -59,10 +105,10 @@ button{border:1px solid #605d4f;background:#1d211e;color:var(--ink);padding:7px 
 <body>
 <audio id="score" loop preload="none" hidden></audio>
 <main>
-<header><strong>COWBOYBOY / HORSE UNIVERSITY</strong><div class="utility"><button id="sound" aria-pressed="false">Enable sound</button><button id="pause" disabled>Pause</button></div></header>
-<div class="hud"><span>FINAL EXAM</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden>BEAN BONUS READY</span><span class="clock" id="clock">12:00</span></div>
 <div class="stage" id="stage">
 <canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas><div class="vignette"></div>
+<div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden>BEAN BONUS READY</span></div>
+<div class="utility"><button id="sound" aria-pressed="false">Enable sound</button><button id="pause" disabled>Pause</button></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
 <div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div></div>
@@ -70,12 +116,11 @@ button{border:1px solid #605d4f;background:#1d211e;color:var(--ink);padding:7px 
 <progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
 </section>
 <p class="cue" id="cue" role="status"></p>
-<div class="overlay" id="overlay"><section class="panel" id="panel"></section></div>
-</div>
 <nav class="controls" aria-label="Look controls">
 <button data-view="left" disabled>← Window</button><button data-view="front" disabled>↑ Hall</button><button data-view="right" disabled>→ Seam</button><button data-view="desk" disabled>↓ Exam</button><button id="act" disabled>E · Interact</button>
 </nav>
-<p class="hint">Arrows or tap to look. 1–4 to answer or stamp. E to interact. Esc to pause.</p>
+<div class="overlay" id="overlay"><section class="panel" id="panel"></section></div>
+</div>
 </main>
 <script>
 'use strict';
@@ -627,6 +672,7 @@ function renderUI() {
   $('pause').disabled = !playing && run.mode !== 'paused';
   $('pause').textContent = run.mode === 'paused' ? 'Resume' : 'Pause';
   $('stage').classList.toggle('hit',playing && run.hitUntil > run.elapsed);
+  $('stage').classList.toggle('in-exam',playing || run.mode === 'paused');
   const label = !playing ? '' : settled ? views[run.view].label : 'Turning…';
   if (lastView !== label) { $('look').textContent = label; lastView = label; }
   $('look').hidden = !playing;
@@ -659,9 +705,9 @@ function showPanel(html) {
   $('panel').querySelector('button')?.focus();
 }
 function intro() {
-  showPanel(`<div class="eyebrow">ROOM 13 · AFTER HOURS</div><h1>The Night Final</h1>
+  showPanel(`<div class="eyebrow">COWBOYBOY · HORSE UNIVERSITY</div><h1>The Night Final</h1>
   <p>You have twelve minutes to pass horse anatomy. Someone has already taken attendance.</p>
-  <ul><li>Look down to work the exam. Stamp the marked diagrams or pick a written answer. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. A Bean Bonus tin can absorb one hit if you grab it in time.</li><li>Three hits end the exam. Fill all 18 answers and get at least 14 right before the clock runs out.</li></ul>
+  <ul><li>Look down to work the exam. Stamp the marked diagrams or pick a written answer. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. A Bean Bonus tin can absorb one hit if you grab it in time.</li><li>Three hits end the exam. Fill all 18 answers and get at least 14 right before the clock runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
   <button class="primary" id="begin">Sit the final</button>`);
   $('begin').onclick = start;
 }
