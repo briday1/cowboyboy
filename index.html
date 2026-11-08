@@ -108,7 +108,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 <div class="stage" id="stage">
 <canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas><div class="vignette"></div>
 <div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden>BEAN BONUS READY</span></div>
-<div class="utility"><button id="sound" aria-pressed="false">Enable sound</button><button id="pause" disabled>Pause</button></div>
+<div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
 <div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div></div>
@@ -272,6 +272,7 @@ new ResizeObserver(([entry]) => {
 }).observe($('stage'));
 const run = {mode:'intro',view:'front',remaining:examTime,health:3};
 let audio, master, hum, noiseBuffer, music, muted = false, pressed = false, lastFrame = performance.now();
+let audioRequested = false;
 let lastPaper = '', lastCue = '', lastView = '';
 function createMusic() {
   const rate = 22050;
@@ -337,6 +338,7 @@ function audioInit(preview = false) {
     renderSoundButton();
     return;
   }
+  audioRequested = true;
   try {
     if (navigator.audioSession) navigator.audioSession.type = 'playback';
   } catch {
@@ -390,9 +392,9 @@ function soundCheck() {
   note(523,.32,.22,0,'triangle',523,.15);
 }
 function renderSoundButton() {
-  const active = !muted && Boolean(soundPlaying());
-  $('sound').textContent = muted ? 'Sound off' : active ? 'Sound on' : 'Enable sound';
-  $('sound').setAttribute('aria-pressed',String(active));
+  const needsRetry = audioRequested && !soundPlaying();
+  $('sound').textContent = muted ? 'Sound off' : needsRetry ? 'Retry sound' : 'Sound on';
+  $('sound').setAttribute('aria-pressed',String(!muted && !needsRetry));
 }
 function soundLevel() {
   if (!audio) return;
@@ -1028,7 +1030,7 @@ function frame(now) {
 const bindings = {ArrowLeft:'left',KeyA:'left',ArrowUp:'front',KeyW:'front',ArrowRight:'right',KeyD:'right',ArrowDown:'desk',KeyS:'desk'};
 for (const button of viewButtons) button.onclick = () => go(button.dataset.view);
 $('sound').onclick = () => {
-  muted = !muted && Boolean(soundPlaying());
+  muted = !muted && (!audioRequested || Boolean(soundPlaying()));
   audioInit(true);
 };
 $('pause').onclick = pause;
