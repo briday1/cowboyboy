@@ -13,17 +13,57 @@ button{border:1px solid #605d4f;background:#1d211e;color:var(--ink);padding:7px 
 .look{position:absolute;top:12px;left:12px;font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.12em;background:#080b0bdd;padding:5px 8px;color:#ddd8c3}.cue{position:absolute;bottom:10px;left:10px;right:10px;width:fit-content;margin:0 auto;max-width:calc(100% - 20px);background:#080b0bef;padding:6px 10px;text-align:center;font:13px/1.35 ui-monospace,monospace;color:#ffb18c}.cue:empty{display:none}
 .paper{color-scheme:light;position:absolute;left:50%;top:50%;width:min(590px,calc(100% - 26px));max-height:calc(100% - 76px);overflow:auto;transform:translate(-50%,-50%);background:#e2d2a7;color:#272118;padding:clamp(12px,3vw,23px);border:2px solid #ba9e65;box-shadow:4px 5px 0 #0708068c;background-image:repeating-linear-gradient(0deg,transparent 0 27px,#78634312 28px 29px)}.paper .eyebrow{font-size:11px;color:#564735;font-weight:bold}.paper h2{font-size:clamp(17px,3vw,26px);margin:6px 0 10px;line-height:1.16}.answers{display:grid;grid-template-columns:1fr 1fr;gap:6px}.paper button{background:#eadcb6;color:#2c251b;border-color:#9b865f;text-align:left;line-height:1.2;font-size:14px;min-height:36px}.paper button[aria-pressed=true]{background:#ad7846;color:#160e07;border-color:#775332}.paper button:disabled{opacity:.78}.paper-foot{margin-top:10px;flex-wrap:wrap;justify-content:flex-start}.paper-foot .status{flex:1;font-size:13px}.paper progress{width:100%;height:7px;display:block;margin-top:8px;accent-color:#774720}.controls{margin-top:8px;justify-content:center;flex-wrap:wrap}.controls button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}.controls button:disabled{opacity:.48}.hint{text-align:center;color:var(--dim);font-size:13px;margin:9px 0 0}.overlay{position:absolute;inset:0;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:18px}.panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}.panel .eyebrow{color:var(--gold);font-size:12px}.panel h1{font-size:clamp(25px,5vw,47px);line-height:1;margin:7px 0 14px;text-transform:uppercase;color:#f4e3be}.panel p{margin:8px 0}.panel ul{padding-left:19px;margin:8px 0 15px}.panel button{margin-top:5px}.primary{background:#ddb57b;color:#19140d;border-color:#e3c491;font-weight:700}.panel a{color:#f2ca91}.review{max-height:180px;overflow:auto;padding-right:7px;font-size:14px}.review li{margin-bottom:7px}
 @media(max-width:520px){.stage{min-height:465px}.controls{gap:5px}.controls button{padding:7px 8px;font-size:13px}.answers{grid-template-columns:1fr}.paper h2{margin:4px 0 7px}.paper button{min-height:33px}.panel ul{font-size:14px}.hint{font-size:12px}}
+.stage{min-height:530px}
+canvas{object-fit:fill}
+.paper{width:min(525px,calc(100% - 20px));padding:12px 16px;max-height:calc(100% - 92px);box-shadow:6px 7px 0 #080806a8;background-color:#dac89e}
+.paper h2{font:700 clamp(14px,2.3vw,18px)/1.25 ui-monospace,monospace;margin:5px 0 7px}
+.plate{width:min(100%,380px);margin:0 auto;position:relative;border:1px solid #a38d65;background:#efdfb5}
+.plate svg{display:block;width:100%;height:auto;aspect-ratio:380/192}
+.plate .ink{fill:#b9a179;stroke:#614b34;stroke-width:2}
+.plate .bone{fill:#aa926a;stroke:#634e37;stroke-width:2}
+.plate .detail{fill:none;stroke:#806649;stroke-width:1.5}
+.plate .tube{fill:none;stroke-width:7;stroke-linecap:round}
+.plate text{fill:#70583a;text-anchor:middle;font:9px ui-monospace,monospace;letter-spacing:2px}
+.paper .pin{position:absolute;transform:translate(-50%,-50%);border:2px solid #883b24;color:#572717;background:#f8dfad;min-height:26px;min-width:26px;padding:0;text-align:center;font:bold 13px ui-monospace,monospace;border-radius:50%;box-shadow:1px 2px #5c3c2d}
+.paper .pin[aria-pressed=true]{background:#913f2e;color:#fff1ce;border-color:#69311d}
+.paper .pin:focus-visible{z-index:1;outline-color:#532e21}
+.paper .answers{margin-top:6px}
+.paper .answers button{font-size:12px;min-height:30px}
+.paper-foot{margin-top:7px}
+.paper-foot button{min-height:30px}
+.bean{color:#e9ac66}
+.cue{pointer-events:none}
+#act{touch-action:none}
+@media(max-width:520px){canvas{object-fit:cover}.stage{min-height:510px}.paper{padding:9px 10px}.paper .answers{grid-template-columns:1fr 1fr}.paper .pin{min-height:24px;min-width:24px}}
+@font-face{font-family:ExamPixel;src:url("../assets/PressStart2P.ttf") format("truetype");font-display:swap}
+.paper{--pixel:ExamPixel,ui-monospace,monospace;isolation:isolate;overflow:auto;width:min(518px,calc(100% - 22px));padding:14px 16px;border:0;border-radius:0;
+  background:repeating-linear-gradient(0deg,#b88e4920 0 1px,transparent 1px 21px),#ddc48e;
+  clip-path:polygon(0 8px,4px 8px,4px 4px,8px 4px,8px 0,calc(100% - 15px) 0,calc(100% - 15px) 4px,calc(100% - 10px) 4px,calc(100% - 10px) 8px,calc(100% - 5px) 8px,calc(100% - 5px) 13px,100% 13px,100% calc(100% - 8px),calc(100% - 4px) calc(100% - 8px),calc(100% - 4px) calc(100% - 4px),calc(100% - 8px) calc(100% - 4px),calc(100% - 8px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px));
+  box-shadow:inset 0 0 0 4px #a27943,inset 0 0 0 7px #c3a168;
+  transform:translate(-50%,-45%);color:#302519}
+.paper .eyebrow{font:8px/1.55 var(--pixel);letter-spacing:0;color:#793f2d}
+.paper h2{font:10px/1.65 var(--pixel);letter-spacing:0;margin:9px 0 8px}
+.paper .answers button,.paper-foot button,.paper-foot .status{font:8px/1.65 var(--pixel);letter-spacing:0}
+.paper button{background:#f0d9a5;border:2px solid #a48756;border-radius:0;box-shadow:2px 2px #967141}
+.paper button[aria-pressed=true]{background:#ad6949;color:#1f150d}
+.paper .pin{border-radius:0;font:9px var(--pixel);box-shadow:2px 2px #5c3c2d}
+.paper progress{appearance:none;border:0;background:#a98d5d;height:5px;border-radius:0}
+.paper progress::-webkit-progress-bar{background:#a98d5d}
+.paper progress::-webkit-progress-value{background:#823c2a}
+.paper progress::-moz-progress-bar{background:#823c2a}
+.plate svg{shape-rendering:crispEdges}
+@media(max-width:520px){.paper h2{font-size:9px}.paper .eyebrow,.paper .answers button,.paper-foot button,.paper-foot .status{font-size:7px}.paper{padding:13px}}
 </style>
 </head>
 <body>
 <main>
-<header><strong>COWBOYBOY / HORSE UNIVERSITY</strong><div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div></header>
-<div class="hud"><span>FINAL EXAM</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="clock" id="clock">12:00</span></div>
+<header><strong>COWBOYBOY / HORSE UNIVERSITY</strong><div class="utility"><button id="sound" aria-pressed="false">Enable sound</button><button id="pause" disabled>Pause</button></div></header>
+<div class="hud"><span>FINAL EXAM</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden>BEAN BONUS READY</span><span class="clock" id="clock">12:00</span></div>
 <div class="stage" id="stage">
 <canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas><div class="vignette"></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
-<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="answers" id="answers"></div>
+<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div id="diagram"></div><div class="answers" id="answers"></div>
 <div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
 <progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
 </section>
@@ -33,7 +73,7 @@ button{border:1px solid #605d4f;background:#1d211e;color:var(--ink);padding:7px 
 <nav class="controls" aria-label="Look controls">
 <button data-view="left" disabled>← Window</button><button data-view="front" disabled>↑ Hall</button><button data-view="right" disabled>→ Seam</button><button data-view="desk" disabled>↓ Exam</button><button id="act" disabled>E · Interact</button>
 </nav>
-<p class="hint">Arrows or tap to look. 1–4 to choose an answer. E to interact. Esc to pause.</p>
+<p class="hint">Arrows or tap to look. 1–4 to answer or stamp. E to interact. Esc to pause.</p>
 </main>
 <script>
 'use strict';
@@ -58,6 +98,79 @@ const exam = [
   ['Which section follows the cecum along the main path of digesta?', ['Small intestine','Esophagus','Stomach','Large colon'],3,'Digesta passes from the cecum to the large colon.'],
   ['Which two regions are major sites of microbial fiber fermentation?', ['Stomach and esophagus','Cecum and large colon','Mouth and stomach','Esophagus and small intestine'],1,'Microbes in the cecum and large colon break down much of the fiber a horse eats.']
 ];
+const plates = {
+  horse: `<path class="ink" d="M206 63 Q229 48 256 69 Q279 77 294 66 Q311 64 326 78
+    Q342 94 329 113 L313 130 317 154 311 169 315 179 299 179 302 162 301 150
+    294 135 289 151 288 174 292 183 276 183 279 170 277 149 288 117
+    Q253 130 210 110 L204 133 201 150 204 172 207 181 190 181 192 169
+    187 150 189 127 181 112 176 136 176 164 182 177 166 177 168 162 165 135
+    168 111 Q163 98 169 82 L160 69 145 81 126 86 107 83 100 75 106 66
+    127 56 137 38 146 27 145 13 153 21 160 12 163 32 Q180 37 194 62 Z"/>
+    <path class="bone" d="M326 78 Q355 82 350 111 Q346 143 357 150 Q334 143 337 110 Q340 98 329 94"/>
+    <path class="detail" d="M143 46h5m-40 29h10m36-40q5 22 31 36m13-7q-17 7-21 30
+    m17 1q11 15 17 15m5-34q32-8 62-4m18 5q-16 16-7 40m23 13-11 4m-113 17 13-1"/>
+    <path class="detail" d="M223 83q-6 12-3 23m12-26q-6 15-2 26m12-26q-5 15-2 26m12-26q-4 15-1 26"/>`,
+  legs: `<path class="ink" d="M83 25 Q99 20 116 25 L107 53 Q112 61 105 72 L104 117
+    Q111 124 105 132 L112 148 119 159 118 170 84 170 87 154 92 134 Q87 125 93 115
+    L92 73 Q82 65 90 53 Z M246 20 Q261 14 279 24 L264 45 294 69
+    Q300 77 287 89 L280 120 Q289 128 281 137 L286 151 296 160 295 170
+    260 170 263 154 270 136 Q265 128 270 120 L276 88 245 62 Q232 54 238 44 Z"/>
+    <path class="detail" d="M90 62h16m-12 62h10m-16 31h25m128-103 15-8m23 34 13 1m-21 50h10m-17 25h24"/>
+    <path class="detail" d="M97 74v38m182-20-5 27"/>
+    <text x="99" y="187">FORELIMB</text><text x="275" y="187">HIND LIMB</text>`,
+  gut: `<path class="detail" d="M30 74h31q47 0 61 24l23 14m49 7 20 8m42 19 19 3m18-25 14-19m29-29h25"/>
+    <path class="ink" d="M23 65l29 3 14 10-12 10-30 1-7-10Z"/>
+    <path class="bone tube" d="M62 76q49-9 75 26"/>
+    <path class="ink" d="M135 102q13-24 39-16 23 7 17 25-4 18-23 18-25 1-33-27Z"/>
+    <path class="detail tube" d="M187 117q25-18 49-6t-14 11q-27 0-13 12t38-2q12-5 22 3"/>
+    <path class="ink" d="M273 129q16-8 23 8l-3 27-15 12-8-8 4-25Z"/>
+    <path class="bone tube" d="M286 132q-7-25 12-33l20-8q10-5 2-15l-16-10q-14-9-10-22 5-19 24-11t25 24q4 11-7 17l26 2"/>
+    <path class="detail" d="M39 72v12m117 12 18 6m103 48 13 4"/>
+    <text x="190" y="187">SIMPLIFIED FEED ROUTE</text>`
+};
+const marks = {
+  poll:[156,31], withers:[194,65], barrel:[239,97], croup:[302,69],
+  dock:[332,82], muzzle:[114,77], crest:[174,47], loin:[272,69],
+  gaskin:[298,124], flank:[280,102], forearm:[176,129],
+  foreKnee:[98,63], hock:[287,79], fetlock:[98,124], pastern:[101,140],
+  stifle:[243,51], hindFetlock:[277,128], hindHoof:[279,165],
+  cannon:[99,97], coronet:[103,154], chestnut:[111,48],
+  mouth:[41,79], esophagus:[99,80], stomach:[165,105], small:[223,124],
+  cecum:[285,157], colon:[310,47], rectum:[355,76]
+};
+// Mark order matches the original answer key. The player only sees numbered pins.
+const practical = {
+  0:['horse','Bridle check. Stamp the poll before you fit the headpiece.','poll dock withers muzzle'],
+  1:['horse','The saddle has slipped. Mark the withers to check its clearance.','croup withers loin barrel'],
+  3:['horse','The groom left a chalk mark on the croup. Put it back.','poll flank gaskin croup'],
+  4:['legs','The X-ray is missing its CARPUS stamp. Put it on the front knee.','hock foreKnee stifle fetlock'],
+  6:['legs','Tag the foreleg joint immediately above the pastern.','hock hindHoof fetlock stifle'],
+  7:['legs','Stamp the section of the foreleg between the fetlock and the hoof.','cannon pastern hock foreKnee'],
+  8:['legs','Start your hind-limb inspection at the highest joint marked on this plate.','hock hindFetlock hindHoof stifle'],
+  10:['legs','Follow the hoof wall up. Stamp the coronary band where the wall meets skin.','hock coronet chestnut foreKnee'],
+  12:['gut','A mouthful of hay was just swallowed. Mark the tube carrying it to the stomach.','mouth cecum colon esophagus'],
+  13:['gut','The hay has left the stomach. Stamp the next stop on its route.','small colon cecum stomach'],
+  15:['gut','Trace the route past the small intestine. Tag the blind-ended fermentation chamber.','stomach esophagus cecum rectum'],
+  16:['gut','The hay has left the cecum. Stamp the next section it enters.','small esophagus stomach colon'],
+};
+function makePlate(kind, targets) {
+  const diagram = document.createElement('div');
+  diagram.className = 'plate';
+  diagram.innerHTML = `<svg viewBox="0 0 380 192" aria-hidden="true">${plates[kind]}</svg>`;
+  for (const [i, name] of targets.split(' ').entries()) {
+    const pin = document.createElement('button');
+    pin.type = 'button';
+    pin.className = 'pin';
+    pin.textContent = String(i + 1);
+    pin.setAttribute('aria-label', 'Stamp marker ' + (i + 1));
+    const [x,y] = marks[name];
+    pin.style.left = (x / 380 * 100) + '%';
+    pin.style.top = (y / 192 * 100) + '%';
+    pin.onclick = () => choose(i);
+    diagram.append(pin);
+  }
+  return diagram;
+}
 const sheets = ['External landmarks','Hindquarters and joints','Lower limb','Conformation','Digestive tract','The hindgut'];
 const releases = [0, 80, 178, 281, 391, 510];
 const examTime = 720;
@@ -69,43 +182,68 @@ const views = {
   right:{yaw:.77,pitch:0,label:'Right · Wall seam'}
 };
 const threats = [
-  {view:'left',name:'The Knocker',cue:'LEFT · Something scratches the window.',action:'Flash the lamp',time:.85,pan:-.85,freq:560,loss:'The Knocker reached through the glass.'},
-  {view:'front',name:'The Hall Monitor',cue:'AHEAD · Hoofbeats in the hall.',action:'Keep looking at it',time:1.5,pan:0,freq:80,loss:'The Hall Monitor stepped inside.'},
-  {view:'right',name:'The Seam',cue:'RIGHT · A whisper from the wall.',action:'Hold the latch',time:1.45,pan:.85,freq:240,loss:'The seam opened behind your shoulder.'}
+  {id:'moth',view:'left',name:'Mothman',cue:'LEFT · Wings scrape the window.',action:'Hold the lamp',method:'hold',time:.85,pan:-.85,loss:'Mothman came through the glass.'},
+  {id:'monitor',view:'front',name:'The Hall Monitor',cue:'AHEAD · Heavy hoofbeats in the hall.',action:'Keep looking at it',method:'watch',time:1.5,pan:0,loss:'The Hall Monitor reached your desk.'},
+  {id:'seam',view:'right',name:'The Seam',cue:'RIGHT · A whisper inside the wall.',action:'Hold the latch',method:'hold',time:1.45,pan:.85,loss:'The wall opened beside you.'},
+  {id:'mimic',view:'left',name:'The Window Mimic',cue:'LEFT · Three taps on the glass.',action:'Keep your eyes on it',method:'watch',time:1.65,pan:-.85,loss:'The reflection climbed out of the window.'},
+  {id:'mare',view:'front',name:'The Hollow Mare',cue:'AHEAD · A ragged whinny.',action:'Ring the desk bell',method:'tap',time:0,pan:0,loss:'The Hollow Mare leaned over your paper.'},
+  {id:'crawler',view:'right',name:'The Ceiling Crawler',cue:'RIGHT · Claws run along the ceiling.',action:'Hold the lamp',method:'hold',time:1.05,pan:.85,loss:'Something dropped onto your shoulder.'}
 ];
 const hud = {clock:$('clock'),progress:$('progress'),nerve:$('nerve')};
 const viewButtons = [...document.querySelectorAll('[data-view]')];
 const canvas = $('room'), ctx = canvas.getContext('2d');
 const camera = {yaw:0,pitch:0};
 const run = {mode:'intro',view:'front',remaining:examTime,health:3};
-let audio, master, hum, muted = false, pressed = false, lastFrame = performance.now();
+let audio, master, hum, noiseBuffer, muted = false, pressed = false, lastFrame = performance.now();
 let lastPaper = '', lastCue = '', lastView = '';
 function audioInit() {
-  if (!audio) {
-    const Audio = window.AudioContext || window.webkitAudioContext;
-    if (!Audio) return;
-    audio = new Audio();
-    master = audio.createGain();
-    master.connect(audio.destination);
-    hum = audio.createGain();
-    hum.gain.value = .32;
-    hum.connect(master);
-    for (const [hz, type] of [[41,'sine'],[61,'triangle'],[83,'sine']]) {
-      const drone = audio.createOscillator(), gain = audio.createGain();
-      drone.type = type;
-      drone.frequency.value = hz;
-      gain.gain.value = .035;
-      drone.connect(gain).connect(hum);
-      drone.start();
+  try {
+    if (!audio) {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return;
+      audio = new Audio();
+      audio.addEventListener('statechange',renderSoundButton);
+      master = audio.createGain();
+      const compressor = audio.createDynamicsCompressor();
+      master.connect(compressor).connect(audio.destination);
+      hum = audio.createGain();
+      hum.gain.value = 0;
+      hum.connect(master);
+      for (const [hz, type] of [[49,'sine'],[61,'triangle'],[98,'triangle'],[121,'sine']]) {
+        const drone = audio.createOscillator(), gain = audio.createGain();
+        drone.type = type;
+        drone.frequency.value = hz;
+        gain.gain.value = .027;
+        drone.connect(gain).connect(hum);
+        drone.start();
+      }
+      noiseBuffer = audio.createBuffer(1,audio.sampleRate,audio.sampleRate);
+      const samples = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
     }
+    if (audio.state !== 'running') audio.resume().then(renderSoundButton,renderSoundButton);
+    soundLevel();
+  } catch {
+    audio?.close().catch(() => {});
+    audio = null;
   }
-  audio.resume().catch(() => {});
-  soundLevel();
+  renderSoundButton();
+}
+function renderSoundButton() {
+  $('sound').textContent = muted ? 'Sound off' : audio?.state === 'running' ? 'Sound on' : 'Enable sound';
+  $('sound').setAttribute('aria-pressed',String(!muted && audio?.state === 'running'));
 }
 function soundLevel() {
   if (!audio) return;
-  master.gain.setTargetAtTime(muted ? 0 : .85,audio.currentTime,.035);
-  hum.gain.setTargetAtTime(run.mode === 'running' ? 1 : .2,audio.currentTime,.2);
+  master.gain.setTargetAtTime(muted ? 0 : .9,audio.currentTime,.035);
+  hum.gain.setTargetAtTime(run.mode === 'running' ? .88 : 0,audio.currentTime,.18);
+}
+function output(gain, pan) {
+  if (audio.createStereoPanner) {
+    const stereo = audio.createStereoPanner();
+    stereo.pan.value = pan;
+    gain.connect(stereo).connect(master);
+  } else gain.connect(master);
 }
 function note(hz, seconds, level, pan = 0, type = 'triangle', slide = hz, delay = 0) {
   if (!audio || muted) return;
@@ -114,30 +252,60 @@ function note(hz, seconds, level, pan = 0, type = 'triangle', slide = hz, delay 
   osc.frequency.setValueAtTime(hz,start);
   osc.frequency.exponentialRampToValueAtTime(Math.max(20,slide),start + seconds);
   gain.gain.setValueAtTime(.001,start);
-  gain.gain.exponentialRampToValueAtTime(level,start + .018);
+  gain.gain.exponentialRampToValueAtTime(level,start + .012);
   gain.gain.exponentialRampToValueAtTime(.001,start + seconds);
   osc.connect(gain);
-  if (audio.createStereoPanner) {
-    const stereo = audio.createStereoPanner();
-    stereo.pan.value = pan;
-    gain.connect(stereo).connect(master);
-  } else gain.connect(master);
+  output(gain, pan);
   osc.start(start);
   osc.stop(start + seconds + .02);
 }
-function warning(threat) {
-  const {view,pan,freq} = threat;
-  if (view === 'left') {
-    for (let i = 0; i < 5; i++) note(freq + i * 85,.17,.12,pan,'sawtooth',105,i * .097);
-  } else if (view === 'front') {
-    for (let i = 0; i < 3; i++) note(freq,.27,.27,pan,'triangle',28,i * .24);
-  } else {
-    note(freq,.92,.14,pan,'sawtooth',55);
-    note(freq * 1.08,.81,.09,pan,'triangle',137,.12);
+function noise(seconds, hz, level, pan, delay = 0, type = 'bandpass') {
+  if (!audio || muted) return;
+  const start = audio.currentTime + delay, source = audio.createBufferSource();
+  const filter = audio.createBiquadFilter(), gain = audio.createGain();
+  source.buffer = noiseBuffer;
+  filter.type = type;
+  filter.frequency.value = hz;
+  filter.Q.value = .7;
+  gain.gain.setValueAtTime(.001,start);
+  gain.gain.linearRampToValueAtTime(level,start + .014);
+  gain.gain.exponentialRampToValueAtTime(.001,start + seconds);
+  source.connect(filter).connect(gain);
+  output(gain,pan);
+  source.start(start,Math.random() * (1 - seconds));
+  source.stop(start + seconds);
+}
+function warning({id,pan}, near = 0) {
+  const weight = .7 + near * .7;
+  switch (id) {
+    case 'moth':
+      for (let i = 0; i < 4; i++) noise(.19,1400 + 330 * i,.45 * weight,pan,i * .14);
+      break;
+    case 'monitor':
+      for (let i = 0; i < 3; i++) {
+        note(136,.22,.31 * weight,pan,'triangle',47,i * .27);
+        noise(.09,530,.38 * weight,pan,i * .27,'lowpass');
+      }
+      break;
+    case 'seam':
+      noise(.86,1250,.55 * weight,pan);
+      note(213,.78,.085 * weight,pan,'sawtooth',63);
+      break;
+    case 'mimic':
+      for (let i = 0; i < 3; i++) note(440,.16,.22 * weight,pan,'triangle',135,i * .19);
+      break;
+    case 'mare':
+      note(760,.74,.21 * weight,pan,'triangle',221);
+      note(630,.62,.12 * weight,pan,'sawtooth',137,.08);
+      noise(.64,950,.2 * weight,pan);
+      break;
+    case 'crawler':
+      for (let i = 0; i < 7; i++) noise(.07,2450 + (i % 3) * 450,.48 * weight,pan,i * .087);
+      break;
   }
 }
 function start() {
-  Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),pending:null,threat:null,nextThreat:13,previousThreat:-1,wave:0,notice:'',noticeUntil:0,hitUntil:0});
+  Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),pending:null,threat:null,nextThreat:11,previousThreat:null,deck:[],beans:null,beanShield:false,nextBeans:27,nextTick:1,notice:'',noticeUntil:0,hitUntil:0});
   camera.yaw = 0;
   camera.pitch = 0;
   lastPaper = '';
@@ -155,7 +323,8 @@ function go(view) {
     run.noticeUntil = run.elapsed + 2;
   }
   pressed = false;
-  note(105,.15,.045,0,'triangle',52);
+  noise(.15,675,.11,views[view].yaw);
+  note(124,.17,.065,views[view].yaw,'triangle',59);
   renderUI();
 }
 function focused() {
@@ -175,60 +344,111 @@ function choose(option) {
   if (run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
   if (run.answers[run.page] === option) return;
   run.pending = {page:run.page,option,progress:0};
-  note(780,.34,.025,.08,'sawtooth',240);
+  for (let i = 0; i < 3; i++) noise(.16,1750,.15,.08,i * .14);
   renderUI();
 }
 function spawn() {
-  let index = Math.floor(Math.random() * threats.length);
-  if (index === run.previousThreat) index = (index + 1 + Math.floor(Math.random() * 2)) % threats.length;
-  run.previousThreat = index;
-  run.wave++;
-  run.threat = {kind:threats[index],progress:0,age:0,limit:Math.max(5.2,10.4 - run.elapsed * .009),nextWarn:2.45};
-  warning(run.threat.kind);
+  // Shuffle the full set so every horror has a chance to appear on each run.
+  if (!run.deck.length) {
+    run.deck = [...threats];
+    for (let i = run.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [run.deck[i],run.deck[j]] = [run.deck[j],run.deck[i]];
+    }
+    if (run.deck.at(-1) === run.previousThreat) {
+      [run.deck[0],run.deck[run.deck.length - 1]] = [run.deck.at(-1),run.deck[0]];
+    }
+  }
+  const kind = run.deck.pop();
+  run.previousThreat = kind;
+  run.threat = {kind,progress:0,age:0,limit:Math.max(5.2,9.4 - run.elapsed * .0075),nextWarn:2.2};
+  warning(kind);
 }
 function resolveThreat(survived) {
   const {kind} = run.threat;
   run.threat = null;
   pressed = false;
-  run.noticeUntil = run.elapsed + 2.25;
-  run.nextThreat = run.elapsed + Math.max(7.7,20 - run.elapsed * .018) + 5 * Math.random();
+  run.noticeUntil = run.elapsed + 2.6;
+  run.nextThreat = run.elapsed + Math.max(5.8,14 - run.elapsed * .013) + 5 * Math.random();
   if (survived) {
     run.notice = kind.name + ' backed off.';
-    note(195,.31,.11,kind.pan,'triangle',60);
+    note(230,.32,.16,kind.pan,'triangle',62);
     return;
   }
-  run.health--;
-  run.hitUntil = run.elapsed + .25;
-  run.notice = kind.loss;
-  note(60,.75,.34,kind.pan,'sawtooth',21);
-  if (!run.health) finish('caught');
+  run.hitUntil = run.elapsed + .36;
+  noise(.45,820,.56,kind.pan);
+  note(86,.61,.36,kind.pan,'sawtooth',26);
+  if (run.beanShield) {
+    run.beanShield = false;
+    run.notice = 'BEAN BONUS · The beans absorbed the hit.';
+  } else {
+    run.health--;
+    run.notice = kind.loss;
+    if (!run.health) finish('caught');
+  }
+}
+function updateBeans() {
+  if (run.beans && run.elapsed >= run.beans.until) run.beans = null;
+  if (!run.beans && !run.beanShield && run.elapsed >= run.nextBeans) {
+    const spots = ['left','front','right'].filter(view => view !== run.threat?.kind.view);
+    const view = spots[Math.floor(Math.random() * spots.length)];
+    run.beans = {view,until:run.elapsed + 8};
+    run.nextBeans = run.elapsed + 45 + Math.random() * 25;
+    const pan = views[view].yaw;
+    note(466,.22,.14,pan);
+    note(698,.32,.15,pan,'triangle',545,.17);
+  }
+}
+function interact() {
+  if (run.mode !== 'running' || !focused()) return;
+  const threat = run.threat;
+  if (threat?.kind.view === run.view) {
+    if (threat.kind.method === 'tap') {
+      note(1230,.42,.19,0,'triangle',915);
+      resolveThreat(true);
+    } else if (threat.kind.method === 'hold') pressed = true;
+    return;
+  }
+  if (run.beans?.view === run.view) {
+    run.beans = null;
+    run.beanShield = true;
+    run.notice = 'BEAN BONUS · The next hit is covered.';
+    run.noticeUntil = run.elapsed + 3.1;
+    for (const [i, hz] of [392,523,659].entries()) note(hz,.24,.14,0,'triangle',hz,i * .09);
+  }
 }
 function tick(dt) {
   run.elapsed += dt;
   run.remaining = Math.max(0,examTime - run.elapsed);
   if (!run.remaining) { finish('time'); return; }
+  if (run.elapsed >= run.nextTick) {
+    run.nextTick = run.elapsed + 1;
+    note(820,.055,run.remaining <= 60 ? .10 : .028,.21,'triangle',275);
+  }
   if (run.pending) {
     const item = run.pending;
     item.progress += dt;
     if (item.progress >= writingTime) {
       run.answers[item.page] = item.option;
       run.pending = null;
-      note(405,.14,.064,.1,'triangle',240);
+      note(405,.14,.11,.1,'triangle',240);
     }
   }
   if (!run.threat && run.elapsed >= run.nextThreat) spawn();
+  updateBeans();
   const threat = run.threat;
   if (!threat) return;
   threat.age += dt;
   if (threat.age >= threat.limit) { resolveThreat(false); return; }
   if (threat.age >= threat.nextWarn) {
-    threat.nextWarn += 2.05;
-    warning(threat.kind);
+    threat.nextWarn += threat.age >= threat.limit * .57 ? 1.13 : 1.9;
+    warning(threat.kind,threat.age / threat.limit);
   }
-  const looking = focused() && run.view === threat.kind.view;
-  const defending = looking && (threat.kind.view === 'front' || pressed);
+  const {kind} = threat;
+  const defending = focused() && run.view === kind.view &&
+    (kind.method === 'watch' || (kind.method === 'hold' && pressed));
   threat.progress = defending ? threat.progress + dt : Math.max(0,threat.progress - dt * 2);
-  if (threat.progress >= threat.kind.time) resolveThreat(true);
+  if (defending && threat.progress >= kind.time) resolveThreat(true);
 }
 function timeText(t) {
   const whole = Math.ceil(t);
@@ -244,23 +464,31 @@ function paperUI() {
   if (key !== lastPaper) {
     lastPaper = key;
     $('sheet').textContent = `Sheet ${Math.floor(page / 3) + 1} / 6 · ${sheets[Math.floor(page / 3)]} · Question ${page + 1}`;
-    $('question').textContent = exam[page][0];
-    $('answers').replaceChildren(...exam[page][1].map((answer,i) => {
+    const task = practical[page];
+    $('question').textContent = task ? task[1] : exam[page][0];
+    const plate = task ? makePlate(task[0],task[2]) : null;
+    $('diagram').replaceChildren(...(plate ? [plate] : []));
+    const answers = $('answers');
+    answers.hidden = Boolean(plate);
+    answers.replaceChildren(...(plate ? [] : exam[page][1].map((answer,i) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = `${i + 1}. ${answer}`;
-      button.disabled = Boolean(run.pending);
-      button.setAttribute('aria-pressed',String(run.answers[page] === i));
       button.onclick = () => choose(i);
       return button;
-    }));
+    })));
+    const options = (plate || answers).querySelectorAll('button');
+    options.forEach((button,i) => {
+      button.disabled = Boolean(run.pending);
+      button.setAttribute('aria-pressed',String(run.answers[page] === i));
+    });
     $('prev').disabled = page === 0 || Boolean(run.pending);
     $('next').disabled = page + 1 >= available || Boolean(run.pending);
     $('submit').hidden = answerCount() < exam.length;
     $('submit').disabled = Boolean(run.pending);
   }
   $('writing').value = run.pending ? run.pending.progress / writingTime : run.answers[page] !== null ? 1 : 0;
-  let status = run.answers[page] !== null ? 'Answer written.' : 'Choose an answer.';
+  let status = run.answers[page] !== null ? 'Answer written.' : practical[page] ? 'Stamp a marker.' : 'Choose an answer.';
   if (page + 1 >= available && available < exam.length && run.answers[page] !== null) {
     status = `Next sheet in ${timeText(releases[unlocked() + 1] - run.elapsed)}`;
   }
@@ -271,6 +499,7 @@ function renderUI() {
   const playing = run.mode === 'running', settled = focused(), threat = run.threat;
   const desk = playing && settled && run.view === 'desk';
   $('paper').hidden = !desk;
+  $('bean-hud').hidden = !run.beanShield;
   if (desk) paperUI();
   hud.clock.textContent = timeText(run.remaining);
   hud.clock.classList.toggle('low',run.remaining <= 60);
@@ -288,15 +517,22 @@ function renderUI() {
     button.setAttribute('aria-pressed',String(playing && run.view === button.dataset.view));
   }
   const engaged = playing && settled && threat && threat.kind.view === run.view;
-  $('act').disabled = !engaged || run.view === 'front';
-  $('act').textContent = engaged && run.view !== 'front' ? 'E · ' + threat.kind.action : 'E · Interact';
+  const beanReady = playing && settled && run.beans?.view === run.view && !engaged;
+  const canAct = engaged && threat.kind.method !== 'watch';
+  $('act').disabled = !canAct && !beanReady;
+  $('act').textContent = canAct ? 'E · ' + threat.kind.action : beanReady ? 'E · Grab beans' : 'E · Interact';
   if (!playing) setCue('');
   else if (engaged) {
-    const progress = threat.progress / threat.kind.time;
-    const bars = progress > 0 ? ' ' + '■'.repeat(Math.floor(progress * 5)) + '□'.repeat(5 - Math.floor(progress * 5)) : '';
-    setCue(`${threat.kind.name.toUpperCase()} · ${run.view === 'front' ? threat.kind.action : 'Hold E or Interact to ' + threat.kind.action.toLowerCase()}.${bars}`);
-  } else if (threat) setCue(threat.kind.cue);
-  else setCue(run.noticeUntil > run.elapsed ? run.notice : '');
+    const {kind} = threat;
+    const instruction = kind.method === 'watch' ? kind.action : (kind.method === 'hold' ? 'Hold' : 'Press') + ' E · ' + kind.action;
+    const steps = kind.time ? Math.floor(threat.progress / kind.time * 5) : 0;
+    const bars = steps > 0 ? ' ' + '■'.repeat(steps) + '□'.repeat(5 - steps) : '';
+    setCue(`${kind.name.toUpperCase()} · ${instruction}${bars}`);
+  } else if (threat) setCue(threat.kind.cue + (beanReady ? ' · E to grab beans here.' : ''));
+  else if (beanReady) setCue('BEAN BONUS · Grab the tin before it vanishes.');
+  else if (run.noticeUntil > run.elapsed) setCue(run.notice);
+  else if (run.beans) setCue(`BEAN BONUS · A tin rattles ${{left:'at the window',front:'in the hall',right:'by the wall'}[run.beans.view]}.`);
+  else setCue('');
 }
 function showPanel(html) {
   $('panel').innerHTML = html;
@@ -307,7 +543,7 @@ function showPanel(html) {
 function intro() {
   showPanel(`<div class="eyebrow">ROOM 13 · AFTER HOURS</div><h1>The Night Final</h1>
   <p>You have twelve minutes to pass horse anatomy. Someone has already taken attendance.</p>
-  <ul><li>Look down to write. Keep your eyes on the page until the pencil stops. Six sheets arrive during the exam.</li><li>Scratching on the left: look at the window and hold E to flash the lamp. Hoofbeats ahead: stare into the hall. Whispering on the right: look at the seam and hold E to latch it.</li><li>The clock keeps running as you turn. Three hits end the exam. Fill all 18 answers and get at least 14 right.</li></ul>
+  <ul><li>Look down to work the exam. Stamp the marked diagrams or pick a written answer. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. A Bean Bonus tin can absorb one hit if you grab it in time.</li><li>Three hits end the exam. Fill all 18 answers and get at least 14 right before the clock runs out.</li></ul>
   <button class="primary" id="begin">Sit the final</button>`);
   $('begin').onclick = start;
 }
@@ -321,7 +557,7 @@ function pause() {
   } else if (run.mode === 'paused') {
     run.mode = 'running';
     lastFrame = performance.now();
-    soundLevel();
+    audioInit();
     $('overlay').hidden = true;
     renderUI();
   }
@@ -411,20 +647,56 @@ function monster(type,location,strength) {
     ctx.closePath();
     ctx.fill();
   };
-  if (type === 'left') {
+  if (type === 'moth') {
     pixels('#0b1010',[[-.73,.94],[-.5,.31],[-.35,.16],[-.55,-.47],[-.25,-.58],[-.08,-.33],[.13,-.37],[.41,-.65],[.45,-.08],[.62,.24],[.75,.93]]);
     pixels('#746957',[[-.35,-.2],[-.13,-.34],[.21,-.32],[.43,-.1],[.27,.5],[-.16,.67],[-.37,.28]]);
     pixels('#2a2b27',[[-.27,.11],[.34,.06],[.22,.38],[-.06,.47],[-.2,.3]]);
     ctx.fillStyle = '#ffd486';
     ctx.fillRect(-.27,-.03,.17,.1);
     ctx.fillRect(.1,-.035,.16,.1);
-  } else if (type === 'front') {
+  } else if (type === 'monitor') {
     pixels('#050605',[[-.8,1.31],[-.57,.36],[-.3,.16],[-.29,-.15],[-.43,-.72],[-.14,-.47],[.15,-.48],[.35,-.8],[.31,-.18],[.22,.21],[.57,.43],[.84,1.31]]);
     pixels('#3e4034',[[-.27,-.4],[.23,-.4],[.29,-.09],[.18,.31],[-.13,.33],[-.26,.04]]);
     pixels('#62604b',[[-.2,.06],[.2,.08],[.12,.39],[-.1,.43]]);
     ctx.fillStyle = '#f7c77b';
     ctx.fillRect(-.24,-.12,.12,.07);
     ctx.fillRect(.1,-.12,.12,.07);
+  } else if (type === 'mimic') {
+    pixels('#0b1110',[[-.83,1.2],[-.58,.2],[-.34,.14],[-.32,-.56],[-.16,-.83],[.19,-.79],[.35,-.51],[.32,.12],[.64,.22],[.86,1.2]]);
+    pixels('#879080',[[-.29,-.56],[-.16,-.73],[.14,-.7],[.26,-.5],[.19,.14],[.04,.36],[-.22,.11]]);
+    ctx.fillStyle = '#101411';
+    ctx.fillRect(-.22,-.38,.16,.12);
+    ctx.fillRect(.04,-.39,.17,.12);
+    ctx.fillRect(-.12,.02,.25,.08 + strength * .1);
+  } else if (type === 'mare') {
+    pixels('#34382d',[[-.68,1.15],[-.43,.29],[-.37,-.16],[-.55,-.76],[-.21,-.51],[.18,-.53],[.4,-.85],[.38,-.19],[.53,.23],[.4,.82],[.08,1.18]]);
+    pixels('#adb39a',[[-.31,-.31],[-.17,-.54],[.15,-.54],[.33,-.23],[.29,.27],[.41,.52],[.34,.87],[.02,.96],[-.23,.69],[-.16,.35]]);
+    ctx.fillStyle = '#171c17';
+    ctx.fillRect(-.22,-.18,.21,.17);
+    ctx.fillRect(.12,-.18,.18,.15);
+    ctx.fillRect(.08,.65,.22,.12);
+    ctx.fillStyle = '#7ee5bd';
+    ctx.fillRect(-.18,-.14,.08,.06);
+    ctx.fillRect(.18,-.14,.07,.06);
+  } else if (type === 'crawler') {
+    ctx.lineWidth = .09;
+    ctx.strokeStyle = '#151611';
+    for (const sign of [-1,1]) {
+      for (let i = 0; i < 4; i++) {
+        const y = -.47 + i * .23, reach = 1.05 + i * .07;
+        ctx.beginPath();
+        ctx.moveTo(sign * .15,y);
+        ctx.lineTo(sign * .63,y - .32);
+        ctx.lineTo(sign * reach,y + Math.sin(strength * 32 + i) * .22);
+        ctx.stroke();
+      }
+    }
+    pixels('#24271c',[[0,-.76],[.31,-.43],[.35,.11],[.17,.49],[-.16,.54],[-.36,.11],[-.29,-.44]]);
+    ctx.fillStyle = '#e7a267';
+    for (let i = 0; i < 3; i++) {
+      ctx.fillRect(-.21 + i * .14,.09,.08,.08);
+      ctx.fillRect(-.19 + i * .13,.22,.06,.07);
+    }
   } else {
     pixels('#050605',[[0,-1.14],[.23,-.65],[.07,-.28],[.55,.32],[.18,.43],[.37,1.22],[-.22,.58],[-.55,.27],[-.19,-.18],[-.24,-.62]]);
     for (const eye of [[-.13,-.3],[.12,-.13],[-.18,.03],[.25,.24],[.01,.39]]) {
@@ -433,6 +705,33 @@ function monster(type,location,strength) {
     }
   }
   ctx.restore();
+}
+function creature(kind, strength) {
+  const origins = {left:[-3.76,.45,4.04],front:[0,.09,6.49],right:[3.74,.16,3.78]};
+  const start = origins[kind.view];
+  const approach = strength ** 1.65;
+  const endY = kind.id === 'crawler' ? .76 - approach * .55 : .13;
+  const location = [start[0] * (1 - approach * .78),
+    start[1] + (endY - start[1]) * approach + Math.sin(strength * 29) * .055 * approach,
+    start[2] * (1 - approach * .76)];
+  monster(kind.id,location,strength);
+}
+function beanCan(view) {
+  const spots = {left:[-2.1,-.44,3.7],front:[.85,-.43,3.12],right:[2.38,-.42,4.1]};
+  const p = cameraPoint(spots[view]);
+  if (p[2] < .2) return;
+  const [x,y] = project(p);
+  const size = Math.max(5,Math.round(46 / p[2]));
+  const top = Math.round(y) - size;
+  const left = Math.round(x - size / 2);
+  ctx.fillStyle = '#6c3119';
+  ctx.fillRect(left,top,size,size + 4);
+  ctx.fillStyle = '#e0aa61';
+  ctx.fillRect(left + 1,top + 2,size - 2,size - 1);
+  ctx.fillStyle = '#a74a2e';
+  ctx.fillRect(left + 2,top + 4,size - 4,Math.max(2,size - 7));
+  ctx.fillStyle = '#fff0a0';
+  ctx.fillRect(left + size - 3,top + 1,2,2);
 }
 function room() {
   ctx.fillStyle = '#111912';
@@ -500,14 +799,7 @@ function room() {
   side('#ac8653',3.85,3.65,-.1,3.9,.16);
   side('#8b7860',3.91,3.02,1.54,4.43,1.78);
   worldText('STORAGE',point(3.9,1.59,3.74),'#463722',44);
-  const active = run.threat;
-  if (active) {
-    const kind = active.kind.view;
-    const strength = active.age / active.limit;
-    if (kind === 'left') monster(kind,point(-3.76,.45,4.04),strength);
-    if (kind === 'front') monster(kind,point(0,.09,6.49 - strength * .95),strength);
-    if (kind === 'right') monster(kind,point(3.74,.16,3.78),strength);
-  }
+
   block(-2.7,-1.32,3.32,-1.56,-.72,4.22,['#352f22','#241f18','#4b3d2b']);
   block(1.8,-1.32,3.64,2.98,-.7,4.55,['#382f23','#251e17','#55412d']);
   block(-1.18,-1.32,.82,-1.05,-.62,1.77,['#282219','#1c1914','#4d3a29']);
@@ -523,6 +815,8 @@ function room() {
   block(-.99,-.53,1.46,-.91,-.12,1.56,['#554624','#453719','#8e7d45']);
   block(-1.13,-.15,1.34,-.73,-.04,1.73,['#695a32','#554624','#877441']);
   flat('#b6a573',-.99,1.41,-.86,1.57,-.039);
+  if (run.threat) creature(run.threat.kind,run.threat.age / run.threat.limit);
+  if (run.beans) beanCan(run.beans.view);
 }
 function frame(now) {
   const dt = Math.min(.1,Math.max(0,(now - lastFrame) / 1000));
@@ -540,10 +834,9 @@ function frame(now) {
 const bindings = {ArrowLeft:'left',KeyA:'left',ArrowUp:'front',KeyW:'front',ArrowRight:'right',KeyD:'right',ArrowDown:'desk',KeyS:'desk'};
 for (const button of viewButtons) button.onclick = () => go(button.dataset.view);
 $('sound').onclick = () => {
-  muted = !muted;
+  if (muted || audio?.state === 'running') muted = !muted;
   audioInit();
-  $('sound').textContent = muted ? 'Sound off' : 'Sound on';
-  $('sound').setAttribute('aria-pressed',String(!muted));
+  if (!muted) note(440,.16,.13);
 };
 $('pause').onclick = pause;
 $('prev').onclick = () => changePage(-1);
@@ -554,7 +847,7 @@ $('submit').onclick = () => {
 $('act').addEventListener('pointerdown',event => {
   event.preventDefault();
   $('act').setPointerCapture(event.pointerId);
-  pressed = true;
+  interact();
 });
 for (const name of ['pointerup','pointercancel','lostpointercapture']) {
   $('act').addEventListener(name,() => { pressed = false; });
@@ -567,12 +860,23 @@ window.addEventListener('keydown',event => {
     go(bindings[event.code]);
   } else if (event.code === 'KeyE') {
     event.preventDefault();
-    pressed = true;
+    if (!event.repeat) interact();
   } else if (/^Digit[1-4]$/.test(event.code)) {
     choose(Number(event.code.slice(-1)) - 1);
   } else if (event.code === 'BracketLeft' || event.code === 'BracketRight') {
     changePage(event.code === 'BracketLeft' ? -1 : 1);
   }
+});
+$('act').addEventListener('click',event => {
+  if (!event.detail) interact();
+});
+$('act').addEventListener('keydown',event => {
+  if (event.code !== 'Space' && event.code !== 'Enter') return;
+  event.preventDefault();
+  if (!event.repeat) interact();
+});
+$('act').addEventListener('keyup',event => {
+  if (event.code === 'Space' || event.code === 'Enter') pressed = false;
 });
 window.addEventListener('keyup',event => { if (event.code === 'KeyE') pressed = false; });
 window.addEventListener('blur',() => { pressed = false; });
