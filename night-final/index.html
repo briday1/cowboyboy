@@ -11,48 +11,49 @@ main{max-width:1100px;margin:auto;padding:clamp(10px,2.5vw,28px)}header,.hud,.co
 button{border:1px solid #605d4f;background:#1d211e;color:var(--ink);padding:7px 12px;border-radius:3px}.utility button{font-size:13px}.hud{border:1px solid #454338;border-bottom:0;padding:8px 12px;background:#111512;font-size:13px;flex-wrap:wrap}.clock{color:var(--gold);font-weight:bold;font-variant-numeric:tabular-nums}.danger,.clock.low{color:var(--red)}
 .stage{position:relative;min-height:430px;aspect-ratio:16/9;overflow:hidden;border:1px solid #454338;background:#101411;isolation:isolate}canvas{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;image-rendering:pixelated}.vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 95px 24px #000a;background:repeating-linear-gradient(transparent 0 3px,#0002 4px 5px)}.stage.hit .vignette{background:#9a271b65}
 .look{position:absolute;top:12px;left:12px;font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.12em;background:#080b0bdd;padding:5px 8px;color:#ddd8c3}.cue{position:absolute;bottom:10px;left:10px;right:10px;width:fit-content;margin:0 auto;max-width:calc(100% - 20px);background:#080b0bef;padding:6px 10px;text-align:center;font:13px/1.35 ui-monospace,monospace;color:#ffb18c}.cue:empty{display:none}
-.paper{color-scheme:light;position:absolute;left:50%;top:50%;width:min(590px,calc(100% - 26px));max-height:calc(100% - 76px);overflow:auto;transform:translate(-50%,-50%);background:#e2d2a7;color:#272118;padding:clamp(12px,3vw,23px);border:2px solid #ba9e65;box-shadow:4px 5px 0 #0708068c;background-image:repeating-linear-gradient(0deg,transparent 0 27px,#78634312 28px 29px)}.paper .eyebrow{font-size:11px;color:#564735;font-weight:bold}.paper h2{font-size:clamp(17px,3vw,26px);margin:6px 0 10px;line-height:1.16}.answers{display:grid;grid-template-columns:1fr 1fr;gap:6px}.paper button{background:#eadcb6;color:#2c251b;border-color:#9b865f;text-align:left;line-height:1.2;font-size:14px;min-height:36px}.paper button[aria-pressed=true]{background:#ad7846;color:#160e07;border-color:#775332}.paper button:disabled{opacity:.78}.paper-foot{margin-top:10px;flex-wrap:wrap;justify-content:flex-start}.paper-foot .status{flex:1;font-size:13px}.paper progress{width:100%;height:7px;display:block;margin-top:8px;accent-color:#774720}.controls{margin-top:8px;justify-content:center;flex-wrap:wrap}.controls button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}.controls button:disabled{opacity:.48}.hint{text-align:center;color:var(--dim);font-size:13px;margin:9px 0 0}.overlay{position:absolute;inset:0;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:18px}.panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}.panel .eyebrow{color:var(--gold);font-size:12px}.panel h1{font-size:clamp(25px,5vw,47px);line-height:1;margin:7px 0 14px;text-transform:uppercase;color:#f4e3be}.panel p{margin:8px 0}.panel ul{padding-left:19px;margin:8px 0 15px}.panel button{margin-top:5px}.primary{background:#ddb57b;color:#19140d;border-color:#e3c491;font-weight:700}.panel a{color:#f2ca91}.review{max-height:180px;overflow:auto;padding-right:7px;font-size:14px}.review li{margin-bottom:7px}
-@media(max-width:520px){.stage{min-height:465px}.controls{gap:5px}.controls button{padding:7px 8px;font-size:13px}.answers{grid-template-columns:1fr}.paper h2{margin:4px 0 7px}.paper button{min-height:33px}.panel ul{font-size:14px}.hint{font-size:12px}}
-.stage{min-height:530px}
-canvas{object-fit:fill}
-.paper{width:min(525px,calc(100% - 20px));padding:12px 16px;max-height:calc(100% - 92px);box-shadow:6px 7px 0 #080806a8;background-color:#dac89e}
-.paper h2{font:700 clamp(14px,2.3vw,18px)/1.25 ui-monospace,monospace;margin:5px 0 7px}
-.plate{width:min(100%,380px);margin:0 auto;position:relative;border:1px solid #a38d65;background:#efdfb5}
-.plate svg{display:block;width:100%;height:auto;aspect-ratio:380/192}
+.controls{margin-top:8px;justify-content:center;flex-wrap:wrap}.controls button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}.controls button:disabled{opacity:.48}.hint{text-align:center;color:var(--dim);font-size:13px;margin:9px 0 0}.overlay{position:absolute;inset:0;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:18px}.panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}.panel .eyebrow{color:var(--gold);font-size:12px}.panel h1{font-size:clamp(25px,5vw,47px);line-height:1;margin:7px 0 14px;text-transform:uppercase;color:#f4e3be}.panel p{margin:8px 0}.panel ul{padding-left:19px;margin:8px 0 15px}.panel button{margin-top:5px}.primary{background:#ddb57b;color:#19140d;border-color:#e3c491;font-weight:700}.panel a{color:#f2ca91}.review{max-height:180px;overflow:auto;padding-right:7px;font-size:14px}.review li{margin-bottom:7px}
+@media(max-width:520px){.controls{gap:5px}.controls button{padding:7px 8px;font-size:13px}.panel ul{font-size:14px}.hint{font-size:12px}}
+.stage{min-height:510px}
+#room{object-fit:fill}
+.bean{color:#e9ac66}
+.vignette{z-index:1}.look,.cue{z-index:2}.overlay{z-index:3}.cue{pointer-events:none}
+#act{touch-action:none}
+@font-face{font-family:ExamPixel;src:url("../assets/PressStart2P.ttf") format("truetype");font-display:swap}
+.paper{position:absolute;top:0;left:0;transform-origin:0 0;box-sizing:border-box;width:540px;height:464px;
+  display:flex;flex-direction:column;padding:28px 28px 22px;color:#342818;
+  background:repeating-linear-gradient(0deg,#9a71351a 0 1px,transparent 1px 25px),#deca98;
+  border:2px solid #ae915f;box-shadow:inset 0 0 0 3px #cbb17a;
+  color-scheme:light;font:10px/1.65 ExamPixel,ui-monospace,monospace}
+.paper[inert]{pointer-events:none}
+.paper .eyebrow{font-size:10px;color:#793f2d;letter-spacing:0}
+.paper h2{font:14px/1.6 ExamPixel,ui-monospace,monospace;margin:11px 0 8px}
+.paper-body{flex:1;display:grid;align-items:center}
+.plate{width:100%;max-width:440px;margin:auto;position:relative;background:#eee0b429}
+.plate svg{display:block;width:100%;height:auto;shape-rendering:crispEdges}
 .plate .ink{fill:#b9a179;stroke:#614b34;stroke-width:2}
-.plate .bone{fill:#aa926a;stroke:#634e37;stroke-width:2}
+.plate .bone{fill:#a68b63;stroke:#634e37;stroke-width:2}
+.plate .mane{fill:#71533a;stroke:#5e442f;stroke-width:1.4}
+.plate .coat-light{fill:#c9b487}
 .plate .detail{fill:none;stroke:#806649;stroke-width:1.5}
 .plate .tube{fill:none;stroke-width:7;stroke-linecap:round}
 .plate text{fill:#70583a;text-anchor:middle;font:9px ui-monospace,monospace;letter-spacing:2px}
-.paper .pin{position:absolute;transform:translate(-50%,-50%);border:2px solid #883b24;color:#572717;background:#f8dfad;min-height:26px;min-width:26px;padding:0;text-align:center;font:bold 13px ui-monospace,monospace;border-radius:50%;box-shadow:1px 2px #5c3c2d}
-.paper .pin[aria-pressed=true]{background:#913f2e;color:#fff1ce;border-color:#69311d}
-.paper .pin:focus-visible{z-index:1;outline-color:#532e21}
-.paper .answers{margin-top:6px}
-.paper .answers button{font-size:12px;min-height:30px}
-.paper-foot{margin-top:7px}
-.paper-foot button{min-height:30px}
-.bean{color:#e9ac66}
-.cue{pointer-events:none}
-#act{touch-action:none}
-@media(max-width:520px){canvas{object-fit:cover}.stage{min-height:510px}.paper{padding:9px 10px}.paper .answers{grid-template-columns:1fr 1fr}.paper .pin{min-height:24px;min-width:24px}}
-@font-face{font-family:ExamPixel;src:url("../assets/PressStart2P.ttf") format("truetype");font-display:swap}
-.paper{--pixel:ExamPixel,ui-monospace,monospace;isolation:isolate;overflow:auto;width:min(518px,calc(100% - 22px));padding:14px 16px;border:0;border-radius:0;
-  background:repeating-linear-gradient(0deg,#b88e4920 0 1px,transparent 1px 21px),#ddc48e;
-  clip-path:polygon(0 8px,4px 8px,4px 4px,8px 4px,8px 0,calc(100% - 15px) 0,calc(100% - 15px) 4px,calc(100% - 10px) 4px,calc(100% - 10px) 8px,calc(100% - 5px) 8px,calc(100% - 5px) 13px,100% 13px,100% calc(100% - 8px),calc(100% - 4px) calc(100% - 8px),calc(100% - 4px) calc(100% - 4px),calc(100% - 8px) calc(100% - 4px),calc(100% - 8px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px));
-  box-shadow:inset 0 0 0 4px #a27943,inset 0 0 0 7px #c3a168;
-  transform:translate(-50%,-45%);color:#302519}
-.paper .eyebrow{font:8px/1.55 var(--pixel);letter-spacing:0;color:#793f2d}
-.paper h2{font:10px/1.65 var(--pixel);letter-spacing:0;margin:9px 0 8px}
-.paper .answers button,.paper-foot button,.paper-foot .status{font:8px/1.65 var(--pixel);letter-spacing:0}
-.paper button{background:#f0d9a5;border:2px solid #a48756;border-radius:0;box-shadow:2px 2px #967141}
-.paper button[aria-pressed=true]{background:#ad6949;color:#1f150d}
-.paper .pin{border-radius:0;font:9px var(--pixel);box-shadow:2px 2px #5c3c2d}
-.paper progress{appearance:none;border:0;background:#a98d5d;height:5px;border-radius:0}
-.paper progress::-webkit-progress-bar{background:#a98d5d}
+.paper button{font:inherit;border:0;border-radius:0;background:none;color:inherit}
+.paper button:focus-visible{outline:2px dashed #874b33;outline-offset:1px}
+.paper button:disabled{opacity:.48}
+.paper button:not(:disabled):hover,.paper button[aria-pressed=true]{color:#7f301e;background:#b4693c25}
+.paper .pin{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;padding:0;
+  border:2px solid #884626;background:#f3dba8;color:#633520;text-align:center;font-size:13px}
+.paper .pin[aria-pressed=true]{background:#974529;color:#ffe6bb}
+.answers{display:grid;gap:4px}
+.paper .answers button{min-height:40px;padding:7px 10px;text-align:left;font-size:13px;border-bottom:1px dashed #a18153}
+.paper .answers button[aria-pressed=true]{text-decoration:underline}
+.paper-foot{display:flex;align-items:center;gap:4px;min-height:36px;border-top:2px solid #a48454}
+.paper-foot button{padding:8px 5px;white-space:nowrap}
+.paper-foot .status{flex:1;text-align:center;font-size:9px;color:#694a31}
+.paper progress{appearance:none;border:0;width:100%;height:5px;background:#b79b69}
+.paper progress::-webkit-progress-bar{background:#b79b69}
 .paper progress::-webkit-progress-value{background:#823c2a}
 .paper progress::-moz-progress-bar{background:#823c2a}
-.plate svg{shape-rendering:crispEdges}
-@media(max-width:520px){.paper h2{font-size:9px}.paper .eyebrow,.paper .answers button,.paper-foot button,.paper-foot .status{font-size:7px}.paper{padding:13px}}
 </style>
 </head>
 <body>
@@ -63,7 +64,7 @@ canvas{object-fit:fill}
 <canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas><div class="vignette"></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
-<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div id="diagram"></div><div class="answers" id="answers"></div>
+<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div></div>
 <div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
 <progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
 </section>
@@ -99,17 +100,37 @@ const exam = [
   ['Which two regions are major sites of microbial fiber fermentation?', ['Stomach and esophagus','Cecum and large colon','Mouth and stomach','Esophagus and small intestine'],1,'Microbes in the cecum and large colon break down much of the fiber a horse eats.']
 ];
 const plates = {
-  horse: `<path class="ink" d="M206 63 Q229 48 256 69 Q279 77 294 66 Q311 64 326 78
-    Q342 94 329 113 L313 130 317 154 311 169 315 179 299 179 302 162 301 150
-    294 135 289 151 288 174 292 183 276 183 279 170 277 149 288 117
-    Q253 130 210 110 L204 133 201 150 204 172 207 181 190 181 192 169
-    187 150 189 127 181 112 176 136 176 164 182 177 166 177 168 162 165 135
-    168 111 Q163 98 169 82 L160 69 145 81 126 86 107 83 100 75 106 66
-    127 56 137 38 146 27 145 13 153 21 160 12 163 32 Q180 37 194 62 Z"/>
-    <path class="bone" d="M326 78 Q355 82 350 111 Q346 143 357 150 Q334 143 337 110 Q340 98 329 94"/>
-    <path class="detail" d="M143 46h5m-40 29h10m36-40q5 22 31 36m13-7q-17 7-21 30
-    m17 1q11 15 17 15m5-34q32-8 62-4m18 5q-16 16-7 40m23 13-11 4m-113 17 13-1"/>
-    <path class="detail" d="M223 83q-6 12-3 23m12-26q-6 15-2 26m12-26q-5 15-2 26m12-26q-4 15-1 26"/>`,
+  horse: `<path class="detail" d="M46 177H365" opacity=".45"/>
+    <path class="bone" d="M182 98 Q194 105 197 123 L194 145 201 164 204 174 H186
+      L187 167 181 146 181 128 174 108 Z M294 102 Q306 106 307 119 L295 139
+      L294 161 300 173 H282 L284 164 282 137 289 118 Z"/>
+    <path class="mane" d="M321 68 C347 70 352 88 349 111 C347 128 347 145 359 156
+      C343 152 338 142 337 127 C335 115 342 96 332 87 L321 80 Z"/>
+    <path class="ink" d="M101 49 L114 28 125 23 124 11 132 19 137 10 140 24
+      C155 24 164 39 175 50 L191 59 Q199 54 207 61
+      C232 67 257 68 280 60 C297 52 314 55 325 64
+      C339 74 336 95 327 107 L310 127 319 141 312 160 314 170 317 177 H299
+      L302 168 302 157 307 143 293 128 Q284 120 282 108
+      C261 124 225 123 203 108 Q199 117 192 121 L187 141 187 160
+      L194 175 192 180 H174 L176 170 175 158 176 139 174 122
+      Q166 111 170 99 C161 92 156 79 151 68 L139 60
+      Q132 69 116 71 L96 78 Q89 80 84 75 L81 68 Q82 64 90 60 Z"/>
+    <path class="mane" d="M137 24 C154 21 166 39 176 48 L196 59
+      L187 61 182 65 178 62 174 63 169 56 164 56 157 45
+      Q150 37 140 33 L129 33 Z"/>
+    <path class="coat-light" d="M211 67 C235 74 260 73 280 66 Q294 60 310 63
+      Q302 69 291 74 C265 82 232 82 211 72 Z M184 76 Q192 78 194 86
+      Q182 96 177 110 Q173 100 177 88 Z"/>
+    <path class="detail" d="M113 34 Q120 30 125 32 M120 38 Q123 37 126 39
+      M84 72 Q95 72 105 67 M100 62l5-1 M129 45 Q138 46 142 53
+      M143 49 Q153 53 160 65 L171 84 M188 66 Q197 71 195 86
+      Q193 96 184 104 M182 138h6m-10 30h10m111-35 9-6m-5 14 11 2m-12 24h10
+      M304 72 Q318 78 319 90 Q317 101 310 108 M284 88 Q279 98 282 108
+      M207 104 Q220 115 236 115 M337 86 Q346 97 343 111 L343 134"/>
+    <path class="mane" d="M176 170 L186 170 192 175 192 180 H174 Z
+      M303 168 H313 L317 177 H299 Z"/>
+    <path class="detail" d="M215 84 Q214 97 221 108 M225 84 Q224 99 231 110
+      M235 84 Q234 100 241 111 M245 84 Q243 99 250 109" opacity=".55"/>`,
   legs: `<path class="ink" d="M83 25 Q99 20 116 25 L107 53 Q112 61 105 72 L104 117
     Q111 124 105 132 L112 148 119 159 118 170 84 170 87 154 92 134 Q87 125 93 115
     L92 73 Q82 65 90 53 Z M246 20 Q261 14 279 24 L264 45 294 69
@@ -129,9 +150,9 @@ const plates = {
     <text x="190" y="187">SIMPLIFIED FEED ROUTE</text>`
 };
 const marks = {
-  poll:[156,31], withers:[194,65], barrel:[239,97], croup:[302,69],
-  dock:[332,82], muzzle:[114,77], crest:[174,47], loin:[272,69],
-  gaskin:[298,124], flank:[280,102], forearm:[176,129],
+  poll:[135,25], withers:[198,60], barrel:[239,97], croup:[304,58],
+  dock:[330,72], muzzle:[91,69], loin:[269,64],
+  gaskin:[302,119], flank:[280,101],
   foreKnee:[98,63], hock:[287,79], fetlock:[98,124], pastern:[101,140],
   stifle:[243,51], hindFetlock:[277,128], hindHoof:[279,165],
   cannon:[99,97], coronet:[103,154], chestnut:[111,48],
@@ -176,7 +197,7 @@ const releases = [0, 80, 178, 281, 391, 510];
 const examTime = 720;
 const writingTime = 2.3;
 const views = {
-  desk:{yaw:0,pitch:-.66,label:'Exam paper'},
+  desk:{yaw:0,pitch:-1.45,y:.35,z:1.16,label:'Exam paper'},
   left:{yaw:-.77,pitch:0,label:'Left · Window'},
   front:{yaw:0,pitch:0,label:'Ahead · Hall'},
   right:{yaw:.77,pitch:0,label:'Right · Wall seam'}
@@ -192,7 +213,17 @@ const threats = [
 const hud = {clock:$('clock'),progress:$('progress'),nerve:$('nerve')};
 const viewButtons = [...document.querySelectorAll('[data-view]')];
 const canvas = $('room'), ctx = canvas.getContext('2d');
-const camera = {yaw:0,pitch:0};
+const camera = {yaw:0,pitch:0,y:0,z:0,lean:0};
+const paper = $('paper');
+const sheetPlane = {left:-.59,right:.59,y:-.566,near:.75,far:1.79,width:540,height:464};
+let stageWidth = 384, stageHeight = 216, focal = 178;
+new ResizeObserver(([entry]) => {
+  const {width,height} = entry.contentRect;
+  if (!width || !height) return;
+  stageWidth = width;
+  stageHeight = height;
+  canvas.width = Math.round(216 * width / height);
+}).observe($('stage'));
 const run = {mode:'intro',view:'front',remaining:examTime,health:3};
 let audio, master, hum, noiseBuffer, muted = false, pressed = false, lastFrame = performance.now();
 let lastPaper = '', lastCue = '', lastView = '';
@@ -306,8 +337,7 @@ function warning({id,pan}, near = 0) {
 }
 function start() {
   Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),pending:null,threat:null,nextThreat:11,previousThreat:null,deck:[],beans:null,beanShield:false,nextBeans:27,nextTick:1,notice:'',noticeUntil:0,hitUntil:0});
-  camera.yaw = 0;
-  camera.pitch = 0;
+  Object.assign(camera,{yaw:0,pitch:0,y:0,z:0,lean:0});
   lastPaper = '';
   pressed = false;
   audioInit();
@@ -329,7 +359,8 @@ function go(view) {
 }
 function focused() {
   const target = views[run.view];
-  return Math.abs(camera.yaw - target.yaw) < .022 && Math.abs(camera.pitch - target.pitch) < .022;
+  return Math.abs(camera.yaw - target.yaw) < .022 && Math.abs(camera.pitch - target.pitch) < .022 &&
+    Math.abs(camera.z - (target.z ?? 0)) < .025;
 }
 function unlocked() {
   return Math.max(0,releases.findLastIndex(t => run.elapsed >= t));
@@ -467,6 +498,7 @@ function paperUI() {
     const task = practical[page];
     $('question').textContent = task ? task[1] : exam[page][0];
     const plate = task ? makePlate(task[0],task[2]) : null;
+    $('diagram').hidden = !plate;
     $('diagram').replaceChildren(...(plate ? [plate] : []));
     const answers = $('answers');
     answers.hidden = Boolean(plate);
@@ -498,9 +530,9 @@ function paperUI() {
 function renderUI() {
   const playing = run.mode === 'running', settled = focused(), threat = run.threat;
   const desk = playing && settled && run.view === 'desk';
-  $('paper').hidden = !desk;
+  paper.inert = !desk;
   $('bean-hud').hidden = !run.beanShield;
-  if (desk) paperUI();
+  if (playing) paperUI();
   hud.clock.textContent = timeText(run.remaining);
   hud.clock.classList.toggle('low',run.remaining <= 60);
   hud.progress.textContent = `${answerCount()} / ${exam.length} answered`;
@@ -580,12 +612,36 @@ function finish(reason) {
 }
 function point(x,y,z) { return [x,y,z]; }
 function cameraPoint([x,y,z]) {
+  y -= camera.y;
+  z -= camera.z;
   const cy = Math.cos(camera.yaw), sy = Math.sin(camera.yaw);
   const cp = Math.cos(camera.pitch), sp = Math.sin(camera.pitch);
   const depth = x * sy + z * cy;
   return [x * cy - z * sy,y * cp - depth * sp,y * sp + depth * cp];
 }
-function project([x,y,z]) { return [192 + x * 178 / z,108 - y * 178 / z]; }
+function project([x,y,z]) {
+  return [canvas.width / 2 + x * focal / z,canvas.height / 2 - y * focal / z];
+}
+function placeExamSheet() {
+  const {left,right,y,near,far,width,height} = sheetPlane;
+  const origin = cameraPoint([left,y,far]);
+  const rightEdge = cameraPoint([right,y,far]);
+  const bottom = cameraPoint([left,y,near]);
+  const corner = cameraPoint([right,y,near]);
+  paper.hidden = run.mode === 'intro' || [origin,rightEdge,bottom,corner].some(p => p[2] < .17);
+  if (paper.hidden) return;
+
+  // Both renderers use the same camera. This homogeneous transform maps
+  // the interactive sheet onto the tabletop plane, including hit testing.
+  const column = ([x,y,z]) => [
+    stageWidth * (.5 * z + x * focal / canvas.width),
+    stageHeight * (.5 * z - y * focal / canvas.height),
+    0,z
+  ];
+  const step = (end,length) => column(end.map((coordinate,i) => (coordinate - origin[i]) / length));
+  const matrix = [...step(rightEdge,width),...step(bottom,height),0,0,1,0,...column(origin)];
+  paper.style.transform = `matrix3d(${matrix.join(',')})`;
+}
 function clip(points) {
   const near = .17, output = [];
   for (let i = 0; i < points.length; i++) {
@@ -636,7 +692,7 @@ function worldText(value,location,color,size) {
 function monster(type,location,strength) {
   const p = cameraPoint(location);
   if (p[2] < .2) return;
-  const [x,y] = project(p), size = 178 / p[2] * (.44 + strength * .42);
+  const [x,y] = project(p), size = focal / p[2] * (.44 + strength * .42);
   ctx.save();
   ctx.translate(Math.round(x),Math.round(y));
   ctx.scale(size,size);
@@ -735,7 +791,7 @@ function beanCan(view) {
 }
 function room() {
   ctx.fillStyle = '#111912';
-  ctx.fillRect(0,0,384,216);
+  ctx.fillRect(0,0,canvas.width,canvas.height);
   front('#303427',-4,-1.35,4,2.1,7);
   side('#252c24',-4,-2,-1.35,7,2.1);
   side('#2b2d22',4,-2,-1.35,7,2.1);
@@ -806,11 +862,9 @@ function room() {
   block(1.02,-1.32,.82,1.16,-.62,1.77,['#282219','#1c1914','#4d3a29']);
   block(-1.28,-.76,.49,1.28,-.58,1.95,['#493322','#3d2b1f','#795538']);
   for (let i = 0; i < 6; i++) flat(i % 2 ? '#6a4730' : '#88613f',-1.27,.58 + i * .21,1.27,.59 + i * .21,-.577);
-  flat('#b29f73',-.48,.72,.53,1.77,-.574);
-  flat('#d2bf91',-.52,.75,.5,1.79,-.57);
-  for (let i = 0; i < 6; i++) flat('#958163',-.4,.85 + i * .14,.37,.87 + i * .14,-.568);
-  flat('#be914d',.57,.78,.62,1.52,-.561);
-  flat('#242820',.57,1.5,.62,1.57,-.56);
+  flat('#5e402d',sheetPlane.left + .025,sheetPlane.near - .025,sheetPlane.right + .025,sheetPlane.far,-.575);
+  flat('#be914d',.66,.78,.71,1.52,-.561);
+  flat('#242820',.66,1.5,.71,1.57,-.56);
   block(-1.1,-.579,1.33,-.72,-.52,1.74,['#443820','#342b18','#71613b']);
   block(-.99,-.53,1.46,-.91,-.12,1.56,['#554624','#453719','#8e7d45']);
   block(-1.13,-.15,1.34,-.73,-.04,1.73,['#695a32','#554624','#877441']);
@@ -825,10 +879,16 @@ function frame(now) {
     const target = views[run.view], blend = 1 - Math.exp(-dt * 6.8);
     camera.yaw += (target.yaw - camera.yaw) * blend;
     camera.pitch += (target.pitch - camera.pitch) * blend;
+    camera.y += ((target.y ?? 0) - camera.y) * blend;
+    camera.z += ((target.z ?? 0) - camera.z) * blend;
+    camera.lean += ((run.view === 'desk' ? 1 : 0) - camera.lean) * blend;
     tick(dt);
     renderUI();
   }
+  const readingFocal = Math.min(148,canvas.width * .65);
+  focal = 178 + (readingFocal - 178) * camera.lean;
   room();
+  placeExamSheet();
   requestAnimationFrame(frame);
 }
 const bindings = {ArrowLeft:'left',KeyA:'left',ArrowUp:'front',KeyW:'front',ArrowRight:'right',KeyD:'right',ArrowDown:'desk',KeyS:'desk'};
