@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cowboyboy — The Night Final</title>
+<style>
+:root{color-scheme:dark;--ink:#e9dfc4;--dim:#aaa28e;--red:#ff816e;--gold:#efbd75}
+*{box-sizing:border-box}body{margin:0;background:#080b0b;color:var(--ink);font:16px/1.45 system-ui,sans-serif}button{font:inherit;cursor:pointer}button:disabled{cursor:default}button:focus-visible,a:focus-visible{outline:3px solid #f7a74a;outline-offset:3px}[hidden]{display:none!important}
+main{max-width:1100px;margin:auto;padding:clamp(10px,2.5vw,28px)}header,.hud,.controls,.paper-foot{display:flex;justify-content:space-between;align-items:center;gap:10px}header{margin-bottom:12px}header strong,.mono,.eyebrow,h1,.clock{font-family:ui-monospace,monospace;letter-spacing:.09em}header strong{font-size:clamp(12px,2vw,17px);color:var(--gold)}.utility{display:flex;gap:6px}
+button{border:1px solid #605d4f;background:#1d211e;color:var(--ink);padding:7px 12px;border-radius:3px}.utility button{font-size:13px}.hud{border:1px solid #454338;border-bottom:0;padding:8px 12px;background:#111512;font-size:13px;flex-wrap:wrap}.clock{color:var(--gold);font-weight:bold;font-variant-numeric:tabular-nums}.danger,.clock.low{color:var(--red)}
+.stage{position:relative;min-height:430px;aspect-ratio:16/9;overflow:hidden;border:1px solid #454338;background:#101411;isolation:isolate}canvas{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;image-rendering:pixelated}.vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 95px 24px #000a;background:repeating-linear-gradient(transparent 0 3px,#0002 4px 5px)}.stage.hit .vignette{background:#9a271b65}
+.look{position:absolute;top:12px;left:12px;font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.12em;background:#080b0bdd;padding:5px 8px;color:#ddd8c3}.cue{position:absolute;bottom:10px;left:10px;right:10px;width:fit-content;margin:0 auto;max-width:calc(100% - 20px);background:#080b0bef;padding:6px 10px;text-align:center;font:13px/1.35 ui-monospace,monospace;color:#ffb18c}.cue:empty{display:none}
+.paper{color-scheme:light;position:absolute;left:50%;top:50%;width:min(590px,calc(100% - 26px));max-height:calc(100% - 76px);overflow:auto;transform:translate(-50%,-50%);background:#e2d2a7;color:#272118;padding:clamp(12px,3vw,23px);border:2px solid #ba9e65;box-shadow:4px 5px 0 #0708068c;background-image:repeating-linear-gradient(0deg,transparent 0 27px,#78634312 28px 29px)}.paper .eyebrow{font-size:11px;color:#564735;font-weight:bold}.paper h2{font-size:clamp(17px,3vw,26px);margin:6px 0 10px;line-height:1.16}.answers{display:grid;grid-template-columns:1fr 1fr;gap:6px}.paper button{background:#eadcb6;color:#2c251b;border-color:#9b865f;text-align:left;line-height:1.2;font-size:14px;min-height:36px}.paper button[aria-pressed=true]{background:#ad7846;color:#160e07;border-color:#775332}.paper button:disabled{opacity:.78}.paper-foot{margin-top:10px;flex-wrap:wrap;justify-content:flex-start}.paper-foot .status{flex:1;font-size:13px}.paper progress{width:100%;height:7px;display:block;margin-top:8px;accent-color:#774720}.controls{margin-top:8px;justify-content:center;flex-wrap:wrap}.controls button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}.controls button:disabled{opacity:.48}.hint{text-align:center;color:var(--dim);font-size:13px;margin:9px 0 0}.overlay{position:absolute;inset:0;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:18px}.panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}.panel .eyebrow{color:var(--gold);font-size:12px}.panel h1{font-size:clamp(25px,5vw,47px);line-height:1;margin:7px 0 14px;text-transform:uppercase;color:#f4e3be}.panel p{margin:8px 0}.panel ul{padding-left:19px;margin:8px 0 15px}.panel button{margin-top:5px}.primary{background:#ddb57b;color:#19140d;border-color:#e3c491;font-weight:700}.panel a{color:#f2ca91}.review{max-height:180px;overflow:auto;padding-right:7px;font-size:14px}.review li{margin-bottom:7px}
+@media(max-width:520px){.stage{min-height:465px}.controls{gap:5px}.controls button{padding:7px 8px;font-size:13px}.answers{grid-template-columns:1fr}.paper h2{margin:4px 0 7px}.paper button{min-height:33px}.panel ul{font-size:14px}.hint{font-size:12px}}
+</style>
+</head>
+<body>
+<main>
+<header><strong>COWBOYBOY / HORSE UNIVERSITY</strong><div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div></header>
+<div class="hud"><span>FINAL EXAM</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="clock" id="clock">12:00</span></div>
+<div class="stage" id="stage">
+<canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas><div class="vignette"></div>
+<div class="look" id="look"></div>
+<section class="paper" id="paper" aria-label="Exam paper" hidden>
+<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="answers" id="answers"></div>
+<div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
+<progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
+</section>
+<p class="cue" id="cue" role="status"></p>
+<div class="overlay" id="overlay"><section class="panel" id="panel"></section></div>
+</div>
+<nav class="controls" aria-label="Look controls">
+<button data-view="left" disabled>← Window</button><button data-view="front" disabled>↑ Hall</button><button data-view="right" disabled>→ Seam</button><button data-view="desk" disabled>↓ Exam</button><button id="act" disabled>E · Interact</button>
+</nav>
+<p class="hint">Arrows or tap to look. 1–4 to choose an answer. E to interact. Esc to pause.</p>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const exam = [
+  ['Where on a horse is the poll?', ['Between and just behind the ears','Above the tail','At the shoulder','Under the jaw'],0,'The poll is at the top of the head, just behind the ears.'],
+  ['What is the ridge where the neck meets the back?', ['Croup','Withers','Loin','Barrel'],1,'The withers are the ridge above the shoulders.'],
+  ['Which region includes the rib cage?', ['Crest','Pastern','Barrel','Dock'],2,'The barrel is the rounded middle around the ribs.'],
+  ['Which part is the upper surface of the hindquarters?', ['Poll','Flank','Gaskin','Croup'],3,'The croup lies between the loin and the tail.'],
+  ['What is the anatomical name for the horse’s front knee?', ['Tarsus','Carpus','Stifle','Fetlock'],1,'The carpus is the joint commonly called the knee on a foreleg.'],
+  ['What is the common name for the tarsus?', ['Hock','Knee','Elbow','Stifle'],0,'The hock is the tarsal joint region on the hind limb.'],
+  ['Where is the fetlock relative to the pastern?', ['Behind the hock','Inside the hoof','Immediately above it','Immediately below it'],2,'The fetlock is the joint immediately above the pastern region.'],
+  ['Which region lies between the fetlock and the hoof?', ['Cannon','Pastern','Gaskin','Forearm'],1,'The pastern spans the region between the fetlock and hoof.'],
+  ['Which hind-limb joint is highest on this list?', ['Hock','Fetlock','Pastern joint','Stifle'],3,'The stifle sits above the hock on the hind limb.'],
+  ['What is the muscular region between the stifle and hock called?', ['Gaskin','Cannon','Coronet','Forearm'],0,'The gaskin is the lower thigh, above the hock.'],
+  ['What marks the border at the top of the hoof wall?', ['Ergot','Coronary band','Chestnut','Knee'],1,'The coronary band lies where the skin meets the top of the hoof wall.'],
+  ['Which part is the bony base of the tail?', ['Muzzle','Loin','Dock','Crest'],2,'The dock is the solid upper part of the tail.'],
+  ['Which tube carries swallowed feed to the stomach?', ['Trachea','Cecum','Colon','Esophagus'],3,'The esophagus connects the throat to the stomach.'],
+  ['Where does feed go directly after the stomach?', ['Small intestine','Large colon','Cecum','Esophagus'],0,'The stomach empties into the small intestine.'],
+  ['Where does much enzymatic digestion and nutrient absorption occur?', ['Mouth','Small intestine','Cecum','Rectum'],1,'The small intestine is a major site of enzymatic digestion and nutrient uptake.'],
+  ['Which blind-ended chamber receives digesta from the small intestine?', ['Stomach','Esophagus','Cecum','Rectum'],2,'The cecum receives digesta from the small intestine and houses fiber-fermenting microbes.'],
+  ['Which section follows the cecum along the main path of digesta?', ['Small intestine','Esophagus','Stomach','Large colon'],3,'Digesta passes from the cecum to the large colon.'],
+  ['Which two regions are major sites of microbial fiber fermentation?', ['Stomach and esophagus','Cecum and large colon','Mouth and stomach','Esophagus and small intestine'],1,'Microbes in the cecum and large colon break down much of the fiber a horse eats.']
+];
+const sheets = ['External landmarks','Hindquarters and joints','Lower limb','Conformation','Digestive tract','The hindgut'];
+const releases = [0, 80, 178, 281, 391, 510];
+const examTime = 720;
+const writingTime = 2.3;
+const views = {
+  desk:{yaw:0,pitch:-.66,label:'Exam paper'},
+  left:{yaw:-.77,pitch:0,label:'Left · Window'},
+  front:{yaw:0,pitch:0,label:'Ahead · Hall'},
+  right:{yaw:.77,pitch:0,label:'Right · Wall seam'}
+};
+const threats = [
+  {view:'left',name:'The Knocker',cue:'LEFT · Something scratches the window.',action:'Flash the lamp',time:.85,pan:-.85,freq:560,loss:'The Knocker reached through the glass.'},
+  {view:'front',name:'The Hall Monitor',cue:'AHEAD · Hoofbeats in the hall.',action:'Keep looking at it',time:1.5,pan:0,freq:80,loss:'The Hall Monitor stepped inside.'},
+  {view:'right',name:'The Seam',cue:'RIGHT · A whisper from the wall.',action:'Hold the latch',time:1.45,pan:.85,freq:240,loss:'The seam opened behind your shoulder.'}
+];
+const hud = {clock:$('clock'),progress:$('progress'),nerve:$('nerve')};
+const viewButtons = [...document.querySelectorAll('[data-view]')];
+const canvas = $('room'), ctx = canvas.getContext('2d');
+const camera = {yaw:0,pitch:0};
+const run = {mode:'intro',view:'front',remaining:examTime,health:3};
+let audio, master, hum, muted = false, pressed = false, lastFrame = performance.now();
+let lastPaper = '', lastCue = '', lastView = '';
+function audioInit() {
+  if (!audio) {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) return;
+    audio = new Audio();
+    master = audio.createGain();
+    master.connect(audio.destination);
+    hum = audio.createGain();
+    hum.gain.value = .32;
+    hum.connect(master);
+    for (const [hz, type] of [[41,'sine'],[61,'triangle'],[83,'sine']]) {
+      const drone = audio.createOscillator(), gain = audio.createGain();
+      drone.type = type;
+      drone.frequency.value = hz;
+      gain.gain.value = .035;
+      drone.connect(gain).connect(hum);
+      drone.start();
+    }
+  }
+  audio.resume().catch(() => {});
+  soundLevel();
+}
+function soundLevel() {
+  if (!audio) return;
+  master.gain.setTargetAtTime(muted ? 0 : .85,audio.currentTime,.035);
+  hum.gain.setTargetAtTime(run.mode === 'running' ? 1 : .2,audio.currentTime,.2);
+}
+function note(hz, seconds, level, pan = 0, type = 'triangle', slide = hz, delay = 0) {
+  if (!audio || muted) return;
+  const start = audio.currentTime + delay, osc = audio.createOscillator(), gain = audio.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(hz,start);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(20,slide),start + seconds);
+  gain.gain.setValueAtTime(.001,start);
+  gain.gain.exponentialRampToValueAtTime(level,start + .018);
+  gain.gain.exponentialRampToValueAtTime(.001,start + seconds);
+  osc.connect(gain);
+  if (audio.createStereoPanner) {
+    const stereo = audio.createStereoPanner();
+    stereo.pan.value = pan;
+    gain.connect(stereo).connect(master);
+  } else gain.connect(master);
+  osc.start(start);
+  osc.stop(start + seconds + .02);
+}
+function warning(threat) {
+  const {view,pan,freq} = threat;
+  if (view === 'left') {
+    for (let i = 0; i < 5; i++) note(freq + i * 85,.17,.12,pan,'sawtooth',105,i * .097);
+  } else if (view === 'front') {
+    for (let i = 0; i < 3; i++) note(freq,.27,.27,pan,'triangle',28,i * .24);
+  } else {
+    note(freq,.92,.14,pan,'sawtooth',55);
+    note(freq * 1.08,.81,.09,pan,'triangle',137,.12);
+  }
+}
+function start() {
+  Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),pending:null,threat:null,nextThreat:13,previousThreat:-1,wave:0,notice:'',noticeUntil:0,hitUntil:0});
+  camera.yaw = 0;
+  camera.pitch = 0;
+  lastPaper = '';
+  pressed = false;
+  audioInit();
+  $('overlay').hidden = true;
+  renderUI();
+}
+function go(view) {
+  if (run.mode !== 'running' || run.view === view) return;
+  run.view = view;
+  if (run.pending) {
+    run.pending = null;
+    run.notice = 'You lifted the pencil. That answer was interrupted.';
+    run.noticeUntil = run.elapsed + 2;
+  }
+  pressed = false;
+  note(105,.15,.045,0,'triangle',52);
+  renderUI();
+}
+function focused() {
+  const target = views[run.view];
+  return Math.abs(camera.yaw - target.yaw) < .022 && Math.abs(camera.pitch - target.pitch) < .022;
+}
+function unlocked() {
+  return Math.max(0,releases.findLastIndex(t => run.elapsed >= t));
+}
+function changePage(delta) {
+  if (run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
+  const next = run.page + delta;
+  if (next >= 0 && next < (unlocked() + 1) * 3) run.page = next;
+  renderUI();
+}
+function choose(option) {
+  if (run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
+  if (run.answers[run.page] === option) return;
+  run.pending = {page:run.page,option,progress:0};
+  note(780,.34,.025,.08,'sawtooth',240);
+  renderUI();
+}
+function spawn() {
+  let index = Math.floor(Math.random() * threats.length);
+  if (index === run.previousThreat) index = (index + 1 + Math.floor(Math.random() * 2)) % threats.length;
+  run.previousThreat = index;
+  run.wave++;
+  run.threat = {kind:threats[index],progress:0,age:0,limit:Math.max(5.2,10.4 - run.elapsed * .009),nextWarn:2.45};
+  warning(run.threat.kind);
+}
+function resolveThreat(survived) {
+  const {kind} = run.threat;
+  run.threat = null;
+  pressed = false;
+  run.noticeUntil = run.elapsed + 2.25;
+  run.nextThreat = run.elapsed + Math.max(7.7,20 - run.elapsed * .018) + 5 * Math.random();
+  if (survived) {
+    run.notice = kind.name + ' backed off.';
+    note(195,.31,.11,kind.pan,'triangle',60);
+    return;
+  }
+  run.health--;
+  run.hitUntil = run.elapsed + .25;
+  run.notice = kind.loss;
+  note(60,.75,.34,kind.pan,'sawtooth',21);
+  if (!run.health) finish('caught');
+}
+function tick(dt) {
+  run.elapsed += dt;
+  run.remaining = Math.max(0,examTime - run.elapsed);
+  if (!run.remaining) { finish('time'); return; }
+  if (run.pending) {
+    const item = run.pending;
+    item.progress += dt;
+    if (item.progress >= writingTime) {
+      run.answers[item.page] = item.option;
+      run.pending = null;
+      note(405,.14,.064,.1,'triangle',240);
+    }
+  }
+  if (!run.threat && run.elapsed >= run.nextThreat) spawn();
+  const threat = run.threat;
+  if (!threat) return;
+  threat.age += dt;
+  if (threat.age >= threat.limit) { resolveThreat(false); return; }
+  if (threat.age >= threat.nextWarn) {
+    threat.nextWarn += 2.05;
+    warning(threat.kind);
+  }
+  const looking = focused() && run.view === threat.kind.view;
+  const defending = looking && (threat.kind.view === 'front' || pressed);
+  threat.progress = defending ? threat.progress + dt : Math.max(0,threat.progress - dt * 2);
+  if (threat.progress >= threat.kind.time) resolveThreat(true);
+}
+function timeText(t) {
+  const whole = Math.ceil(t);
+  return String(Math.floor(whole / 60)).padStart(2,'0') + ':' + String(whole % 60).padStart(2,'0');
+}
+function answerCount() { return run.answers ? run.answers.filter(value => value !== null).length : 0; }
+function setCue(text) {
+  if (lastCue !== text) { $('cue').textContent = text; lastCue = text; }
+}
+function paperUI() {
+  const available = (unlocked() + 1) * 3, page = run.page;
+  const key = [page,run.answers[page],available,Boolean(run.pending),answerCount()].join('/');
+  if (key !== lastPaper) {
+    lastPaper = key;
+    $('sheet').textContent = `Sheet ${Math.floor(page / 3) + 1} / 6 · ${sheets[Math.floor(page / 3)]} · Question ${page + 1}`;
+    $('question').textContent = exam[page][0];
+    $('answers').replaceChildren(...exam[page][1].map((answer,i) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = `${i + 1}. ${answer}`;
+      button.disabled = Boolean(run.pending);
+      button.setAttribute('aria-pressed',String(run.answers[page] === i));
+      button.onclick = () => choose(i);
+      return button;
+    }));
+    $('prev').disabled = page === 0 || Boolean(run.pending);
+    $('next').disabled = page + 1 >= available || Boolean(run.pending);
+    $('submit').hidden = answerCount() < exam.length;
+    $('submit').disabled = Boolean(run.pending);
+  }
+  $('writing').value = run.pending ? run.pending.progress / writingTime : run.answers[page] !== null ? 1 : 0;
+  let status = run.answers[page] !== null ? 'Answer written.' : 'Choose an answer.';
+  if (page + 1 >= available && available < exam.length && run.answers[page] !== null) {
+    status = `Next sheet in ${timeText(releases[unlocked() + 1] - run.elapsed)}`;
+  }
+  if (run.pending) status = 'Writing…';
+  if ($('paper-status').textContent !== status) $('paper-status').textContent = status;
+}
+function renderUI() {
+  const playing = run.mode === 'running', settled = focused(), threat = run.threat;
+  const desk = playing && settled && run.view === 'desk';
+  $('paper').hidden = !desk;
+  if (desk) paperUI();
+  hud.clock.textContent = timeText(run.remaining);
+  hud.clock.classList.toggle('low',run.remaining <= 60);
+  hud.progress.textContent = `${answerCount()} / ${exam.length} answered`;
+  hud.nerve.textContent = `Composure ${run.health} / 3`;
+  hud.nerve.classList.toggle('danger',run.health <= 1);
+  $('pause').disabled = !playing && run.mode !== 'paused';
+  $('pause').textContent = run.mode === 'paused' ? 'Resume' : 'Pause';
+  $('stage').classList.toggle('hit',playing && run.hitUntil > run.elapsed);
+  const label = !playing ? '' : settled ? views[run.view].label : 'Turning…';
+  if (lastView !== label) { $('look').textContent = label; lastView = label; }
+  $('look').hidden = !playing;
+  for (const button of viewButtons) {
+    button.disabled = !playing;
+    button.setAttribute('aria-pressed',String(playing && run.view === button.dataset.view));
+  }
+  const engaged = playing && settled && threat && threat.kind.view === run.view;
+  $('act').disabled = !engaged || run.view === 'front';
+  $('act').textContent = engaged && run.view !== 'front' ? 'E · ' + threat.kind.action : 'E · Interact';
+  if (!playing) setCue('');
+  else if (engaged) {
+    const progress = threat.progress / threat.kind.time;
+    const bars = progress > 0 ? ' ' + '■'.repeat(Math.floor(progress * 5)) + '□'.repeat(5 - Math.floor(progress * 5)) : '';
+    setCue(`${threat.kind.name.toUpperCase()} · ${run.view === 'front' ? threat.kind.action : 'Hold E or Interact to ' + threat.kind.action.toLowerCase()}.${bars}`);
+  } else if (threat) setCue(threat.kind.cue);
+  else setCue(run.noticeUntil > run.elapsed ? run.notice : '');
+}
+function showPanel(html) {
+  $('panel').innerHTML = html;
+  $('overlay').hidden = false;
+  renderUI();
+  $('panel').querySelector('button')?.focus();
+}
+function intro() {
+  showPanel(`<div class="eyebrow">ROOM 13 · AFTER HOURS</div><h1>The Night Final</h1>
+  <p>You have twelve minutes to pass horse anatomy. Someone has already taken attendance.</p>
+  <ul><li>Look down to write. Keep your eyes on the page until the pencil stops. Six sheets arrive during the exam.</li><li>Scratching on the left: look at the window and hold E to flash the lamp. Hoofbeats ahead: stare into the hall. Whispering on the right: look at the seam and hold E to latch it.</li><li>The clock keeps running as you turn. Three hits end the exam. Fill all 18 answers and get at least 14 right.</li></ul>
+  <button class="primary" id="begin">Sit the final</button>`);
+  $('begin').onclick = start;
+}
+function pause() {
+  if (run.mode === 'running') {
+    run.mode = 'paused';
+    pressed = false;
+    soundLevel();
+    showPanel('<div class="eyebrow">CLOCK STOPPED</div><h1>Paused</h1><button class="primary" id="resume">Resume exam</button>');
+    $('resume').onclick = pause;
+  } else if (run.mode === 'paused') {
+    run.mode = 'running';
+    lastFrame = performance.now();
+    soundLevel();
+    $('overlay').hidden = true;
+    renderUI();
+  }
+}
+function finish(reason) {
+  run.mode = 'ended';
+  pressed = false;
+  soundLevel();
+  const correct = run.answers.filter((choice,i) => choice === exam[i][2]).length;
+  const passed = reason === 'submit' && correct >= 14;
+  const result = reason === 'caught' ? 'Something got in.' : reason === 'time' ? 'Time’s up.' : passed ? 'You passed.' : 'You failed the final.';
+  const review = exam.map(([prompt,options,index,explanation],i) => run.answers[i] === index ? '' : `<li><strong>${prompt}</strong> ${explanation}</li>`).join('');
+  showPanel(`<div class="eyebrow">HORSE UNIVERSITY · EXAM REPORT</div><h1>${result}</h1>
+  <p>${correct} / 18 correct · ${answerCount()} answered · ${timeText(run.remaining)} left</p>
+  ${passed ? '<p>The proctor signs your diploma. His hoof leaves no ink.</p>' : '<p>Pass mark: 14 correct and all 18 answers turned in.</p>'}
+  ${review ? `<details><summary>Review missed and unanswered questions</summary><ol class="review">${review}</ol></details>` : ''}
+  <p><small>References: <a href="https://afs.ca.uky.edu/files/equine_anatomy.pdf" target="_blank" rel="noopener">Parts of the Horse</a> · <a href="https://www.extension.iastate.edu/equine/synopsis-digestive-anatomy-and-physiology-horse" target="_blank" rel="noopener">Equine digestion</a></small></p>
+  <button class="primary" id="retry">Retake the final</button>`);
+  $('retry').onclick = start;
+}
+function point(x,y,z) { return [x,y,z]; }
+function cameraPoint([x,y,z]) {
+  const cy = Math.cos(camera.yaw), sy = Math.sin(camera.yaw);
+  const cp = Math.cos(camera.pitch), sp = Math.sin(camera.pitch);
+  const depth = x * sy + z * cy;
+  return [x * cy - z * sy,y * cp - depth * sp,y * sp + depth * cp];
+}
+function project([x,y,z]) { return [192 + x * 178 / z,108 - y * 178 / z]; }
+function clip(points) {
+  const near = .17, output = [];
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i], b = points[(i + 1) % points.length];
+    if (a[2] >= near) output.push(a);
+    if ((a[2] >= near) !== (b[2] >= near)) {
+      const t = (near - a[2]) / (b[2] - a[2]);
+      output.push([a[0] + (b[0] - a[0]) * t,a[1] + (b[1] - a[1]) * t,near]);
+    }
+  }
+  return output;
+}
+function shape(color,points) {
+  const visible = clip(points.map(cameraPoint));
+  if (visible.length < 3) return;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  visible.map(project).forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y));
+  ctx.closePath();
+  ctx.fill();
+}
+function front(color,x1,y1,x2,y2,z = 6.98) {
+  shape(color,[point(x1,y1,z),point(x2,y1,z),point(x2,y2,z),point(x1,y2,z)]);
+}
+function side(color,x,z1,y1,z2,y2) {
+  shape(color,[point(x,y1,z1),point(x,y1,z2),point(x,y2,z2),point(x,y2,z1)]);
+}
+function flat(color,x1,z1,x2,z2,y) {
+  shape(color,[point(x1,y,z1),point(x2,y,z1),point(x2,y,z2),point(x1,y,z2)]);
+}
+function block(x1,y1,z1,x2,y2,z2,colors) {
+  const [face,edge,top] = colors;
+  front(face,x1,y1,x2,y2,z2);
+  side(edge,x1,z1,y1,z2,y2);
+  side(edge,x2,z1,y1,z2,y2);
+  front(face,x1,y1,x2,y2,z1);
+  flat(top,x1,z1,x2,z2,y2);
+}
+function worldText(value,location,color,size) {
+  const p = cameraPoint(location);
+  if (p[2] < .2) return;
+  const [x,y] = project(p);
+  ctx.font = 'bold ' + Math.max(6,Math.round(size / p[2])) + 'px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = color;
+  ctx.fillText(value,x,y);
+}
+function monster(type,location,strength) {
+  const p = cameraPoint(location);
+  if (p[2] < .2) return;
+  const [x,y] = project(p), size = 178 / p[2] * (.44 + strength * .42);
+  ctx.save();
+  ctx.translate(Math.round(x),Math.round(y));
+  ctx.scale(size,size);
+  const pixels = (color,points) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    points.forEach(([a,b],i) => i ? ctx.lineTo(a,b) : ctx.moveTo(a,b));
+    ctx.closePath();
+    ctx.fill();
+  };
+  if (type === 'left') {
+    pixels('#0b1010',[[-.73,.94],[-.5,.31],[-.35,.16],[-.55,-.47],[-.25,-.58],[-.08,-.33],[.13,-.37],[.41,-.65],[.45,-.08],[.62,.24],[.75,.93]]);
+    pixels('#746957',[[-.35,-.2],[-.13,-.34],[.21,-.32],[.43,-.1],[.27,.5],[-.16,.67],[-.37,.28]]);
+    pixels('#2a2b27',[[-.27,.11],[.34,.06],[.22,.38],[-.06,.47],[-.2,.3]]);
+    ctx.fillStyle = '#ffd486';
+    ctx.fillRect(-.27,-.03,.17,.1);
+    ctx.fillRect(.1,-.035,.16,.1);
+  } else if (type === 'front') {
+    pixels('#050605',[[-.8,1.31],[-.57,.36],[-.3,.16],[-.29,-.15],[-.43,-.72],[-.14,-.47],[.15,-.48],[.35,-.8],[.31,-.18],[.22,.21],[.57,.43],[.84,1.31]]);
+    pixels('#3e4034',[[-.27,-.4],[.23,-.4],[.29,-.09],[.18,.31],[-.13,.33],[-.26,.04]]);
+    pixels('#62604b',[[-.2,.06],[.2,.08],[.12,.39],[-.1,.43]]);
+    ctx.fillStyle = '#f7c77b';
+    ctx.fillRect(-.24,-.12,.12,.07);
+    ctx.fillRect(.1,-.12,.12,.07);
+  } else {
+    pixels('#050605',[[0,-1.14],[.23,-.65],[.07,-.28],[.55,.32],[.18,.43],[.37,1.22],[-.22,.58],[-.55,.27],[-.19,-.18],[-.24,-.62]]);
+    for (const eye of [[-.13,-.3],[.12,-.13],[-.18,.03],[.25,.24],[.01,.39]]) {
+      ctx.fillStyle = '#f3a275';
+      ctx.fillRect(eye[0],eye[1],.13,.055);
+    }
+  }
+  ctx.restore();
+}
+function room() {
+  ctx.fillStyle = '#111912';
+  ctx.fillRect(0,0,384,216);
+  front('#303427',-4,-1.35,4,2.1,7);
+  side('#252c24',-4,-2,-1.35,7,2.1);
+  side('#2b2d22',4,-2,-1.35,7,2.1);
+  flat('#191f18',-4,-2,4,7,-1.35);
+  flat('#151b16',-4,-2,4,7,2.1);
+  for (let i = 0; i < 9; i++) {
+    const z = i - 2;
+    flat('#2d2f20',-4,z,4,z + .025,-1.34);
+    if (i % 2 === 0) flat('#1f261d',-4,z,4,z + .12,2.09);
+  }
+  for (let i = -3; i <= 3; i++) flat('#11180f',i,-2,i + .035,7,-1.34);
+  front('#1b2017',-4,-1.35,4,-.73);
+  side('#1b2119',-3.99,-2,-1.35,7,-.73);
+  side('#202117',3.99,-2,-1.35,7,-.73);
+  front('#474632',-4,-.77,4,-.71);
+  side('#454531',-3.98,-2,-.77,7,-.71);
+  side('#48452e',3.98,-2,-.77,7,-.71);
+  for (let i = 0; i < 65; i++) {
+    const height = ((i * 113) % 97) / 45 - .57;
+    const pos = ((i * 59) % 203) / 25;
+    front(i % 3 ? '#393b2b' : '#272d23',pos - 4,height,pos - 3.86,height + .018);
+    side('#34372a',-3.98,pos - 1.5,height,pos - 1.36,height + .018);
+    side('#3c3c2d',3.98,pos - 1.5,height,pos - 1.36,height + .018);
+  }
+  // Hall doorway and the boards around it.
+  front('#141813',-1.35,-1.35,1.35,1.64,6.92);
+  front('#716147',-1.22,-1.35,1.22,1.5,6.91);
+  front('#060908',-1.1,-1.35,1.1,1.38,6.89);
+  front('#25281d',-.87,-1.34,.87,1.14,6.86);
+  front('#0a0d0b',-.75,-1.34,.75,1.04,6.84);
+  front('#666047',-.48,1.73,.48,1.98);
+  worldText('HALL',point(0,1.79,6.96),'#dfc898',49);
+  front('#111c15',-3.67,-.28,-1.62,1.19);
+  front('#62563b',-3.64,-.25,-1.65,1.16);
+  front('#23392d',-3.56,-.17,-1.73,1.08);
+  worldText('EQUINE LAB',point(-2.64,.62,6.96),'#aeb18a',49);
+  for (let i = 0; i < 3; i++) front('#7c8768',-3.3,.36 - i * .12,-2.0,.38 - i * .12);
+  front('#655943',1.88,.03,3.09,1.33);
+  front('#a99c6e',1.95,.1,3.02,1.26);
+  worldText('HORSE',point(2.49,.84,6.96),'#383126',47);
+  worldText('UNIVERSITY',point(2.49,.55,6.96),'#383126',35);
+  // Window: glass, moonlight, branches and mullions.
+  side('#141912',-3.94,2.47,-.68,5.69,1.61);
+  side('#695f45',-3.93,2.54,-.59,5.6,1.52);
+  side('#132722',-3.92,2.66,-.47,5.47,1.39);
+  side('#385247',-3.91,2.68,.23,5.45,1.38);
+  side('#768775',-3.90,4.7,.88,5.08,1.21);
+  side('#8e9a84',-3.89,4.77,.93,5.02,1.15);
+  shape('#182922',[point(-3.88,-.47,2.66),point(-3.88,.08,2.66),point(-3.88,.27,3.25),point(-3.88,-.09,3.89),point(-3.88,.32,4.7),point(-3.88,.14,5.47),point(-3.88,-.47,5.47)]);
+  shape('#141f19',[point(-3.87,-.47,3.23),point(-3.87,1.32,2.9),point(-3.87,1.31,3.04),point(-3.87,.49,3.21),point(-3.87,.86,3.75),point(-3.87,.73,3.76),point(-3.87,.3,3.23),point(-3.87,-.47,3.48)]);
+  side('#504b35',-3.86,4.04,-.5,4.15,1.4);
+  side('#504b35',-3.86,2.64,.33,5.49,.42);
+  flat('#625a3e',-4,2.45,-3.68,5.67,-.61);
+  // Right wall: supply hatch and its failing latch.
+  side('#171b14',3.94,2.52,-1.12,4.99,1.46);
+  side('#5d5037',3.93,2.63,-1.05,4.89,1.38);
+  side('#342d20',3.92,2.72,-.98,4.8,1.29);
+  for (let i = 0; i < 8; i++) side('#443a27',3.9,2.75 + i * .28,-.96,2.79 + i * .28,1.27);
+  side('#0a0c09',3.88,3.74,-.98,3.83,1.29);
+  side('#817451',3.86,3.49,-.04,4.06,.09);
+  side('#ac8653',3.85,3.65,-.1,3.9,.16);
+  side('#8b7860',3.91,3.02,1.54,4.43,1.78);
+  worldText('STORAGE',point(3.9,1.59,3.74),'#463722',44);
+  const active = run.threat;
+  if (active) {
+    const kind = active.kind.view;
+    const strength = active.age / active.limit;
+    if (kind === 'left') monster(kind,point(-3.76,.45,4.04),strength);
+    if (kind === 'front') monster(kind,point(0,.09,6.49 - strength * .95),strength);
+    if (kind === 'right') monster(kind,point(3.74,.16,3.78),strength);
+  }
+  block(-2.7,-1.32,3.32,-1.56,-.72,4.22,['#352f22','#241f18','#4b3d2b']);
+  block(1.8,-1.32,3.64,2.98,-.7,4.55,['#382f23','#251e17','#55412d']);
+  block(-1.18,-1.32,.82,-1.05,-.62,1.77,['#282219','#1c1914','#4d3a29']);
+  block(1.02,-1.32,.82,1.16,-.62,1.77,['#282219','#1c1914','#4d3a29']);
+  block(-1.28,-.76,.49,1.28,-.58,1.95,['#493322','#3d2b1f','#795538']);
+  for (let i = 0; i < 6; i++) flat(i % 2 ? '#6a4730' : '#88613f',-1.27,.58 + i * .21,1.27,.59 + i * .21,-.577);
+  flat('#b29f73',-.48,.72,.53,1.77,-.574);
+  flat('#d2bf91',-.52,.75,.5,1.79,-.57);
+  for (let i = 0; i < 6; i++) flat('#958163',-.4,.85 + i * .14,.37,.87 + i * .14,-.568);
+  flat('#be914d',.57,.78,.62,1.52,-.561);
+  flat('#242820',.57,1.5,.62,1.57,-.56);
+  block(-1.1,-.579,1.33,-.72,-.52,1.74,['#443820','#342b18','#71613b']);
+  block(-.99,-.53,1.46,-.91,-.12,1.56,['#554624','#453719','#8e7d45']);
+  block(-1.13,-.15,1.34,-.73,-.04,1.73,['#695a32','#554624','#877441']);
+  flat('#b6a573',-.99,1.41,-.86,1.57,-.039);
+}
+function frame(now) {
+  const dt = Math.min(.1,Math.max(0,(now - lastFrame) / 1000));
+  lastFrame = now;
+  if (run.mode === 'running') {
+    const target = views[run.view], blend = 1 - Math.exp(-dt * 6.8);
+    camera.yaw += (target.yaw - camera.yaw) * blend;
+    camera.pitch += (target.pitch - camera.pitch) * blend;
+    tick(dt);
+    renderUI();
+  }
+  room();
+  requestAnimationFrame(frame);
+}
+const bindings = {ArrowLeft:'left',KeyA:'left',ArrowUp:'front',KeyW:'front',ArrowRight:'right',KeyD:'right',ArrowDown:'desk',KeyS:'desk'};
+for (const button of viewButtons) button.onclick = () => go(button.dataset.view);
+$('sound').onclick = () => {
+  muted = !muted;
+  audioInit();
+  $('sound').textContent = muted ? 'Sound off' : 'Sound on';
+  $('sound').setAttribute('aria-pressed',String(!muted));
+};
+$('pause').onclick = pause;
+$('prev').onclick = () => changePage(-1);
+$('next').onclick = () => changePage(1);
+$('submit').onclick = () => {
+  if (run.mode === 'running' && run.view === 'desk' && focused() && !run.pending && answerCount() === exam.length) finish('submit');
+};
+$('act').addEventListener('pointerdown',event => {
+  event.preventDefault();
+  $('act').setPointerCapture(event.pointerId);
+  pressed = true;
+});
+for (const name of ['pointerup','pointercancel','lostpointercapture']) {
+  $('act').addEventListener(name,() => { pressed = false; });
+}
+window.addEventListener('keydown',event => {
+  if (event.code === 'Escape') { if (!event.repeat) pause(); return; }
+  if (run.mode !== 'running' || event.metaKey || event.ctrlKey || event.altKey) return;
+  if (bindings[event.code]) {
+    event.preventDefault();
+    go(bindings[event.code]);
+  } else if (event.code === 'KeyE') {
+    event.preventDefault();
+    pressed = true;
+  } else if (/^Digit[1-4]$/.test(event.code)) {
+    choose(Number(event.code.slice(-1)) - 1);
+  } else if (event.code === 'BracketLeft' || event.code === 'BracketRight') {
+    changePage(event.code === 'BracketLeft' ? -1 : 1);
+  }
+});
+window.addEventListener('keyup',event => { if (event.code === 'KeyE') pressed = false; });
+window.addEventListener('blur',() => { pressed = false; });
+document.addEventListener('visibilitychange',() => {
+  if (document.hidden && run.mode === 'running') pause();
+});
+intro();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
