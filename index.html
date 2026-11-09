@@ -706,6 +706,7 @@ const trials = [
   {id:'bell',name:'The ceiling bell',view:'right',buttons:['Pull bell rope · Space']}
 ];
 const handPatterns = [1,4,3,2,5,4,6,3];
+const handGoal = 8;
 const trialButtons = [...$('trial-buttons').querySelectorAll('button')];
 const echoPitches = [168,246,346];
 const chainStamps = ['triangle','square','ring'];
@@ -805,6 +806,11 @@ function trialInput(i) {
       trial.score++;
       noise(.17,640,.32,-.8);
       note(215,.18,.14,-.8,'triangle',106);
+      if (trial.score === handGoal) {
+        endTrial(trial);
+        renderUI();
+        return;
+      }
       break;
     case 'echo': {
       const pattern = trial.patterns[trial.phase];
@@ -904,7 +910,7 @@ function trialTick(dt) {
 }
 function endTrial(trial) {
   const id = trial.spec.id;
-  const passed = id === 'hands' ? trial.score >= 8 : id === 'echo' ? trial.score >= 2 :
+  const passed = id === 'hands' ? trial.score >= handGoal : id === 'echo' ? trial.score >= 2 :
     id === 'chains' ? trial.score >= 6 : id === 'breath' ? trial.exposed <= 3.5 : trial.score >= 3;
   run.trial = null;
   run.openSheet = trial.sheet;
@@ -928,7 +934,7 @@ function renderTrial() {
     case 'hands':
       mask = handTargets(trial);
       cue = mask ? 'Tap the hands or press their numbers.' : 'Watch the sill.';
-      score = `${trial.score} swatted · 8 needed`;
+      score = `${trial.score} swatted · ${handGoal} needed`;
       break;
     case 'echo': {
       const echo = echoStage(trial);
@@ -1208,7 +1214,7 @@ function showHelp() {
   showPanel(`<div class="eyebrow">Horse University · Exam instructions</div><h1>How to play</h1>
     <ul><li>Look down to answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li>
     <li>Use arrows to look and 1–4 to answer. Use E to interact. On touch, tap the room controls and objects.</li>
-    <li>Each new sheet starts a 30-second trial. Grab bean tins for a shield. Three hits end the exam.</li></ul>
+    <li>You have up to 30 seconds for each sheet trial. Grab bean tins for a shield. Three hits end the exam.</li></ul>
     <button class="primary" id="back-title">Back to title</button>`,'help');
   $('back-title').onclick = intro;
 }
