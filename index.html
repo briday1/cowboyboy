@@ -46,6 +46,9 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .controls button:disabled{opacity:.5}
 #act{position:absolute;right:0;bottom:40px;touch-action:none;background:#4c3421;color:#ffe5b7;border-color:#d4a46c}
 #act:disabled{visibility:hidden}
+.bean-pickup{position:absolute;transform:translate(-50%,-50%);min-width:48px;min-height:48px;
+  border:2px solid #ffe7a033;border-radius:0;background:transparent;padding:0;touch-action:manipulation}
+.bean-pickup:hover,.bean-pickup:focus-visible{border-color:#ffe7a0;background:#ffc95a18}
 .overlay{position:absolute;inset:0;z-index:3;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:52px 18px 18px}
 .panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}
 .panel .eyebrow{font:10px/1.65 var(--pixel);color:var(--gold)}
@@ -95,13 +98,19 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .paper button:not(:disabled):hover,.paper button[aria-pressed=true]{color:#7f301e;background:#b4693c25}
 .paper .pin{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;padding:0;
   border:2px solid #884626;background:#f3dba8;color:#633520;text-align:center;font-size:13px}
-.paper .pin[aria-pressed=true]{background:#974529;color:#ffe6bb}
+.paper .pin[aria-pressed=true]{background:#315837;color:#f4f5ce;border-color:#214227}
+.paper button[aria-pressed=true]::after{content:'✓';font:700 18px/1 system-ui,sans-serif}
+.paper .pin[aria-pressed=true]::after{position:absolute;top:-9px;right:-9px;color:#f4f5ce;background:#315837;padding:1px 2px}
 .answers{display:grid;gap:4px}
 .paper .answers button{min-height:40px;padding:7px 10px;text-align:left;font-size:13px;border-bottom:1px dashed #a18153}
-.paper .answers button[aria-pressed=true]{text-decoration:underline}
+.paper .answers button[aria-pressed=true]{position:relative;padding-right:32px;background:#b8cc91;color:#23462b;box-shadow:inset 3px 0 #426841}
+.paper .answers button[aria-pressed=true]::after{position:absolute;right:8px;top:50%;transform:translateY(-50%)}
 .paper button[aria-pressed=true]{opacity:1}
 .paper button[data-wrong]{color:#872e24;text-decoration:line-through;text-decoration-thickness:2px;opacity:1}
-.paper .status[data-result="correct"]{color:#305027}
+.paper .status[data-result="correct"]{color:#294c31;font-size:12px;text-transform:uppercase}
+.paper .status[data-result="correct"]::before{content:'✓ ';font:700 16px/1 system-ui,sans-serif}
+.paper #next:not(:disabled),.paper #submit:not(:disabled){background:#315837;color:#fcf5d2;padding:8px 10px;border-bottom:2px solid #233d28}
+.paper #next:not(:disabled):hover,.paper #submit:not(:disabled):hover{background:#23492c}
 .paper .status[data-result="incorrect"]{color:#872e24}
 .paper-wait{text-align:center;line-height:1.8;color:#694a31}
 .paper-wait strong{display:block;margin:8px 0;font-size:24px;color:#793f2d}
@@ -118,13 +127,14 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 <audio id="score" loop preload="none" hidden></audio>
 <main>
 <div class="stage" id="stage">
-<canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas><div class="vignette"></div>
+<canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas>
+<button type="button" class="bean-pickup" id="bean-pickup" aria-label="Grab the bean tin" hidden></button><div class="vignette"></div>
 <div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden><span id="bean-status" role="status"></span><span id="bean-timer" aria-hidden="true"></span></span></div>
 <div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
 <div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div><div class="paper-wait" id="sheet-wait" hidden>Next sheet in<strong id="sheet-time"></strong>Look up while you wait.</div></div>
-<div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
+<div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status" role="status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
 <progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
 </section>
 <p class="cue" id="cue" role="status"></p>
@@ -597,11 +607,15 @@ function interact() {
     } else pressed = true;
     return;
   }
-  if (run.beans?.view === run.view) {
-    run.beans = null;
-    run.beanShield = true;
-    for (const [i, hz] of [392,523,659].entries()) note(hz,.24,.14,0,'triangle',hz,i * .09);
-  }
+  if (run.beans?.view === run.view) collectBeans();
+}
+function collectBeans() {
+  if (run.mode !== 'running' || !run.beans) return;
+  run.beans = null;
+  run.beanShield = true;
+  $('bean-pickup').hidden = true;
+  for (const [i, hz] of [392,523,659].entries()) note(hz,.24,.14,0,'triangle',hz,i * .09);
+  renderUI();
 }
 function tick(dt) {
   run.elapsed += dt;
@@ -619,7 +633,10 @@ function tick(dt) {
       if (correct) run.answers[item.page] = item.option;
       else run.wrongAnswers[item.page].add(item.option);
       run.pending = null;
-      note(correct ? 405 : 210,.14,.11,.1,'triangle',correct ? 240 : 115);
+      if (correct) {
+        note(392,.18,.13,.1);
+        note(523,.22,.14,.1,'triangle',523,.10);
+      } else note(210,.14,.11,.1,'triangle',115);
     }
   }
   if (!run.threat && run.elapsed >= run.nextThreat) spawn();
@@ -648,6 +665,7 @@ function setCue(text) {
 }
 function paperUI() {
   const page = run.page, sheet = Math.floor(page / sheetSize);
+  const finalPage = page === exam.length - 1;
   const wait = Math.max(0,sheetRelease(page) - run.elapsed);
   const answer = run.answers[page], wrong = run.wrongAnswers[page];
   const writing = Boolean(run.pending);
@@ -674,14 +692,18 @@ function paperUI() {
     options.forEach((button,i) => {
       const tried = wrong.has(i);
       button.disabled = writing || answer !== null || tried;
-      button.setAttribute('aria-pressed',String(answer === i));
+      const correct = answer === i;
+      button.setAttribute('aria-pressed',String(correct));
       button.toggleAttribute('data-wrong',tried);
-      if (tried) button.setAttribute('aria-label', `${button.getAttribute('aria-label') || button.textContent}, incorrect`);
+      if (tried || correct) {
+        button.setAttribute('aria-label', `${button.getAttribute('aria-label') || button.textContent}, ${correct ? 'correct' : 'incorrect'}`);
+      }
     });
     $('prev').disabled = page === 0 || writing;
-    $('next').disabled = page + 1 === exam.length || answer === null || writing;
-    $('submit').hidden = answerCount() < exam.length;
-    $('submit').disabled = writing;
+    $('next').hidden = finalPage;
+    $('next').disabled = answer === null || writing;
+    $('submit').hidden = !finalPage;
+    $('submit').disabled = writing || answerCount() < exam.length;
   }
   if (wait > 0) {
     const time = timeText(wait);
@@ -691,7 +713,7 @@ function paperUI() {
   const status = $('paper-status');
   const result = writing || wait > 0 ? '' : answer !== null ? 'correct' : wrong.size ? 'incorrect' : '';
   const message = writing ? 'Writing…' : wait > 0 ? '' :
-    result === 'correct' ? (page + 1 < exam.length ? 'Correct. Press Next.' : 'Correct. Turn in the exam.') :
+    result === 'correct' ? 'Correct' :
     result === 'incorrect' ? 'Incorrect. Try another.' : practical[page] ? 'Stamp a marker.' : 'Choose an answer.';
   if (status.textContent !== message) status.textContent = message;
   if (status.dataset.result !== result) status.dataset.result = result;
@@ -759,7 +781,7 @@ function showPanel(html) {
 function intro() {
   showPanel(`<div class="eyebrow">COWBOYBOY · HORSE UNIVERSITY</div><h1>The Night Final</h1>
   <p>You have twelve minutes to pass horse anatomy. Someone has already taken attendance.</p>
-  <ul><li>Look down to work the exam. Stamp a diagram or pick a written answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. When Bean Bonus appears, turn toward the highlighted location and grab the tin. It automatically blocks your next hit.</li><li>Three hits end the exam. Solve all 18 questions and turn in the paper before time runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
+  <ul><li>Look down to work the exam. Stamp a diagram or pick a written answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. When Bean Bonus appears, turn toward the highlighted location, then click the tin or press E to grab it. It automatically blocks your next hit.</li><li>Three hits end the exam. Solve all 18 questions and turn in the paper before time runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
   <button class="primary" id="begin">Sit the final</button>`);
   $('begin').onclick = start;
 }
@@ -980,6 +1002,17 @@ function beanCan(view) {
     ctx.textAlign = 'center';
     ctx.fillText('B',Math.round(x),top + Math.floor(size * .75));
   }
+  return {x,y:top + (size + 3) / 2,size};
+}
+function placeBeanPickup(sprite) {
+  const button = $('bean-pickup');
+  const inView = sprite && sprite.x > 0 && sprite.x < canvas.width && sprite.y > 0 && sprite.y < canvas.height;
+  button.hidden = run.mode !== 'running' || run.view === 'desk' || !inView;
+  if (button.hidden) return;
+  button.style.left = `${100 * sprite.x / canvas.width}%`;
+  button.style.top = `${100 * sprite.y / canvas.height}%`;
+  button.style.width = `${(sprite.size + 8) * stageWidth / canvas.width}px`;
+  button.style.height = `${(sprite.size + 8) * stageHeight / canvas.height}px`;
 }
 function room() {
   ctx.fillStyle = '#111912';
@@ -1062,7 +1095,7 @@ function room() {
   block(-1.13,-.15,1.34,-.73,-.04,1.73,['#695a32','#554624','#877441']);
   flat('#b6a573',-.99,1.41,-.86,1.57,-.039);
   if (run.threat) creature(run.threat.kind,run.threat.age / run.threat.limit);
-  if (run.beans) beanCan(run.beans.view);
+  placeBeanPickup(run.beans ? beanCan(run.beans.view) : null);
 }
 function frame(now) {
   const dt = Math.min(.1,Math.max(0,(now - lastFrame) / 1000));
@@ -1093,6 +1126,7 @@ $('sound').onclick = () => {
   audioInit(true);
 };
 $('pause').onclick = pause;
+$('bean-pickup').onclick = collectBeans;
 $('prev').onclick = () => changePage(-1);
 $('next').onclick = () => changePage(1);
 $('submit').onclick = () => {
