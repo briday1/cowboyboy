@@ -17,7 +17,8 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 [hidden]{display:none!important}
 .stage{position:relative;min-height:510px;aspect-ratio:16/9;overflow:hidden;border:1px solid #454338;background:#101411;isolation:isolate}
 #room{width:100%;height:100%;position:absolute;inset:0;display:block;image-rendering:pixelated}
-.vignette{position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 95px 24px #000a;background:repeating-linear-gradient(transparent 0 3px,#0002 4px 5px)}
+.vignette{position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 95px 24px #000a;background:radial-gradient(ellipse at center,transparent 35%,rgba(3,5,5,var(--dread,0)) 100%),repeating-linear-gradient(transparent 0 3px,#0002 4px 5px)}
+.stage[data-lamp] .vignette{background:radial-gradient(ellipse at center,#ffd89337,transparent 65%),repeating-linear-gradient(transparent 0 3px,#0002 4px 5px)}
 .stage.hit .vignette{background:#9a271b65}
 .hud,.utility,.controls,.look,.cue{position:absolute;color:var(--ink);font:9px/1.65 var(--pixel);text-transform:uppercase}
 .hud,.controls,.look{z-index:2}
@@ -49,6 +50,29 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .bean-pickup{position:absolute;transform:translate(-50%,-50%);min-width:48px;min-height:48px;
   border:2px solid #ffe7a033;border-radius:0;background:transparent;padding:0;touch-action:manipulation}
 .bean-pickup:hover,.bean-pickup:focus-visible{border-color:#ffe7a0;background:#ffc95a18}
+.trial{position:absolute;z-index:2;left:50%;bottom:12px;transform:translateX(-50%);width:min(460px,calc(100% - 18px));
+  padding:9px 11px;background:#111712ed;border:1px solid #9a7752;font:9px/1.65 var(--pixel);color:#efdfb8}
+.trial-head{display:flex;justify-content:space-between;gap:8px;color:#f2bf78;text-transform:uppercase}
+.trial p{margin:5px 0}
+.trial-buttons{display:flex;gap:5px}
+.trial-buttons button{flex:1;min-width:0;min-height:37px;border:1px solid #88765a;background:#2b3024;color:#f2dfb5;
+  padding:5px;font:inherit;touch-action:none}
+.trial-buttons button[data-lit]{background:#edb269;color:#261809;border-color:#fff0bd}
+.trial-buttons button[data-held]{background:#305347;border-color:#98c8a0}
+.trial-score{color:#c8b898}
+.trial-hand{position:absolute;z-index:2;transform:translate(-50%,-50%);width:48px;height:48px;
+  background:#e0a35419;border:1px solid #d5a968;color:#fff2c1;font:10px var(--pixel);touch-action:manipulation}
+.trial-track{height:14px;position:relative;margin:6px 0 8px;border:1px solid #715f47;background:#392c26;overflow:hidden}
+.trial-track i{position:absolute;display:block;height:100%}
+#trial-band{left:34%;width:32%;background:#526c44}
+#trial-marker{width:4px;transform:translateX(-50%);background:#f4d794}
+#trial-fill{left:0;background:#81ae83}
+.ending-caption{position:absolute;z-index:2;bottom:30px;left:50%;transform:translateX(-50%);width:max-content;
+  max-width:calc(100% - 20px);margin:0;padding:8px 11px;text-align:center;background:#0b1010e8;color:#f1ddaf;font:10px/1.7 var(--pixel)}
+.ending-caption strong{color:#f2ad6c}
+.stage.end-black .overlay{background:#030405}
+.stage.end-black .panel{background:none;border:0;box-shadow:none;text-align:center}
+.stage.end-black .utility{display:none}
 .overlay{position:absolute;inset:0;z-index:3;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:52px 18px 18px}
 .panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}
 .panel .eyebrow{font:10px/1.65 var(--pixel);color:var(--gold)}
@@ -73,6 +97,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
   .look{top:50px;font-size:7px}
   .cue{top:93px}
   .panel ul{font-size:14px}
+  .trial{font-size:8px;bottom:8px}
 }
 .paper{position:absolute;top:0;left:0;transform-origin:0 0;box-sizing:border-box;width:540px;height:464px;
   display:flex;flex-direction:column;padding:28px 28px 22px;color:#342818;
@@ -125,22 +150,36 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 </head>
 <body>
 <audio id="score" loop preload="none" hidden></audio>
+<audio id="professor-voice" src="./assets/boys-trip.mp3" preload="auto" hidden></audio>
 <main>
 <div class="stage" id="stage">
 <canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas>
 <button type="button" class="bean-pickup" id="bean-pickup" aria-label="Grab the bean tin" hidden></button><div class="vignette"></div>
+<button type="button" class="trial-hand" data-hand="0" aria-label="Swat the left hand" hidden>1</button>
+<button type="button" class="trial-hand" data-hand="1" aria-label="Swat the middle hand" hidden>2</button>
+<button type="button" class="trial-hand" data-hand="2" aria-label="Swat the right hand" hidden>3</button>
 <div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden><span id="bean-status" role="status"></span><span id="bean-timer" aria-hidden="true"></span></span></div>
 <div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
-<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div><div class="paper-wait" id="sheet-wait" hidden>Next sheet in<strong id="sheet-time"></strong>Look up while you wait.</div></div>
+<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div><div class="paper-wait" id="sheet-wait" hidden>The proctor seals each new sheet.<strong>30-second trial</strong>Keep your composure to open it.</div></div>
 <div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status" role="status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
 <progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
 </section>
 <p class="cue" id="cue" role="status"></p>
-<nav class="controls" aria-label="Look controls">
+<nav class="controls" id="look-controls" aria-label="Look controls">
 <button data-view="left" disabled>← Window</button><button data-view="front" disabled>↑ Hall</button><button data-view="right" disabled>→ Seam</button><button data-view="desk" disabled>↓ Exam</button><button id="act" disabled>E · Interact</button>
 </nav>
+<section class="trial" id="trial" aria-label="Sheet trial" hidden>
+  <div class="trial-head"><strong id="trial-title"></strong><span id="trial-time" aria-hidden="true"></span></div>
+  <p id="trial-cue" role="status"></p>
+  <div class="trial-track" id="trial-track" hidden aria-hidden="true">
+    <i id="trial-band" hidden></i><i id="trial-marker" hidden></i><i id="trial-fill" hidden></i>
+  </div>
+  <div class="trial-buttons" id="trial-buttons"><button type="button"></button><button type="button"></button><button type="button"></button></div>
+  <p class="trial-score" id="trial-score"></p>
+</section>
+<p class="ending-caption" id="ending-caption" role="status" hidden>Your reward is a <strong>Boys Trip.</strong></p>
 <div class="overlay" id="overlay"><section class="panel" id="panel"></section></div>
 </div>
 </main>
@@ -262,7 +301,6 @@ function makePlate(kind, targets) {
 }
 const sheets = ['External landmarks','Hindquarters and joints','Lower limb','Conformation','Digestive tract','The hindgut'];
 const sheetSize = 3;
-const releases = [0, 80, 178, 281, 391, 510];
 const examTime = 720;
 const writingTime = 2.3;
 const views = {
@@ -300,7 +338,7 @@ new ResizeObserver(([entry]) => {
 }).observe($('stage'));
 const run = {mode:'intro',view:'front',remaining:examTime,health:3};
 let audio, master, hum, noiseBuffer, music, muted = false, pressed = false, lastFrame = performance.now();
-let audioRequested = false;
+let audioRequested = false, voiceBuffer, voiceLoad;
 let lastPaper = '', lastCue = '', lastView = '';
 function createMusic() {
   const rate = 22050;
@@ -402,6 +440,7 @@ function audioInit(preview = false) {
       const samples = noiseBuffer.getChannelData(0);
       for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
     }
+    prepareProfessorVoice();
     if (audio.state !== 'running') {
       audio.resume().then(() => {
         renderSoundButton();
@@ -427,7 +466,7 @@ function renderSoundButton() {
 function soundLevel() {
   if (!audio) return;
   master.gain.setTargetAtTime(muted ? 0 : .9,audio.currentTime,.035);
-  hum.gain.setTargetAtTime(run.mode === 'running' ? .88 : 0,audio.currentTime,.18);
+  hum.gain.setTargetAtTime(run.mode === 'running' ? .88 : run.mode === 'ending' ? .35 : 0,audio.currentTime,.18);
 }
 function output(gain, pan) {
   if (audio.createStereoPanner) {
@@ -470,6 +509,7 @@ function warning({id,pan}, near = 0) {
   const weight = .7 + near * .7;
   switch (id) {
     case 'moth':
+      if (near > .52) { noise(.52,710,.39 * weight,pan); break; }
       for (let i = 0; i < 4; i++) noise(.19,1400 + 330 * i,.45 * weight,pan,i * .14);
       break;
     case 'monitor':
@@ -483,6 +523,7 @@ function warning({id,pan}, near = 0) {
       note(213,.78,.085 * weight,pan,'sawtooth',63);
       break;
     case 'mimic':
+      if (near > .52) { noise(.49,850,.36 * weight,pan); break; }
       for (let i = 0; i < 3; i++) note(440,.16,.22 * weight,pan,'triangle',135,i * .19);
       break;
     case 'mare':
@@ -496,9 +537,11 @@ function warning({id,pan}, near = 0) {
   }
 }
 function start() {
-  Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),wrongAnswers:exam.map(() => new Set()),pending:null,threat:null,nextThreat:11,previousThreat:null,deck:[],beans:null,beanShield:false,beanUsedUntil:0,nextBeans:27,nextTick:1,notice:'',noticeUntil:0,hitUntil:0});
+  Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),wrongAnswers:exam.map(() => new Set()),pending:null,openSheet:0,trial:null,ending:null,threat:null,nextThreat:11,previousThreat:null,deck:[],retreat:null,nextPulse:0,beans:null,beanShield:false,beanUsedUntil:0,nextBeans:27,nextTick:1,notice:'',noticeUntil:0,hitUntil:0});
   Object.assign(camera,{yaw:0,pitch:0,y:0,z:0,lean:0});
   lastPaper = '';
+  $('stage').classList.remove('end-black');
+  $('ending-caption').hidden = true;
   pressed = false;
   if (music) music.currentTime = 0;
   audioInit();
@@ -523,20 +566,20 @@ function focused() {
   return Math.abs(camera.yaw - target.yaw) < .022 && Math.abs(camera.pitch - target.pitch) < .022 &&
     Math.abs(camera.z - (target.z ?? 0)) < .025;
 }
-function sheetRelease(page) {
-  return releases[Math.floor(page / sheetSize)];
-}
 function changePage(delta) {
-  if (run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
+  if (run.trial || run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
   if (delta > 0 && run.answers[run.page] === null) return;
   const next = run.page + delta;
-  if (next >= 0 && next < exam.length) run.page = next;
+  if (next < 0 || next >= exam.length) return;
+  run.page = next;
+  const sheet = Math.floor(next / sheetSize);
+  if (sheet > run.openSheet) startTrial(sheet);
   renderUI();
 }
 function choose(option) {
-  if (run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
+  if (run.trial || run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
   const page = run.page;
-  if (run.elapsed < sheetRelease(page) || run.answers[page] !== null || run.wrongAnswers[page].has(option)) return;
+  if (Math.floor(page / sheetSize) > run.openSheet || run.answers[page] !== null || run.wrongAnswers[page].has(option)) return;
   run.pending = {page:run.page,option,progress:0};
   for (let i = 0; i < 3; i++) noise(.16,1750,.15,.08,i * .14);
   renderUI();
@@ -559,28 +602,34 @@ function spawn() {
   warning(kind);
 }
 function resolveThreat(survived) {
-  const {kind} = run.threat;
+  const threat = run.threat;
+  const {kind} = threat;
   run.threat = null;
   pressed = false;
   run.noticeUntil = run.elapsed + 2.6;
   run.nextThreat = run.elapsed + Math.max(5.8,14 - run.elapsed * .013) + 5 * Math.random();
   if (survived) {
+    run.retreat = {kind,progress:creatureProgress(threat),until:run.elapsed + .8};
     run.notice = kind.name + ' backed off.';
     note(230,.32,.16,kind.pan,'triangle',62);
     return;
   }
+  takeHit(kind.loss,kind.pan);
+}
+function takeHit(message,pan) {
+  run.noticeUntil = run.elapsed + 3.5;
   run.hitUntil = run.elapsed + .36;
-  noise(.45,820,.56,kind.pan);
-  note(86,.61,.36,kind.pan,'sawtooth',26);
+  noise(.45,820,.56,pan);
+  note(86,.61,.36,pan,'sawtooth',26);
   if (run.beanShield) {
     run.beanShield = false;
     run.beanUsedUntil = run.elapsed + 3.2;
     run.nextBeans = Math.max(run.nextBeans,run.beanUsedUntil);
     run.notice = '';
-    note(523,.26,.17,kind.pan,'triangle',294);
+    note(523,.26,.17,pan,'triangle',294);
   } else {
     run.health--;
-    run.notice = kind.loss;
+    run.notice = message;
     if (!run.health) finish('caught');
   }
 }
@@ -598,7 +647,7 @@ function updateBeans() {
   }
 }
 function interact() {
-  if (run.mode !== 'running' || !focused()) return;
+  if (run.trial || run.mode !== 'running' || !focused()) return;
   const threat = run.threat;
   if (threat?.kind.view === run.view && threat.kind.method !== 'watch') {
     if (threat.kind.method === 'tap') {
@@ -610,13 +659,236 @@ function interact() {
   if (run.beans?.view === run.view) collectBeans();
 }
 function collectBeans() {
-  if (run.mode !== 'running' || !run.beans) return;
+  if (run.trial || run.mode !== 'running' || !run.beans) return;
   run.beans = null;
   run.beanShield = true;
   $('bean-pickup').hidden = true;
   for (const [i, hz] of [392,523,659].entries()) note(hz,.24,.14,0,'triangle',hz,i * .09);
   renderUI();
 }
+const trialDuration = 30;
+const trials = [
+  {id:'hands',name:'Hands at the window',view:'left',buttons:['1 · Left','2 · Middle','3 · Right']},
+  {id:'echo',name:'Ghost hoofbeats',view:'front',buttons:['1 · Low','2 · Middle','3 · High']},
+  {id:'latch',name:'The seam latch',view:'right',buttons:['1 · Turn left','2 · Turn right']},
+  {id:'breath',name:'The Mimic is watching',view:'left',buttons:['Hold breath · Space']},
+  {id:'bell',name:'The ceiling bell',view:'right',buttons:['Strike bell · Space']}
+];
+const handPatterns = [1,4,3,2,5,4,6,3];
+const trialButtons = [...$('trial-buttons').querySelectorAll('button')];
+const trialHands = [...document.querySelectorAll('[data-hand]')];
+const echoPitches = [168,246,346];
+for (const button of trialHands) button.onclick = () => trialInput(Number(button.dataset.hand));
+function startTrial(sheet) {
+  const spec = trials[sheet - 1];
+  run.trial = {spec,sheet,elapsed:0,phase:-1,score:0,removed:0,entered:0,heard:-1,position:.5,
+    air:1,exposed:0,holding:false,flashUntil:0,lastBell:-1,lastPress:-Infinity,rotation:Math.floor(Math.random() * 3),
+    patterns:[3,4,5].map(size => Array.from({length:size},() => Math.floor(Math.random() * 3)))};
+  run.threat = null;
+  pressed = false;
+  go(spec.view);
+  $('trial-title').textContent = spec.name;
+  trialButtons.forEach((button,i) => {
+    button.hidden = i >= spec.buttons.length;
+    button.textContent = spec.buttons[i] || '';
+  });
+  note(370,.52,.20,0,'triangle',353);
+  note(550,.44,.14,0,'triangle',482,.19);
+}
+function handTargets(trial) {
+  const time = trial.elapsed - 1.5;
+  const pattern = handPatterns[trial.phase];
+  if (!pattern || time < 0 || time >= handPatterns.length * 3.5 || time % 3.5 > 2.45) return 0;
+  return ((pattern << trial.rotation | pattern >> (3 - trial.rotation)) & 7) & ~trial.removed;
+}
+function echoStage(trial) {
+  const pattern = trial.patterns[trial.phase];
+  if (!pattern) return {cue:-1,input:false};
+  const local = trial.elapsed - (2 + trial.phase * 9);
+  const beat = Math.floor(local / .64);
+  return {cue:beat < pattern.length && local % .64 < .39 ? pattern[beat] : -1,
+    input:local >= pattern.length * .64 + .32};
+}
+function watchingMimic(trial) {
+  const time = trial.elapsed - 3;
+  return time >= 0 && time % 5.4 >= .75 && time % 5.4 < 3.05;
+}
+function bellPhase(trial) {
+  return Math.floor((trial.elapsed - 2.5) / 5.1);
+}
+function bellPosition(trial) {
+  return .5 + .46 * Math.sin((trial.elapsed - 2.5) * Math.PI * 2 / 3.0);
+}
+function trialInput(i) {
+  if (run.mode !== 'running' || !run.trial) return;
+  const trial = run.trial;
+  switch (trial.spec.id) {
+    case 'hands':
+      if (!(handTargets(trial) & 1 << i)) return;
+      trial.removed |= 1 << i;
+      trial.score++;
+      noise(.17,640,.32,-.8);
+      note(215,.18,.14,-.8,'triangle',106);
+      break;
+    case 'echo': {
+      const pattern = trial.patterns[trial.phase];
+      if (!echoStage(trial).input || trial.entered === pattern.length) return;
+      note(echoPitches[i],.25,.19);
+      if (pattern[trial.entered] !== i) {
+        trial.entered = 0;
+        trial.flashUntil = trial.elapsed + .55;
+        break;
+      }
+      if (++trial.entered === pattern.length) {
+        trial.score++;
+        note(590,.23,.15,0,'triangle',590,.12);
+      }
+      break;
+    }
+    case 'latch':
+      trial.position = clamp(trial.position + (i === 0 ? -.18 : .18));
+      note(164,.12,.10,.8,'triangle',103);
+      break;
+    case 'breath':
+      trial.holding = true;
+      break;
+    case 'bell': {
+      const phase = bellPhase(trial);
+      if (phase < 0 || phase >= 5 || trial.lastBell === phase || trial.elapsed < trial.lastPress + .62) return;
+      trial.lastPress = trial.elapsed;
+      if (Math.abs(bellPosition(trial) - .5) <= .16) {
+        trial.lastBell = phase;
+        trial.score++;
+        note(540,.44,.20,.65);
+        note(796,.42,.14,.65,'triangle',735,.11);
+      } else {
+        trial.flashUntil = trial.elapsed + .62;
+        noise(.13,530,.22,.7);
+      }
+      break;
+    }
+  }
+  renderTrial();
+}
+function trialTick(dt) {
+  const trial = run.trial;
+  trial.elapsed += dt;
+  const time = trial.elapsed;
+  switch (trial.spec.id) {
+    case 'hands': {
+      const phase = Math.floor((time - 1.5) / 3.5);
+      if (phase !== trial.phase && phase < handPatterns.length) {
+        trial.phase = phase;
+        trial.removed = 0;
+        noise(.24,1260,.28,-.8);
+      }
+      break;
+    }
+    case 'echo': {
+      const phase = Math.min(2,Math.floor((time - 2) / 9));
+      if (phase !== trial.phase) {
+        trial.phase = phase;
+        trial.entered = 0;
+        trial.heard = -1;
+      }
+      const {cue} = echoStage(trial);
+      if (cue >= 0 && cue !== trial.heard) {
+        note(echoPitches[cue],.33,.32,0,'triangle',echoPitches[cue] * .82);
+        noise(.12,670,.26,0);
+      }
+      trial.heard = cue;
+      break;
+    }
+    case 'latch':
+      trial.position = clamp(trial.position + dt * (.19 * Math.sin(time * .69) + .072 * Math.sin(time * 1.8) + .047));
+      if (Math.abs(trial.position - .5) <= .16) trial.score += dt;
+      break;
+    case 'breath': {
+      const watching = watchingMimic(trial);
+      if (watching !== trial.watching) {
+        trial.watching = watching;
+        if (watching) noise(.36,680,.24,-.7);
+      }
+      trial.air = clamp(trial.air + (trial.holding ? -.31 : .46) * dt);
+      if (watching && (!trial.holding || trial.air <= 0)) trial.exposed += dt;
+      break;
+    }
+  }
+  if (time >= trialDuration) endTrial(trial);
+}
+function endTrial(trial) {
+  const id = trial.spec.id;
+  const passed = id === 'hands' ? trial.score >= 8 : id === 'echo' ? trial.score >= 2 :
+    id === 'latch' ? trial.score >= 15 : id === 'breath' ? trial.exposed <= 3.5 : trial.score >= 3;
+  run.trial = null;
+  run.openSheet = trial.sheet;
+  run.nextThreat = run.elapsed + 8;
+  run.notice = 'The next sheet is open. Look down.';
+  run.noticeUntil = run.elapsed + 4;
+  if (passed) {
+    note(466,.22,.16);
+    note(622,.33,.16,0,'triangle',622,.14);
+  } else takeHit('The trial cost one composure. Look down for the next sheet.',views[run.view].yaw);
+}
+function renderTrial() {
+  const trial = run.trial;
+  $('trial').hidden = !trial;
+  if (!trial) return;
+  const id = trial.spec.id;
+  const time = Math.max(0,Math.ceil(trialDuration - trial.elapsed));
+  $('trial-time').textContent = time + 's';
+  let cue = '', score = '', mask = 0, marker = null, fill = null;
+  switch (id) {
+    case 'hands':
+      mask = handTargets(trial);
+      cue = mask ? 'Slap the raised hands.' : 'Watch the sill.';
+      score = `${trial.score} swatted · 8 needed`;
+      break;
+    case 'echo': {
+      const echo = echoStage(trial);
+      const pattern = trial.patterns[trial.phase];
+      mask = echo.cue < 0 ? 0 : 1 << echo.cue;
+      cue = trial.flashUntil > trial.elapsed ? 'Try the pattern again.' : !pattern ? 'Listen for the first hoofbeats.' :
+        !echo.input ? 'Watch the pattern.' : trial.entered === pattern.length ? 'The mare backs away.' : 'Repeat the pattern.';
+      score = `${trial.score} patterns echoed · 2 needed`;
+      break;
+    }
+    case 'latch':
+      marker = trial.position;
+      cue = 'Keep the needle inside the green band.';
+      score = `${Math.floor(trial.score)}s steady · 15s needed`;
+      break;
+    case 'breath': {
+      const watch = watchingMimic(trial);
+      fill = trial.air;
+      cue = watch ? 'It sees you. Hold your breath.' : (trial.elapsed >= 3 && (trial.elapsed - 3) % 5.4 < .75) ?
+        'It is turning around.' : 'It looked away. Breathe.';
+      score = `Air ${Math.floor(trial.air * 100)}% · heard for ${trial.exposed.toFixed(1)}s`;
+      break;
+    }
+    case 'bell': {
+      marker = bellPosition(trial);
+      const phase = bellPhase(trial);
+      cue = phase < 0 ? 'Wait for the swing.' : phase >= 5 || trial.lastBell === phase ? 'Wait for the next swing.' :
+        trial.flashUntil > trial.elapsed ? 'Missed. Watch the next pass.' : 'Strike when the clapper crosses green.';
+      score = `${trial.score} clean strikes · 3 needed`;
+      break;
+    }
+  }
+  for (const [i,button] of trialButtons.entries()) {
+    button.toggleAttribute('data-lit',Boolean(mask & 1 << i));
+    button.toggleAttribute('data-held',id === 'breath' && trial.holding);
+  }
+  $('trial-track').hidden = marker === null && fill === null;
+  $('trial-band').hidden = marker === null;
+  $('trial-marker').hidden = marker === null;
+  $('trial-fill').hidden = fill === null;
+  if (marker !== null) $('trial-marker').style.left = `${marker * 100}%`;
+  if (fill !== null) $('trial-fill').style.width = `${fill * 100}%`;
+  if ($('trial-cue').textContent !== cue) $('trial-cue').textContent = cue;
+  if ($('trial-score').textContent !== score) $('trial-score').textContent = score;
+}
+
 function tick(dt) {
   run.elapsed += dt;
   run.remaining = Math.max(0,examTime - run.elapsed);
@@ -639,6 +911,13 @@ function tick(dt) {
       } else note(210,.14,.11,.1,'triangle',115);
     }
   }
+  if (run.retreat && run.elapsed >= run.retreat.until) run.retreat = null;
+  if (run.trial) {
+    if (run.beans) run.beans.until += dt;
+    run.nextBeans += dt;
+    trialTick(dt);
+    return;
+  }
   if (!run.threat && run.elapsed >= run.nextThreat) spawn();
   updateBeans();
   const threat = run.threat;
@@ -650,10 +929,35 @@ function tick(dt) {
     warning(threat.kind,threat.age / threat.limit);
   }
   const {kind} = threat;
+  movementSound(threat);
   const defending = focused() && run.view === kind.view &&
     (kind.method === 'watch' || (kind.method === 'hold' && pressed));
   threat.progress = defending ? threat.progress + dt : Math.max(0,threat.progress - dt * 2);
   if (defending && threat.progress >= kind.time) resolveThreat(true);
+}
+function movementSound(threat) {
+  const progress = creatureProgress(threat);
+  const {kind} = threat;
+  const step = Math.floor(walkCycle(kind,progress) * 2);
+  if (step > (threat.step ?? 0)) {
+    threat.step = step;
+    noise(.13,kind.id === 'crawler' ? 1900 : 480,.16 + progress * .20,kind.pan,0,'lowpass');
+    note(108,.19,.085 + progress * .11,kind.pan,'triangle',50);
+  }
+  if (kind.view === 'left') {
+    const stage = progress >= .57 ? 2 : progress >= .20 ? 1 : 0;
+    if (stage > (threat.stage ?? 0)) {
+      threat.stage = stage;
+      noise(stage === 1 ? .55 : .25,stage === 1 ? 880 : 320,.38,kind.pan);
+      note(stage === 1 ? 260 : 83,.32,.22,kind.pan,'triangle',stage === 1 ? 163 : 41);
+    }
+  }
+  const remaining = threat.limit - threat.age;
+  if (remaining < 3.4 && run.elapsed >= run.nextPulse) {
+    run.nextPulse = run.elapsed + .53 + remaining * .10;
+    note(85,.16,.24,0,'triangle',47);
+    note(66,.19,.20,0,'triangle',39,.17);
+  }
 }
 function timeText(t) {
   const whole = Math.ceil(t);
@@ -666,21 +970,21 @@ function setCue(text) {
 function paperUI() {
   const page = run.page, sheet = Math.floor(page / sheetSize);
   const finalPage = page === exam.length - 1;
-  const wait = Math.max(0,sheetRelease(page) - run.elapsed);
+  const locked = sheet > run.openSheet;
   const answer = run.answers[page], wrong = run.wrongAnswers[page];
   const writing = Boolean(run.pending);
-  const key = [page,answer,wrong.size,wait > 0,writing,answerCount()].join('/');
+  const key = [page,answer,wrong.size,locked,writing,answerCount()].join('/');
   if (key !== lastPaper) {
     lastPaper = key;
     $('sheet').textContent = `Sheet ${sheet + 1} / ${sheets.length} · ${sheets[sheet]} · Question ${page + 1}`;
     const task = practical[page];
-    $('question').textContent = wait > 0 ? 'Waiting for the next sheet' : task ? task[1] : exam[page][0];
-    $('sheet-wait').hidden = wait === 0;
-    const plate = !wait && task ? makePlate(task[0],task[2]) : null;
+    $('question').textContent = locked ? 'The proctor’s trial' : task ? task[1] : exam[page][0];
+    $('sheet-wait').hidden = !locked;
+    const plate = !locked && task ? makePlate(task[0],task[2]) : null;
     $('diagram').hidden = !plate;
     $('diagram').replaceChildren(...(plate ? [plate] : []));
     const answers = $('answers');
-    answers.hidden = Boolean(plate) || wait > 0;
+    answers.hidden = Boolean(plate) || locked;
     answers.replaceChildren(...(answers.hidden ? [] : exam[page][1].map((text,i) => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -701,25 +1005,23 @@ function paperUI() {
     });
     $('prev').disabled = page === 0 || writing;
     $('next').hidden = finalPage;
+    $('next').textContent = (page + 1) % sheetSize === 0 ? 'Next sheet' : 'Next';
     $('next').disabled = answer === null || writing;
     $('submit').hidden = !finalPage;
     $('submit').disabled = writing || answerCount() < exam.length;
   }
-  if (wait > 0) {
-    const time = timeText(wait);
-    if ($('sheet-time').textContent !== time) $('sheet-time').textContent = time;
-  }
   $('writing').value = writing ? run.pending.progress / writingTime : answer !== null ? 1 : 0;
   const status = $('paper-status');
-  const result = writing || wait > 0 ? '' : answer !== null ? 'correct' : wrong.size ? 'incorrect' : '';
-  const message = writing ? 'Writing…' : wait > 0 ? '' :
+  const result = writing || locked ? '' : answer !== null ? 'correct' : wrong.size ? 'incorrect' : '';
+  const message = writing ? 'Writing…' : locked ? '' :
     result === 'correct' ? 'Correct' :
     result === 'incorrect' ? 'Incorrect. Try another.' : practical[page] ? 'Stamp a marker.' : 'Choose an answer.';
   if (status.textContent !== message) status.textContent = message;
   if (status.dataset.result !== result) status.dataset.result = result;
 }
 function renderBeans(canGrab) {
-  const {beans,beanShield,beanUsedUntil,elapsed} = run;
+  const {beanShield,beanUsedUntil,elapsed} = run;
+  const beans = run.trial ? null : run.beans;
   const state = beanShield ? 'shield' : elapsed < beanUsedUntil ? 'blocked' : beans ? 'drop' : '';
   const badge = $('bean-hud');
   badge.hidden = !state;
@@ -735,7 +1037,9 @@ function renderBeans(canGrab) {
 function renderUI() {
   const playing = run.mode === 'running', settled = focused(), threat = run.threat;
   const desk = playing && settled && run.view === 'desk';
-  paper.inert = !desk;
+  paper.inert = !desk || Boolean(run.trial);
+  $('look-controls').hidden = Boolean(run.trial);
+  renderTrial();
   if (playing) paperUI();
   hud.clock.textContent = timeText(run.remaining);
   hud.clock.classList.toggle('low',run.remaining <= 60);
@@ -748,7 +1052,7 @@ function renderUI() {
   $('stage').classList.toggle('in-exam',playing || run.mode === 'paused');
   const label = !playing ? '' : settled ? views[run.view].label : 'Turning…';
   if (lastView !== label) { $('look').textContent = label; lastView = label; }
-  $('look').hidden = !playing;
+  $('look').hidden = !playing || Boolean(run.trial);
   for (const button of viewButtons) {
     button.disabled = !playing;
     button.toggleAttribute('data-beans',playing && run.beans?.view === button.dataset.view);
@@ -761,7 +1065,7 @@ function renderUI() {
   $('act').disabled = !canAct && !beanReady;
   $('act').toggleAttribute('data-beans',beanReady);
   $('act').textContent = canAct ? 'E · ' + threat.kind.action : beanReady ? 'E · Grab beans' : 'E · Interact';
-  if (!playing) setCue('');
+  if (!playing || run.trial) setCue('');
   else if (engaged) {
     const {kind} = threat;
     const instruction = kind.method === 'watch' ? kind.action : (kind.method === 'hold' ? 'Hold' : 'Press') + ' E · ' + kind.action;
@@ -781,7 +1085,7 @@ function showPanel(html) {
 function intro() {
   showPanel(`<div class="eyebrow">COWBOYBOY · HORSE UNIVERSITY</div><h1>The Night Final</h1>
   <p>You have twelve minutes to pass horse anatomy. Someone has already taken attendance.</p>
-  <ul><li>Look down to work the exam. Stamp a diagram or pick a written answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. When Bean Bonus appears, turn toward the highlighted location, then click the tin or press E to grab it. It automatically blocks your next hit.</li><li>Three hits end the exam. Solve all 18 questions and turn in the paper before time runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
+  <ul><li>Look down to answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li><li>The proctor tests your composure between sheets. Each trial lasts 30 seconds. Follow its on-screen controls.</li><li>Click bean tins to block one hit. Three hits end the exam. Solve all 18 questions before time runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
   <button class="primary" id="begin">Sit the final</button>`);
   $('begin').onclick = start;
 }
@@ -789,6 +1093,7 @@ function pause() {
   if (run.mode === 'running') {
     run.mode = 'paused';
     pressed = false;
+    if (run.trial) run.trial.holding = false;
     soundLevel();
     updateMusic();
     showPanel('<div class="eyebrow">CLOCK STOPPED</div><h1>Paused</h1><button class="primary" id="resume">Resume exam</button>');
@@ -802,22 +1107,136 @@ function pause() {
   }
 }
 function finish(reason) {
+  if (reason === 'submit') {
+    beginEnding();
+    return;
+  }
   run.mode = 'ended';
   pressed = false;
   soundLevel();
   updateMusic();
-  const passed = reason === 'submit';
-  const result = reason === 'caught' ? 'Something got in.' : reason === 'time' ? 'Time’s up.' : 'You passed.';
+  const result = reason === 'caught' ? 'Something got in.' : 'Time’s up.';
   const review = exam.map(([prompt,,,explanation],i) => run.answers[i] !== null && !run.wrongAnswers[i].size ?
     '' : `<li><strong>${prompt}</strong> ${explanation}</li>`).join('');
   showPanel(`<div class="eyebrow">HORSE UNIVERSITY · EXAM REPORT</div><h1>${result}</h1>
   <p>${answerCount()} / ${exam.length} solved · ${timeText(run.remaining)} left</p>
-  ${passed ? '<p>The proctor signs your diploma. His hoof leaves no ink.</p>' : '<p>Solve all 18 questions and turn in the paper to pass.</p>'}
+  <p>Solve all 18 questions and turn in the paper to pass.</p>
   ${review ? `<details><summary>Review missed and unanswered questions</summary><ol class="review">${review}</ol></details>` : ''}
   <p><small>References: <a href="https://afs.ca.uky.edu/files/equine_anatomy.pdf" target="_blank" rel="noopener">Parts of the Horse</a> · <a href="https://www.extension.iastate.edu/equine/synopsis-digestive-anatomy-and-physiology-horse" target="_blank" rel="noopener">Equine digestion</a></small></p>
   <button class="primary" id="retry">Retake the final</button>`);
   $('retry').onclick = start;
 }
+const professor = {id:'professor',view:'front'};
+const voiceAt = 3.48;
+const tearAt = 7.14;
+const screamAt = 7.33;
+const cutAt = 8.48;
+function prepareProfessorVoice() {
+  if (!audio || voiceLoad || typeof fetch !== 'function') return;
+  const context = audio;
+  voiceLoad = fetch($('professor-voice').src)
+    .then(response => {
+      if (!response.ok) throw new Error('Professor audio unavailable');
+      return response.arrayBuffer();
+    })
+    .then(bytes => context.decodeAudioData(bytes))
+    .then(buffer => { voiceBuffer = buffer; })
+    .catch(() => { voiceLoad = null; });
+}
+function beginEnding() {
+  run.mode = 'ending';
+  run.ending = {time:0,step:0};
+  run.view = 'front';
+  run.threat = null;
+  run.retreat = null;
+  run.beans = null;
+  pressed = false;
+  soundLevel();
+  updateMusic();
+  renderUI();
+}
+function endingTick(dt) {
+  const ending = run.ending;
+  const before = ending.time;
+  ending.time += dt;
+  const time = ending.time;
+  const step = Math.floor(walkCycle(professor,clamp((time - .58) / 2.78)) * 2);
+  if (step > ending.step) {
+    ending.step = step;
+    noise(.17,370,.32,0,0,'lowpass');
+    note(103,.20,.17,0,'triangle',48);
+  }
+  if (before < voiceAt && time >= voiceAt) {
+    $('ending-caption').hidden = false;
+    if (!muted && voiceBuffer && audio?.state === 'running') {
+      const source = audio.createBufferSource();
+      source.buffer = voiceBuffer;
+      source.connect(master);
+      source.start();
+    } else if (!muted) $('professor-voice').play().catch(() => {});
+  }
+  if (before < tearAt && time >= tearAt) {
+    $('ending-caption').hidden = true;
+    noise(.42,1540,.45,0);
+    noise(.21,590,.34,0,0,'lowpass');
+  }
+  if (before < screamAt && time >= screamAt) {
+    note(318,.87,.34,0,'sawtooth',780);
+    note(652,.76,.22,0,'triangle',511,.07);
+    noise(.81,1650,.44,0);
+    noise(.54,900,.25,0,.12);
+  }
+  if (time >= cutAt) {
+    run.mode = 'ended';
+    run.ending = null;
+    soundLevel();
+    $('stage').classList.add('end-black');
+    showPanel('<h1>The end</h1><button class="primary" id="retry">Play again</button>');
+    $('retry').onclick = start;
+  }
+}
+function drawProfessor(time) {
+  const approach = clamp((time - .58) / 2.78);
+  const pose = walkPose(professor,approach);
+  const settle = clamp((approach - .84) / .16);
+  pose.feet = pose.feet.map((foot,i) => mixPoint(foot,[.04 + (i ? .19 : -.19),-1.34,1.94],settle));
+  const grab = clamp((time - 6.63) / (tearAt - 6.63));
+  const tear = clamp((time - tearAt) / .35);
+  const lunge = clamp((time - screamAt) / .21);
+  pose.chest[2] -= .35 * lunge;
+  pose.chest[1] -= .10 * lunge;
+  const cheek = offset(pose.chest,pose.forward,-.16,.29,.18);
+  const palm = offset(cheek,pose.forward,-.61 * tear,-.36 * tear,.065);
+  pose.hands[0] = mixPoint(pose.hands[0],palm,grab);
+  pose.hands[1] = mixPoint(pose.hands[1],offset(cheek,pose.forward,.34,-.075,.03),grab * (1 - tear * .53));
+  pose.tear = tear;
+  person(professor,pose,approach);
+}
+function professorFace(head,pose,palette) {
+  const {forward,tear} = pose;
+  const at = (origin,color,points) => shape(color,points.map(([x,y]) => offset(origin,forward,x,y,.025)));
+  at(head,palette.shadow,[[-.23,.15],[-.12,.27],[.10,.27],[.23,.14],[.24,-.10],[.12,-.28],[-.12,-.26],[-.22,-.12]]);
+  if (tear > .08) {
+    at(head,'#693e3b',[[-.18,.10],[-.09,.22],[.16,.19],[.19,-.07],[.09,-.26],[-.12,-.22]]);
+    at(head,'#1a1217',[[-.15,.03],[.14,.03],[.18,-.12],[.09,-.26],[-.10,-.24],[-.17,-.13]]);
+    at(head,'#e8d5b1',[[-.135,.018],[-.067,.011],[-.097,-.11]]);
+    at(head,'#e8d5b1',[[.061,.014],[.135,.020],[.096,-.11]]);
+    at(head,'#f7bc78',[[-.16,.105],[-.080,.102],[-.091,.075],[-.15,.073]]);
+    at(head,'#f7bc78',[[.080,.102],[.159,.105],[.149,.071],[.083,.074]]);
+  }
+  if (tear < .13) {
+    at(head,palette.skin,[[-.17,.14],[-.075,.17],[0,.128],[.072,.177],[.165,.142],[.159,-.082],[.076,-.184],[-.077,-.186],[-.158,-.075]]);
+    at(head,'#4b3b38',[[-.132,.074],[-.048,.050],[-.059,.018],[-.13,.033]]);
+    at(head,'#4b3b38',[[.047,.051],[.131,.073],[.128,.032],[.055,.016]]);
+    at(head,'#533231',[[-.066,-.099],[.066,-.098],[.044,-.122],[-.049,-.123]]);
+  } else {
+    const face = offset(pose.hands[0],forward,-.02,.10,.028);
+    at(face,'#875a4a',[[-.15,.16],[.123,.18],[.17,-.07],[.07,-.22],[-.12,-.16]]);
+    at(face,palette.skin,[[-.15,.15],[.09,.19],[.135,-.06],[.07,-.17],[-.12,-.13]]);
+    at(face,'#4b3b38',[[-.12,.065],[-.034,.045],[-.044,.014],[-.11,.024]]);
+  }
+}
+
 function point(x,y,z) { return [x,y,z]; }
 function cameraPoint([x,y,z]) {
   y -= camera.y;
@@ -862,13 +1281,17 @@ function clip(points) {
   }
   return output;
 }
-function shape(color,points) {
+function worldPath(points) {
   const visible = clip(points.map(cameraPoint));
-  if (visible.length < 3) return;
-  ctx.fillStyle = color;
+  if (visible.length < 3) return false;
   ctx.beginPath();
   visible.map(project).forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y));
   ctx.closePath();
+  return true;
+}
+function shape(color,points) {
+  if (!worldPath(points)) return;
+  ctx.fillStyle = color;
   ctx.fill();
 }
 function front(color,x1,y1,x2,y2,z = 6.98) {
@@ -897,88 +1320,279 @@ function worldText(value,location,color,size) {
   ctx.fillStyle = color;
   ctx.fillText(value,x,y);
 }
-function monster(type,location,strength) {
-  const p = cameraPoint(location);
-  if (p[2] < .2) return;
-  const [x,y] = project(p), size = focal / p[2] * (.44 + strength * .42);
-  ctx.save();
-  ctx.translate(Math.round(x),Math.round(y));
-  ctx.scale(size,size);
-  const pixels = (color,points) => {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    points.forEach(([a,b],i) => i ? ctx.lineTo(a,b) : ctx.moveTo(a,b));
-    ctx.closePath();
-    ctx.fill();
+const creatureColors = {
+  moth:{coat:'#3a3431',edge:'#88705a',shadow:'#201d21',skin:'#776854',eyes:'#efaa64'},
+  mimic:{coat:'#40483d',edge:'#748472',shadow:'#232b25',skin:'#aca88d',eyes:'#d2ccad'},
+  monitor:{coat:'#38382a',edge:'#746e53',shadow:'#1c2119',skin:'#8a8162',eyes:'#efd281'},
+  mare:{coat:'#4e5240',edge:'#7c8368',shadow:'#252c24',skin:'#b3b69b',eyes:'#a7e2bc'},
+  seam:{coat:'#37292a',edge:'#79534a',shadow:'#1c161b',skin:'#8e6b56',eyes:'#e6a079'},
+  professor:{coat:'#302a32',edge:'#7c5551',shadow:'#18151d',skin:'#d2bc9f',eyes:'#f2c484'}
+};
+const windowClimb = [
+  {at:0,hip:[-4.34,-1.09,4.58],chest:[-4.28,-.53,4.51],
+    hands:[[-4.16,-.72,4.80],[-4.19,-.69,4.14]],feet:[[-4.42,-1.78,4.75],[-4.44,-1.78,4.37]]},
+  {at:.19,hip:[-4.23,-.85,4.10],chest:[-4.09,-.31,4.07],
+    hands:[[-3.76,-.54,4.40],[-3.76,-.54,3.68]],feet:[[-4.39,-1.53,4.38],[-4.38,-1.56,3.94]]},
+  {at:.35,hip:[-3.97,-.46,4.07],chest:[-3.63,-.08,4.02],
+    hands:[[-3.76,-.54,4.40],[-3.76,-.54,3.68]],feet:[[-3.68,-.56,4.33],[-4.20,-1.09,3.93]]},
+  {at:.49,hip:[-3.60,-.38,3.91],chest:[-3.30,-.06,3.84],
+    hands:[[-3.25,-.62,4.20],[-3.76,-.54,3.68]],feet:[[-3.23,-1.18,3.71],[-3.72,-.56,4.15]]},
+  {at:.62,hip:[-3.31,-.52,3.59],chest:[-3.28,.08,3.53],
+    hands:[[-3.60,-.48,3.71],[-3.01,-.45,3.46]],feet:[[-3.46,-1.34,3.62],[-3.13,-1.34,3.55]]}
+];
+const clamp = value => Math.max(0,Math.min(1,value));
+const mix = (a,b,t) => a + (b - a) * t;
+const mixPoint = (a,b,t) => a.map((v,i) => mix(v,b[i],t));
+function direction(x,z) {
+  const length = Math.hypot(x,z);
+  return [x / length,0,z / length];
+}
+function offset([x,y,z],[fx,,fz],across,up,forward = 0) {
+  return [x - fz * across + fx * forward,y + up,z + fx * across + fz * forward];
+}
+function creatureProgress(threat) {
+  return clamp(threat.age / threat.limit);
+}
+function climbPose(progress) {
+  const i = windowClimb.findIndex(frame => frame.at >= progress);
+  const end = windowClimb[Math.max(1,i)], begin = windowClimb[Math.max(0,i - 1)];
+  const fraction = clamp((progress - begin.at) / (end.at - begin.at));
+  return {
+    hip:mixPoint(begin.hip,end.hip,fraction),
+    chest:mixPoint(begin.chest,end.chest,fraction),
+    hands:begin.hands.map((hand,j) => mixPoint(hand,end.hands[j],fraction)),
+    feet:begin.feet.map((foot,j) => mixPoint(foot,end.feet[j],fraction)),
+    forward:direction(1 - progress * .8,-.17 - progress)
   };
-  if (type === 'moth') {
-    pixels('#0b1010',[[-.73,.94],[-.5,.31],[-.35,.16],[-.55,-.47],[-.25,-.58],[-.08,-.33],[.13,-.37],[.41,-.65],[.45,-.08],[.62,.24],[.75,.93]]);
-    pixels('#746957',[[-.35,-.2],[-.13,-.34],[.21,-.32],[.43,-.1],[.27,.5],[-.16,.67],[-.37,.28]]);
-    pixels('#2a2b27',[[-.27,.11],[.34,.06],[.22,.38],[-.06,.47],[-.2,.3]]);
-    ctx.fillStyle = '#ffd486';
-    ctx.fillRect(-.27,-.03,.17,.1);
-    ctx.fillRect(.1,-.035,.16,.1);
-  } else if (type === 'monitor') {
-    pixels('#050605',[[-.8,1.31],[-.57,.36],[-.3,.16],[-.29,-.15],[-.43,-.72],[-.14,-.47],[.15,-.48],[.35,-.8],[.31,-.18],[.22,.21],[.57,.43],[.84,1.31]]);
-    pixels('#3e4034',[[-.27,-.4],[.23,-.4],[.29,-.09],[.18,.31],[-.13,.33],[-.26,.04]]);
-    pixels('#62604b',[[-.2,.06],[.2,.08],[.12,.39],[-.1,.43]]);
-    ctx.fillStyle = '#f7c77b';
-    ctx.fillRect(-.24,-.12,.12,.07);
-    ctx.fillRect(.1,-.12,.12,.07);
-  } else if (type === 'mimic') {
-    pixels('#0b1110',[[-.83,1.2],[-.58,.2],[-.34,.14],[-.32,-.56],[-.16,-.83],[.19,-.79],[.35,-.51],[.32,.12],[.64,.22],[.86,1.2]]);
-    pixels('#879080',[[-.29,-.56],[-.16,-.73],[.14,-.7],[.26,-.5],[.19,.14],[.04,.36],[-.22,.11]]);
-    ctx.fillStyle = '#101411';
-    ctx.fillRect(-.22,-.38,.16,.12);
-    ctx.fillRect(.04,-.39,.17,.12);
-    ctx.fillRect(-.12,.02,.25,.08 + strength * .1);
-  } else if (type === 'mare') {
-    pixels('#34382d',[[-.68,1.15],[-.43,.29],[-.37,-.16],[-.55,-.76],[-.21,-.51],[.18,-.53],[.4,-.85],[.38,-.19],[.53,.23],[.4,.82],[.08,1.18]]);
-    pixels('#adb39a',[[-.31,-.31],[-.17,-.54],[.15,-.54],[.33,-.23],[.29,.27],[.41,.52],[.34,.87],[.02,.96],[-.23,.69],[-.16,.35]]);
-    ctx.fillStyle = '#171c17';
-    ctx.fillRect(-.22,-.18,.21,.17);
-    ctx.fillRect(.12,-.18,.18,.15);
-    ctx.fillRect(.08,.65,.22,.12);
-    ctx.fillStyle = '#7ee5bd';
-    ctx.fillRect(-.18,-.14,.08,.06);
-    ctx.fillRect(.18,-.14,.07,.06);
-  } else if (type === 'crawler') {
-    ctx.lineWidth = .09;
-    ctx.strokeStyle = '#151611';
-    for (const sign of [-1,1]) {
-      for (let i = 0; i < 4; i++) {
-        const y = -.47 + i * .23, reach = 1.05 + i * .07;
-        ctx.beginPath();
-        ctx.moveTo(sign * .15,y);
-        ctx.lineTo(sign * .63,y - .32);
-        ctx.lineTo(sign * reach,y + Math.sin(strength * 32 + i) * .22);
-        ctx.stroke();
-      }
-    }
-    pixels('#24271c',[[0,-.76],[.31,-.43],[.35,.11],[.17,.49],[-.16,.54],[-.36,.11],[-.29,-.44]]);
-    ctx.fillStyle = '#e7a267';
-    for (let i = 0; i < 3; i++) {
-      ctx.fillRect(-.21 + i * .14,.09,.08,.08);
-      ctx.fillRect(-.19 + i * .13,.22,.06,.07);
-    }
-  } else {
-    pixels('#050605',[[0,-1.14],[.23,-.65],[.07,-.28],[.55,.32],[.18,.43],[.37,1.22],[-.22,.58],[-.55,.27],[-.19,-.18],[-.24,-.62]]);
-    for (const eye of [[-.13,-.3],[.12,-.13],[-.18,.03],[.25,.24],[.01,.39]]) {
-      ctx.fillStyle = '#f3a275';
-      ctx.fillRect(eye[0],eye[1],.13,.055);
+}
+function gait(phase,stride) {
+  const cycle = (phase % 1 + 1) % 1;
+  if (cycle < .63) return [mix(.5,-.5,cycle / .63) * stride,0];
+  const swing = (cycle - .63) / .37;
+  return [mix(-.5,.5,swing) * stride,Math.sin(swing * Math.PI) * .20];
+}
+function walkCycle(kind,progress) {
+  if (kind.view === 'left') return clamp((progress - .62) / .38) * 3.3;
+  return progress ** 1.3 * (kind.id === 'crawler' ? 6 : kind.id === 'mare' ? 5 : kind.view === 'front' ? 5.2 : 3.7);
+}
+function walkPose(kind,progress) {
+  const windowSide = kind.view === 'left';
+  const side = kind.view !== 'front';
+  const distance = windowSide ? clamp((progress - .62) / .38) : progress ** 1.3;
+  const start = windowSide ? [-3.31,-1.34,3.59] : side ? [3.83,-1.34,3.81] : [.04,-1.34,6.68];
+  const end = windowSide ? [-1.48,-1.34,1.62] : side ? [1.52,-1.34,1.56] : [.04,-1.34,1.92];
+  const middle = windowSide ? [-3.30,-1.34,2.42] : side ? [3.75,-1.34,2.47] : start;
+  const before = mixPoint(start,middle,distance), after = mixPoint(middle,end,distance);
+  const floor = side ? mixPoint(before,after,distance) : mixPoint(start,end,distance);
+  const forward = side ? direction(after[0] - before[0],after[2] - before[2]) : [0,0,-1];
+  const pace = walkCycle(kind,progress);
+  const bob = Math.abs(Math.sin(pace * Math.PI * 2)) * .055;
+  const hip = offset(floor,forward,0,.83 + bob);
+  const chest = offset(hip,forward,.036 * Math.sin(pace * Math.PI * 2),kind.id === 'moth' ? .48 : .60,.12);
+  const hands = [], feet = [];
+  for (const sign of [-1,1]) {
+    const phase = pace + (sign === 1 ? .5 : 0);
+    const [step,lift] = gait(phase,.80);
+    feet.push(offset(floor,forward,sign * .16,lift,step));
+    hands.push(offset(hip,forward,sign * .38,kind.id === 'seam' ? .08 : -.03,
+      .06 - Math.sin(phase * 2 * Math.PI) * .18 + (kind.id === 'seam' ? progress * .24 : 0)));
+  }
+  return {hip,chest,hands,feet,forward};
+}
+function limb(from,to,widthA,widthB,color,rim) {
+  const a = cameraPoint(from), b = cameraPoint(to);
+  if (a[2] < .17 || b[2] < .17) return;
+  const [x,y] = project(a), [u,v] = project(b);
+  const length = Math.max(.01,Math.hypot(u - x,v - y));
+  const nx = (v - y) / length, ny = (x - u) / length;
+  const wa = widthA * focal / a[2], wb = widthB * focal / b[2];
+  ctx.fillStyle = rim || color;
+  ctx.beginPath();
+  ctx.moveTo(x + nx * wa,y + ny * wa);
+  ctx.lineTo(u + nx * wb,v + ny * wb);
+  ctx.lineTo(u - nx * wb,v - ny * wb);
+  ctx.lineTo(x - nx * wa,y - ny * wa);
+  ctx.closePath();
+  ctx.fill();
+  if (!rim) return;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x + nx * wa * .52,y + ny * wa * .52);
+  ctx.lineTo(u + nx * wb * .50,v + ny * wb * .50);
+  ctx.lineTo(u - nx * wb,v - ny * wb);
+  ctx.lineTo(x - nx * wa,y - ny * wa);
+  ctx.closePath();
+  ctx.fill();
+}
+function mask(kind,head,forward,palette,progress) {
+  const plane = (color,points) => shape(color,points.map(([across,up]) => offset(head,forward,across,up,.025)));
+  if (kind.id === 'mare' || kind.id === 'monitor') {
+    plane(palette.shadow,[[-.25,.17],[-.27,.43],[-.13,.32],[.13,.32],[.27,.45],[.26,.14],[.20,-.19],[.12,-.40],[-.10,-.40],[-.20,-.19]]);
+    plane(palette.skin,[[-.19,.20],[.12,.25],[.20,.14],[.16,-.07],[.11,-.33],[-.10,-.33],[-.16,-.07]]);
+    plane('#45463a',[[-.11,-.21],[.11,-.21],[.08,-.33],[-.08,-.33]]);
+    plane(palette.eyes,[[-.14,.06],[-.07,.05],[-.08,.015],[-.15,.025]]);
+    plane(palette.eyes,[[.06,.05],[.14,.07],[.15,.026],[.07,.02]]);
+    return;
+  }
+  plane(palette.shadow,[[-.21,.16],[-.10,.25],[.10,.24],[.20,.13],[.18,-.12],[.08,-.23],[-.10,-.21],[-.20,-.08]]);
+  if (kind.id === 'moth') {
+    plane(palette.edge,[[-.20,.14],[-.25,.29],[-.12,.23],[.12,.22],[.22,.30],[.20,.13],[.09,-.15],[-.11,-.17]]);
+  }
+  plane(palette.skin,[[-.15,.12],[-.05,.17],[.13,.13],[.14,-.10],[.04,-.17],[-.11,-.13]]);
+  plane(palette.shadow,[[-.13,.07],[-.04,.05],[-.05,-.008],[-.13,.006]]);
+  plane(palette.shadow,[[.035,.05],[.13,.07],[.12,.01],[.04,.0]]);
+  if (kind.id !== 'mimic' || progress > .67) {
+    plane(palette.eyes,[[-.105,.036],[-.071,.037],[-.073,.017],[-.105,.018]]);
+    plane(palette.eyes,[[.059,.036],[.098,.04],[.096,.019],[.058,.018]]);
+  }
+  const jaw = .11 + .11 * progress ** 4;
+  plane('#201c1a',[[-.065,-.071],[.066,-.072],[.047,-jaw],[-.041,-jaw]]);
+}
+function groundShadow([x,,z],radius,opacity) {
+  shape(`rgba(6,8,6,${opacity})`,[
+    [x-radius,-1.336,z-.12],[x-radius*.6,-1.336,z-.36],[x+radius*.62,-1.336,z-.36],
+    [x+radius,-1.336,z-.13],[x+radius*.62,-1.336,z+.17],[x-radius*.6,-1.336,z+.17]
+  ]);
+}
+function person(kind,pose,progress) {
+  const {hip,chest,hands,feet,forward} = pose, palette = creatureColors[kind.id];
+  const shoulders = [-1,1].map(sign => offset(chest,forward,sign * .28,0));
+  const thighs = [-1,1].map(sign => offset(hip,forward,sign * .145,-.035));
+  const head = offset(chest,forward,kind.id === 'mimic' ? .046 : 0,.31,kind.view === 'left' && progress < .62 ? .12 : .10);
+  const far = cameraPoint(shoulders[0])[2] > cameraPoint(shoulders[1])[2] ? 0 : 1;
+  if (kind.view !== 'left' || progress > .52) groundShadow(hip,.52,.52);
+
+  for (const i of [far,1 - far]) {
+    const knee = offset(mixPoint(thighs[i],feet[i],.48),forward,(i ? 1 : -1) * .04,.015,.17);
+    limb(thighs[i],knee,.112,.077,palette.shadow,palette.edge);
+    limb(knee,feet[i],.080,.045,palette.shadow,palette.edge);
+    limb(offset(feet[i],forward,0,.02,-.07),offset(feet[i],forward,0,.015,.13),.064,.080,palette.shadow,palette.edge);
+  }
+  const arm = i => {
+    const elbow = offset(mixPoint(shoulders[i],hands[i],.53),forward,(i ? 1 : -1) * .13,-.048,-.07);
+    limb(shoulders[i],elbow,.093,.065,palette.coat,palette.edge);
+    limb(elbow,hands[i],.065,.043,palette.coat,palette.edge);
+    limb(hands[i],offset(hands[i],forward,0,-.075,.052),.049,.032,palette.skin,palette.edge);
+  };
+  arm(far);
+  if (kind.id === 'moth') {
+    for (const sign of [-1,1]) shape(palette.shadow,[
+      offset(chest,forward,sign * .14,.03,-.08),offset(chest,forward,sign * (.44 + progress * .19),.22,-.12),
+      offset(hip,forward,sign * (.48 + progress * .19),-.18,-.18),offset(hip,forward,sign * .10,-.33,-.16)
+    ]);
+  }
+  shape(palette.coat,[...shoulders,offset(hip,forward,.21,-.12),offset(hip,forward,-.21,-.12)]);
+  shape(palette.edge,[shoulders[far],offset(chest,forward,(far ? 1 : -1) * .22,-.09,.019),
+    offset(hip,forward,(far ? 1 : -1) * .16,-.075,.019),offset(hip,forward,(far ? 1 : -1) * .21,-.12)]);
+  if (kind.id === 'professor') {
+    shape('#483037',[offset(chest,forward,-.43,.35,-.06),offset(chest,forward,-.26,.25,-.04),
+      offset(chest,forward,0,-.18,.035),offset(chest,forward,.28,.25,-.04),offset(chest,forward,.45,.35,-.06),
+      offset(chest,forward,.30,-.10,.015),offset(hip,forward,0,-.09,.017),offset(chest,forward,-.30,-.10,.015)]);
+    shape('#c1a797',[offset(chest,forward,-.11,.015,.036),offset(chest,forward,.11,.015,.036),
+      offset(chest,forward,0,-.24,.036)]);
+  }
+  limb(offset(chest,forward,0,-.06),head,.115,.09,palette.shadow,palette.edge);
+  if (kind.id === 'professor') professorFace(head,pose,palette);
+  else if (pose.away) {
+    shape(palette.shadow,[offset(head,forward,-.17,.17),offset(head,forward,.14,.20),
+      offset(head,forward,.19,-.10),offset(head,forward,-.11,-.19)]);
+  } else mask(kind,head,forward,palette,progress);
+  arm(1 - far);
+}
+function mare(kind,progress) {
+  const palette = creatureColors.mare;
+  const pace = walkCycle(kind,progress);
+  const floor = [.12 + .2 * Math.sin(progress * Math.PI),-1.34,mix(6.7,2.43,progress ** 1.25)];
+  const forward = direction(.21 * Math.cos(progress * Math.PI),-1);
+  const ribs = offset(floor,forward,0,1.06 + .065 * Math.sin(pace * 2 * Math.PI));
+  groundShadow(floor,.62,.54);
+  for (const end of [-1,1]) {
+    for (const side of [-1,1]) {
+      const shoulder = offset(ribs,forward,side * .24,-.15,end * .45);
+      const [step,lift] = gait(pace + (side === end ? .5 : 0),.77);
+      const hoof = offset(floor,forward,side * .25,lift,end * .48 + step);
+      const joint = offset(mixPoint(shoulder,hoof,.50),forward,0,0,end * -.11);
+      limb(shoulder,joint,.103,.066,palette.shadow,palette.edge);
+      limb(joint,hoof,.070,.041,palette.shadow,palette.edge);
     }
   }
+  limb(offset(ribs,forward,0,0,-.62),offset(ribs,forward,0,.02,.46),.35,.32,palette.coat,palette.edge);
+  const head = offset(ribs,forward,.09, .57 - .20 * progress ** 4,.77);
+  limb(offset(ribs,forward,0,-.04,.45),head,.26,.115,palette.coat,palette.edge);
+  mask(kind,head,forward,palette,progress);
+}
+function crawler(progress) {
+  const approach = progress ** 1.4, drop = clamp((progress - .58) / .34);
+  const center = [mix(3.51,1.40,approach),mix(1.84,-.72,drop ** 2),mix(3.94,1.72,approach)];
+  const forward = direction(-1,-1);
+  for (const sign of [-1,1]) {
+    for (let i = 0; i < 4; i++) {
+      const beat = Math.sin(progress * 43 + i * 1.3 + sign * 1.5);
+      const attach = offset(center,forward,sign * .13,0,(i - 1.5) * .16);
+      const elbow = offset(attach,forward,sign * .40,mix(.13,-.24,drop),beat * .12);
+      const foot = offset(attach,forward,sign * (.60 + i * .05),mix(.22,-.58,drop),beat * .23);
+      limb(attach,elbow,.058,.044,'#29261f','#696051');
+      limb(elbow,foot,.044,.022,'#1e2019','#554d40');
+    }
+  }
+  limb(offset(center,forward,0,0,-.31),offset(center,forward,0,0,.29),.23,.17,'#28291e','#6e5b47');
+  for (let i = 0; i < 4; i++) {
+    const eye = offset(center,forward,(i - 1.5) * .068,-.035,.31);
+    limb(eye,offset(eye,forward,0,.045),.020,.017,'#e6a069');
+  }
+}
+function creature(kind,progress,aside = 0,away = false) {
+  if (kind.id === 'crawler') crawler(progress);
+  else if (kind.id === 'mare') mare(kind,progress);
+  else {
+    const pose = kind.view === 'left' && progress < .62 ? climbPose(progress) : walkPose(kind,progress);
+    if (aside) for (const point of [pose.hip,pose.chest,...pose.hands,...pose.feet]) point[2] += aside;
+    pose.away = away;
+    person(kind,pose,progress);
+  }
+}
+function trialFigures(trial) {
+  const time = trial.elapsed;
+  const actor = (id,progress,aside = 0,away = false) =>
+    ({kind:threats.find(kind => kind.id === id),progress:clamp(progress),aside,away});
+  switch (trial.spec.id) {
+    case 'hands': {
+      const progress = .19 + time * .026 - trial.score * .047;
+      return [actor('moth',progress,.36),actor('mimic',progress - .13,-.33)];
+    }
+    case 'echo':
+      return [actor('mare',.17 + time * .025 - trial.score * .17)];
+    case 'latch':
+      return [actor('seam',.10 + Math.abs(trial.position - .5) * 1.23 + time * .009)];
+    case 'breath':
+      return [actor('mimic',.66 + time * .004 + trial.exposed * .043,0,!watchingMimic(trial))];
+    case 'bell':
+      return [actor('crawler',.15 + time * .028 - trial.score * .15)];
+  }
+}
+function drawFigure(figure) {
+  ctx.save();
+  ctx.globalAlpha = figure.opacity ?? 1;
+  creature(figure.kind,figure.progress,figure.aside,figure.away);
   ctx.restore();
 }
-function creature(kind, strength) {
-  const origins = {left:[-3.76,.45,4.04],front:[0,.09,6.49],right:[3.74,.16,3.78]};
-  const start = origins[kind.view];
-  const approach = strength ** 1.65;
-  const endY = kind.id === 'crawler' ? .76 - approach * .55 : .13;
-  const location = [start[0] * (1 - approach * .78),
-    start[1] + (endY - start[1]) * approach + Math.sin(strength * 29) * .055 * approach,
-    start[2] * (1 - approach * .76)];
-  monster(kind.id,location,strength);
+function drawTrialHands() {
+  const active = run.mode === 'running' && run.trial?.spec.id === 'hands';
+  const mask = active ? handTargets(run.trial) : 0;
+  trialHands.forEach((button,i) => {
+    button.hidden = !(mask & 1 << i);
+    if (button.hidden) return;
+    const z = 3.08 + i * .93;
+    const wrist = [-3.83,-.66,z];
+    limb(wrist,[-3.72,-.43,z],.09,.10,'#5a4a40','#b78961');
+    for (let finger = 0; finger < 3; finger++) {
+      const d = (finger - 1) * .061;
+      limb([-3.72,-.43,z + d],[-3.67,-.32 + Math.abs(d) * -.2,z + d],.021,.014,'#ba8962');
+    }
+    const [x,y] = project(cameraPoint([-3.71,-.40,z]));
+    button.style.left = `${100 * x / canvas.width}%`;
+    button.style.top = `${100 * y / canvas.height}%`;
+  });
 }
 function beanCan(view) {
   const p = cameraPoint(beanSpots[view].position);
@@ -1007,7 +1621,7 @@ function beanCan(view) {
 function placeBeanPickup(sprite) {
   const button = $('bean-pickup');
   const inView = sprite && sprite.x > 0 && sprite.x < canvas.width && sprite.y > 0 && sprite.y < canvas.height;
-  button.hidden = run.mode !== 'running' || run.view === 'desk' || !inView;
+  button.hidden = run.mode !== 'running' || Boolean(run.trial) || run.view === 'desk' || !inView;
   if (button.hidden) return;
   button.style.left = `${100 * sprite.x / canvas.width}%`;
   button.style.top = `${100 * sprite.y / canvas.height}%`;
@@ -1015,6 +1629,17 @@ function placeBeanPickup(sprite) {
   button.style.height = `${(sprite.size + 8) * stageHeight / canvas.height}px`;
 }
 function room() {
+  const figures = run.trial ? trialFigures(run.trial) :
+    run.threat ? [{kind:run.threat.kind,progress:creatureProgress(run.threat)}] : [];
+  if (run.retreat && !run.trial) {
+    const opacity = clamp((run.retreat.until - run.elapsed) / .8);
+    figures.push({kind:run.retreat.kind,progress:clamp(run.retreat.progress - (1 - opacity) * .19),opacity});
+  }
+  const windowProgress = figures.reduce((n,figure) => figure.kind.view === 'left' ? Math.max(n,figure.progress) : n,0);
+  const dread = figures.reduce((n,figure) => Math.max(n,figure.progress * (figure.opacity ?? 1)),0);
+  const stage = $('stage');
+  stage.style.setProperty('--dread',(.54 * dread ** 2).toFixed(2));
+  stage.toggleAttribute('data-lamp',pressed && run.threat?.kind.action === 'Hold the lamp');
   ctx.fillStyle = '#111912';
   ctx.fillRect(0,0,canvas.width,canvas.height);
   front('#303427',-4,-1.35,4,2.1,7);
@@ -1067,8 +1692,15 @@ function room() {
   side('#8e9a84',-3.89,4.77,.93,5.02,1.15);
   shape('#182922',[point(-3.88,-.47,2.66),point(-3.88,.08,2.66),point(-3.88,.27,3.25),point(-3.88,-.09,3.89),point(-3.88,.32,4.7),point(-3.88,.14,5.47),point(-3.88,-.47,5.47)]);
   shape('#141f19',[point(-3.87,-.47,3.23),point(-3.87,1.32,2.9),point(-3.87,1.31,3.04),point(-3.87,.49,3.21),point(-3.87,.86,3.75),point(-3.87,.73,3.76),point(-3.87,.3,3.23),point(-3.87,-.47,3.48)]);
-  side('#504b35',-3.86,4.04,-.5,4.15,1.4);
-  side('#504b35',-3.86,2.64,.33,5.49,.42);
+  ctx.save();
+  if (worldPath([[-3.92,-.48,2.66],[-3.92,-.48,5.47],[-3.92,1.39,5.47],[-3.92,1.39,2.66]])) {
+    ctx.clip();
+    for (const figure of figures) if (figure.kind.view === 'left' && figure.progress < .35) drawFigure(figure);
+  }
+  ctx.restore();
+  const lift = clamp((windowProgress - .15) / .21) * .79;
+  side('#504b35',-3.86,4.04,.33 + lift,4.15,1.4);
+  side('#504b35',-3.86,2.64,.33 + lift,5.49,.42 + lift);
   flat('#625a3e',-4,2.45,-3.68,5.67,-.61);
   // Right wall: supply hatch and its failing latch.
   side('#171b14',3.94,2.52,-1.12,4.99,1.46);
@@ -1083,6 +1715,8 @@ function room() {
 
   block(-2.7,-1.32,3.32,-1.56,-.72,4.22,['#352f22','#241f18','#4b3d2b']);
   block(1.8,-1.32,3.64,2.98,-.7,4.55,['#382f23','#251e17','#55412d']);
+  for (const figure of figures) if (figure.kind.view !== 'left' || figure.progress >= .35) drawFigure(figure);
+  if (run.ending) drawProfessor(run.ending.time);
   block(-1.18,-1.32,.82,-1.05,-.62,1.77,['#282219','#1c1914','#4d3a29']);
   block(1.02,-1.32,.82,1.16,-.62,1.77,['#282219','#1c1914','#4d3a29']);
   block(-1.28,-.76,.49,1.28,-.58,1.95,['#493322','#3d2b1f','#795538']);
@@ -1094,21 +1728,24 @@ function room() {
   block(-.99,-.53,1.46,-.91,-.12,1.56,['#554624','#453719','#8e7d45']);
   block(-1.13,-.15,1.34,-.73,-.04,1.73,['#695a32','#554624','#877441']);
   flat('#b6a573',-.99,1.41,-.86,1.57,-.039);
-  if (run.threat) creature(run.threat.kind,run.threat.age / run.threat.limit);
-  placeBeanPickup(run.beans ? beanCan(run.beans.view) : null);
+  drawTrialHands();
+  placeBeanPickup(run.beans && !run.trial ? beanCan(run.beans.view) : null);
 }
 function frame(now) {
   const dt = Math.min(.1,Math.max(0,(now - lastFrame) / 1000));
   lastFrame = now;
-  if (run.mode === 'running') {
+  if (run.mode === 'running' || run.mode === 'ending') {
     const target = views[run.view], blend = 1 - Math.exp(-dt * 6.8);
     camera.yaw += (target.yaw - camera.yaw) * blend;
     camera.pitch += (target.pitch - camera.pitch) * blend;
     camera.y += ((target.y ?? 0) - camera.y) * blend;
     camera.z += ((target.z ?? 0) - camera.z) * blend;
     camera.lean += ((run.view === 'desk' ? 1 : 0) - camera.lean) * blend;
-    tick(dt);
-    renderUI();
+    if (run.mode === 'ending') endingTick(dt);
+    else {
+      tick(dt);
+      renderUI();
+    }
   }
   const readingFocal = Math.min(148,canvas.width * .65);
   focal = 178 + (readingFocal - 178) * camera.lean;
@@ -1120,10 +1757,23 @@ for (const type of ['selectstart','dragstart']) {
   $('stage').addEventListener(type,event => event.preventDefault());
 }
 const bindings = {ArrowLeft:'left',KeyA:'left',ArrowUp:'front',KeyW:'front',ArrowRight:'right',KeyD:'right',ArrowDown:'desk',KeyS:'desk'};
-for (const button of viewButtons) button.onclick = () => go(button.dataset.view);
+for (const button of viewButtons) button.onclick = () => { if (!run.trial) go(button.dataset.view); };
+trialButtons.forEach((button,i) => {
+  button.addEventListener('click',() => { if (run.trial?.spec.id !== 'breath') trialInput(i); });
+  button.addEventListener('pointerdown',event => {
+    if (run.trial?.spec.id !== 'breath') return;
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    trialInput(i);
+  });
+  for (const event of ['pointerup','pointercancel','lostpointercapture']) {
+    button.addEventListener(event,() => { if (run.trial) run.trial.holding = false; });
+  }
+});
 $('sound').onclick = () => {
   muted = !muted && (!audioRequested || Boolean(soundPlaying()));
-  audioInit(true);
+  $('professor-voice').muted = muted;
+  audioInit(run.mode !== 'ending');
 };
 $('pause').onclick = pause;
 $('bean-pickup').onclick = collectBeans;
@@ -1143,6 +1793,16 @@ for (const name of ['pointerup','pointercancel','lostpointercapture']) {
 window.addEventListener('keydown',event => {
   if (event.code === 'Escape') { if (!event.repeat) pause(); return; }
   if (run.mode !== 'running' || event.metaKey || event.ctrlKey || event.altKey) return;
+  if (run.trial) {
+    const id = run.trial.spec.id;
+    const index = event.code === 'Space' && (id === 'breath' || id === 'bell') ? 0 :
+      /^Digit[1-3]$/.test(event.code) ? Number(event.code.slice(-1)) - 1 : -1;
+    if (index >= 0 && index < run.trial.spec.buttons.length) {
+      event.preventDefault();
+      if (!event.repeat) trialInput(index);
+    }
+    return;
+  }
   if (bindings[event.code]) {
     event.preventDefault();
     go(bindings[event.code]);
@@ -1166,8 +1826,14 @@ $('act').addEventListener('keydown',event => {
 $('act').addEventListener('keyup',event => {
   if (event.code === 'Space' || event.code === 'Enter') pressed = false;
 });
-window.addEventListener('keyup',event => { if (event.code === 'KeyE') pressed = false; });
-window.addEventListener('blur',() => { pressed = false; });
+window.addEventListener('keyup',event => {
+  if (event.code === 'KeyE') pressed = false;
+  if (run.trial && (event.code === 'Space' || event.code === 'Digit1')) run.trial.holding = false;
+});
+window.addEventListener('blur',() => {
+  pressed = false;
+  if (run.trial) run.trial.holding = false;
+});
 document.addEventListener('visibilitychange',() => {
   if (document.hidden && run.mode === 'running') pause();
 });
