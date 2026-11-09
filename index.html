@@ -53,7 +53,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .trial{position:absolute;z-index:2;left:50%;top:72px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 18px);
   text-align:center;color:#f0deb8;font:9px/1.65 var(--pixel);pointer-events:none;text-shadow:2px 2px #080c0a}
 .trial-head{display:flex;justify-content:center;align-items:center;gap:8px;color:#f2bf78;text-transform:uppercase}
-.trial-head strong,.trial-head span{padding:4px 6px;background:#111813ef;border-bottom:2px solid #735939}
+.trial-head strong{padding:4px 6px;background:#111813ef;border-bottom:2px solid #735939}
 .trial p{margin:5px 0}
 .trial-score{color:#ccc095;font-size:8px}
 .trial-object{position:absolute;z-index:2;transform:translate(-50%,-50%);display:grid;place-items:center;width:49px;height:49px;
@@ -64,8 +64,8 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .trial-object[data-lit]{color:#fff6d1;border-color:#ffcf84;box-shadow:0 0 0 2px #ab713d,inset 0 0 0 2px #edbb6b45}
 .trial-object[data-held]{border-color:#b6cc9a;background:#33524054}
 .trial-object[data-demo]{pointer-events:none;opacity:.66}
-.trial-object[data-blocked]{border-color:#b75f57;background:#522a2b55}
-.trial-object[data-fastened]{border-color:#71846b;color:#b6c59a;opacity:.75}
+.stage[data-trial="boards"] .trial-object{width:66px;cursor:grab}
+.stage[data-trial="beam"] #room{cursor:crosshair;touch-action:none}
 .ending-caption{position:absolute;z-index:2;bottom:30px;left:50%;transform:translateX(-50%);width:max-content;
   max-width:calc(100% - 20px);margin:0;padding:8px 11px;text-align:center;background:#0b1010e8;color:#f1ddaf;font:10px/1.7 var(--pixel)}
 .ending-caption strong{color:#f2ad6c}
@@ -188,15 +188,12 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
   <button type="button" class="trial-object" hidden></button>
   <button type="button" class="trial-object" hidden></button>
   <button type="button" class="trial-object" hidden></button>
-  <button type="button" class="trial-object" hidden></button>
-  <button type="button" class="trial-object" hidden></button>
-  <button type="button" class="trial-object" hidden></button>
 </div>
 <div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden><span id="bean-status" role="status"></span><span id="bean-timer" aria-hidden="true"></span></span></div>
 <div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
-<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div><div class="paper-wait" id="sheet-wait" hidden>The proctor seals each new sheet.<strong>30-second trial</strong>Keep your composure to open it.</div></div>
+<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div><div class="paper-wait" id="sheet-wait" hidden>The proctor seals each new sheet.<strong>Clear the trial</strong>Finish it to open the next sheet.</div></div>
 <div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status" role="status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
 <progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
 </section>
@@ -205,7 +202,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 <button data-view="left" disabled>← Window</button><button data-view="front" disabled>↑ Hall</button><button data-view="right" disabled>→ Seam</button><button data-view="desk" disabled>↓ Exam</button><button id="act" disabled>E · Interact</button>
 </nav>
 <section class="trial" id="trial" aria-label="Sheet trial" hidden>
-  <div class="trial-head"><strong id="trial-title"></strong><span id="trial-time" aria-hidden="true"></span></div>
+  <div class="trial-head"><strong id="trial-title"></strong></div>
   <p id="trial-cue" role="status"></p>
   <p class="trial-score" id="trial-score"></p>
 </section>
@@ -697,58 +694,26 @@ function collectBeans() {
   for (const [i, hz] of [392,523,659].entries()) note(hz,.24,.14,0,'triangle',hz,i * .09);
   renderUI();
 }
-const trialDuration = 30;
 const trials = [
-  {id:'hands',name:'Hands at the window',view:'left',buttons:['1 · Swat left hand','2 · Swat middle hand','3 · Swat right hand']},
-  {id:'echo',name:'Ghost hoofbeats',view:'front',buttons:['1 · Low hoof plate','2 · Middle hoof plate','3 · High hoof plate']},
-  {id:'chains',name:'Chain the hatch',view:'right',buttons:['Chain 1','Chain 2','Chain 3','Hook 4','Hook 5','Hook 6']},
-  {id:'breath',name:'The Mimic is watching',view:'left',buttons:['Hold bandana · Space']},
-  {id:'bell',name:'The ceiling bell',view:'right',buttons:['Pull bell rope · Space']}
+  {id:'hands',name:'Hands at the window',view:'left',goal:8,buttons:['1 · Swat left hand','2 · Swat middle hand','3 · Swat right hand']},
+  {id:'echo',name:'Ghost hoofbeats',view:'front',goal:2,buttons:['1 · Low hoof plate','2 · Middle hoof plate','3 · High hoof plate']},
+  {id:'boards',name:'Board up the hatch',view:'right',goal:3,buttons:['1 · Pick up plank','2 · Place plank']},
+  {id:'breath',name:'The Mimic is watching',view:'left',goal:3,buttons:['Hold bandana · Space']},
+  {id:'beam',name:'Light on the crawler',view:'right',goal:3,buttons:[]}
 ];
 const handPatterns = [1,4,3,2,5,4,6,3];
-const handGoal = 8;
 const trialButtons = [...$('trial-buttons').querySelectorAll('button')];
 const echoPitches = [168,246,346];
-const chainStamps = ['triangle','square','ring'];
-const hookOrders = [[1,2,0],[2,0,1],[1,0,2],[2,1,0],[0,2,1]];
-function hookOrder(trial) {
-  return hookOrders[(trial.rotation + trial.phase + hookOrders.length) % hookOrders.length];
-}
-function coveredHook(trial) {
-  const time = trial.elapsed - (.8 + trial.phase * 9.6);
-  return trial.phase >= 0 && time >= 2.6 && time % 3.45 < 1.03 ?
-    (Math.floor(time / 3.45) + trial.phase + trial.rotation) % 3 : -1;
-}
-function attachChain(trial,i) {
-  if (trial.phase < 0) return;
-  if (i < 3) {
-    if (!(trial.links & 1 << i)) {
-      trial.chain = trial.chain === i ? -1 : i;
-      note(178,.15,.09,.65,'triangle',127);
-    }
-    return;
-  }
-  const hook = i - 3;
-  const mark = hookOrder(trial)[hook];
-  if (trial.chain < 0 || trial.links & 1 << mark) return;
-  if (coveredHook(trial) === hook || mark !== trial.chain) {
-    trial.chainNotice = coveredHook(trial) === hook ? 'Wait for the tentacle to pull back.' : 'Match the stamped shapes.';
-    trial.flashUntil = trial.elapsed + .85;
-    noise(.12,610,.15,.75);
-    return;
-  }
-  trial.links |= 1 << mark;
-  trial.chain = -1;
-  trial.flashUntil = 0;
-  trial.score++;
-  note(258,.20,.18,.72,'triangle',164);
-  noise(.15,2100,.18,.74);
-}
 function startTrial(sheet) {
   const spec = trials[sheet - 1];
-  run.trial = {spec,sheet,elapsed:0,phase:-1,score:0,removed:0,entered:0,heard:-1,links:0,chain:-1,
-    air:1,exposed:0,holding:false,flashUntil:0,lastBell:-1,rotation:Math.floor(Math.random() * 3),
-    patterns:[3,4,5].map(size => Array.from({length:size},() => Math.floor(Math.random() * 3)))};
+  const trial = {spec,sheet,elapsed:0,score:0};
+  if (spec.id === 'hands') Object.assign(trial,{phase:-1,removed:0,rotation:Math.floor(Math.random()*3)});
+  if (spec.id === 'echo') Object.assign(trial,{entered:0,heard:-1,echoStart:1.25,flashUntil:0,
+    patterns:[3,4].map(size => Array.from({length:size},() => Math.floor(Math.random()*3)))});
+  if (spec.id === 'boards') Object.assign(trial,{carrying:false,drag:null});
+  if (spec.id === 'breath') Object.assign(trial,{air:1,exposed:0,holding:false,watching:false,flashUntil:0});
+  if (spec.id === 'beam') Object.assign(trial,{aim:[.47,.65],aimed:false,lit:false});
+  run.trial = trial;
   run.threat = null;
   pressed = false;
   go(spec.view);
@@ -764,16 +729,15 @@ function startTrial(sheet) {
 }
 function handTargets(trial) {
   const time = trial.elapsed - 1.5;
-  const pattern = handPatterns[trial.phase];
-  if (!pattern || time < 0 || time >= handPatterns.length * 3.5 || time % 3.5 > 2.45) return 0;
+  if (trial.phase < 0 || time % 3.5 > 2.45) return 0;
+  const pattern = handPatterns[trial.phase % handPatterns.length];
   return ((pattern << trial.rotation | pattern >> (3 - trial.rotation)) & 7) & ~trial.removed;
 }
 function echoStage(trial) {
-  const pattern = trial.patterns[trial.phase];
-  if (!pattern) return {cue:-1,input:false};
-  const local = trial.elapsed - (2 + trial.phase * 9);
+  const pattern = trial.patterns[trial.score];
+  const local = trial.elapsed - trial.echoStart;
   const beat = Math.floor(local / .64);
-  return {cue:beat < pattern.length && local % .64 < .39 ? pattern[beat] : -1,
+  return {cue:local >= 0 && beat < pattern.length && local % .64 < .39 ? pattern[beat] : -1,
     input:local >= pattern.length * .64 + .32};
 }
 function watchingMimic(trial) {
@@ -787,18 +751,9 @@ function mimicTurn(trial) {
   if (phase < .75) return Math.PI * (1 - ease(phase / .75));
   return Math.PI * ease(clamp((phase - 3.05) / .64));
 }
-function bellPhase(trial) {
-  return Math.floor(trial.elapsed / 1.5);
-}
-function bellPosition(trial) {
-  return .5 + .46 * Math.cos(trial.elapsed * Math.PI / 1.5);
-}
-function bellReady(trial) {
-  return Math.abs(bellPosition(trial) - .5) <= .16 && trial.lastBell !== bellPhase(trial);
-}
 function trialInput(i) {
-  if (run.mode !== 'running' || !run.trial) return;
   const trial = run.trial;
+  if (run.mode !== 'running' || !trial || i >= trial.spec.buttons.length) return;
   switch (trial.spec.id) {
     case 'hands':
       if (!(handTargets(trial) & 1 << i)) return;
@@ -806,54 +761,45 @@ function trialInput(i) {
       trial.score++;
       noise(.17,640,.32,-.8);
       note(215,.18,.14,-.8,'triangle',106);
-      if (trial.score === handGoal) {
-        endTrial(trial);
-        renderUI();
-        return;
-      }
       break;
     case 'echo': {
-      const pattern = trial.patterns[trial.phase];
-      if (!echoStage(trial).input || trial.entered === pattern.length) return;
+      if (!echoStage(trial).input) return;
+      const pattern = trial.patterns[trial.score];
       trial.pressedPad = i;
       trial.pressedPadUntil = trial.elapsed + .22;
       note(echoPitches[i],.25,.19);
       if (pattern[trial.entered] !== i) {
         trial.entered = 0;
-        trial.flashUntil = trial.elapsed + .55;
+        trial.echoStart = trial.flashUntil = trial.elapsed + .70;
         break;
       }
       if (++trial.entered === pattern.length) {
         trial.score++;
+        trial.entered = 0;
+        trial.echoStart = trial.elapsed + .85;
         note(590,.23,.15,0,'triangle',590,.12);
       }
       break;
     }
-    case 'chains':
-      attachChain(trial,i);
+    case 'boards':
+      if (i === 0) {
+        trial.carrying = !trial.carrying;
+        noise(.13,610,.14,.7);
+      } else if (trial.carrying) {
+        trial.carrying = false;
+        trial.score++;
+        noise(.20,420,.32,.75,0,'lowpass');
+        note(144,.18,.16,.75,'triangle',73);
+      }
       break;
     case 'breath':
       trial.holding = true;
       break;
-    case 'bell': {
-      const phase = bellPhase(trial);
-      const previousPull = trial.bellPulledAt ?? -1;
-      trial.bellPulledAt = trial.elapsed;
-      trial.flashUntil = trial.elapsed + .62;
-      if (bellReady(trial)) {
-        trial.lastBell = phase;
-        trial.score++;
-        trial.bellNotice = 'Clean strike.';
-        note(540,.44,.20,.65);
-        note(796,.42,.14,.65,'triangle',735,.11);
-      } else {
-        trial.bellNotice = trial.lastBell === phase ? 'Already rang. Let the clapper swing back.' : 'Dull strike. Aim for the center stripe.';
-        if (trial.elapsed - previousPull >= .12) noise(.13,530,.22,.7);
-      }
-      break;
-    }
   }
-  renderTrial();
+  if (trial.score >= trial.spec.goal) {
+    endTrial(trial);
+    renderUI();
+  } else renderTrial();
 }
 function trialTick(dt) {
   const trial = run.trial;
@@ -862,7 +808,7 @@ function trialTick(dt) {
   switch (trial.spec.id) {
     case 'hands': {
       const phase = Math.floor((time - 1.5) / 3.5);
-      if (phase !== trial.phase && phase < handPatterns.length) {
+      if (phase !== trial.phase) {
         trial.phase = phase;
         trial.removed = 0;
         noise(.24,1260,.28,-.8);
@@ -870,11 +816,9 @@ function trialTick(dt) {
       break;
     }
     case 'echo': {
-      const phase = Math.min(2,Math.floor((time - 2) / 9));
-      if (phase !== trial.phase) {
-        trial.phase = phase;
+      if (time - trial.echoStart > trial.patterns[trial.score].length * .64 + 8) {
+        trial.echoStart = time + .65;
         trial.entered = 0;
-        trial.heard = -1;
       }
       const {cue} = echoStage(trial);
       if (cue >= 0 && cue !== trial.heard) {
@@ -884,115 +828,82 @@ function trialTick(dt) {
       trial.heard = cue;
       break;
     }
-    case 'chains': {
-      const phase = Math.min(2,Math.floor((time - .8) / 9.6));
-      if (phase !== trial.phase) {
-        trial.phase = phase;
-        trial.links = 0;
-        trial.chain = -1;
-        trial.flashUntil = 0;
-        noise(.34,1580,.27,.72);
-      }
-      break;
-    }
     case 'breath': {
       const watching = watchingMimic(trial);
-      if (watching !== trial.watching) {
-        trial.watching = watching;
-        if (watching) noise(.36,680,.24,-.7);
+      if (watching && !trial.watching) {
+        trial.exposed = 0;
+        noise(.36,680,.24,-.7);
+      } else if (!watching && trial.watching) {
+        if (trial.exposed <= .56) {
+          trial.score++;
+          note(389,.19,.16,-.7,'triangle',459);
+        } else trial.flashUntil = time + 1.5;
       }
+      trial.watching = watching;
       trial.air = clamp(trial.air + (trial.holding ? -.31 : .46) * dt);
       if (watching && (!trial.holding || trial.air <= 0)) trial.exposed += dt;
       break;
     }
+    case 'beam': {
+      trial.lit = crawlerInBeam(trial);
+      trial.score = Math.max(0,trial.score + (trial.lit ? dt : -.42*dt));
+      break;
+    }
   }
-  if (time >= trialDuration) endTrial(trial);
+  if (trial.score >= trial.spec.goal) endTrial(trial);
 }
 function endTrial(trial) {
-  const id = trial.spec.id;
-  const passed = id === 'hands' ? trial.score >= handGoal : id === 'echo' ? trial.score >= 2 :
-    id === 'chains' ? trial.score >= 6 : id === 'breath' ? trial.exposed <= 3.5 : trial.score >= 3;
   run.trial = null;
   run.openSheet = trial.sheet;
   run.nextThreat = run.elapsed + 8;
   run.notice = 'The next sheet is open. Look down.';
   run.noticeUntil = run.elapsed + 4;
-  if (passed) {
-    note(466,.22,.16);
-    note(622,.33,.16,0,'triangle',622,.14);
-  } else takeHit('The trial cost one composure. Look down for the next sheet.',views[run.view].yaw);
+  note(466,.22,.16);
+  note(622,.33,.16,0,'triangle',622,.14);
 }
 function renderTrial() {
   const trial = run.trial;
   $('trial').hidden = !trial;
   if (!trial) return;
-  const id = trial.spec.id;
-  const time = Math.max(0,Math.ceil(trialDuration - trial.elapsed));
-  $('trial-time').textContent = time + 's';
-  let cue = '', score = '', mask = 0, done = 0, blocked = -1, demo = false;
+  const {id,goal} = trial.spec;
+  let cue = '', score = '', mask = 0, demo = false;
   switch (id) {
     case 'hands':
       mask = handTargets(trial);
       cue = mask ? 'Tap the hands or press their numbers.' : 'Watch the sill.';
-      score = `${trial.score} swatted · ${handGoal} needed`;
+      score = `${trial.score} / ${goal} hands swatted`;
       break;
     case 'echo': {
       const echo = echoStage(trial);
-      const pattern = trial.patterns[trial.phase];
       const pad = trial.pressedPadUntil > trial.elapsed ? trial.pressedPad : echo.cue;
       mask = pad < 0 ? 0 : 1 << pad;
       demo = !echo.input;
-      cue = trial.flashUntil > trial.elapsed ? 'Try the pattern again.' : !pattern ? 'Listen for the first hoofbeats.' :
-        !echo.input ? 'Watch the iron plates.' : trial.entered === pattern.length ? 'The mare backs away.' : 'Tap the plates in the same order.';
-      score = `${trial.score} patterns echoed · 2 needed`;
+      cue = trial.flashUntil > trial.elapsed ? 'Watch the pattern again.' :
+        echo.input ? 'Tap the plates in the same order.' : 'Watch the iron plates.';
+      score = `${trial.score} / ${goal} patterns echoed`;
       break;
     }
-    case 'chains': {
-      const hooks = hookOrder(trial);
-      const cover = coveredHook(trial);
-      blocked = cover < 0 ? -1 : cover + 3;
-      done = trial.links;
-      hooks.forEach((mark,i) => {
-        if (trial.links & 1 << mark) done |= 1 << (i + 3);
-      });
-      if (trial.chain >= 0) mask = 1 << trial.chain;
-      cue = trial.phase < 0 ? 'Something is moving behind the hatch.' : trial.links === 7 ?
-        'Hatch secured. Watch for it to pull again.' :
-        trial.flashUntil > trial.elapsed ? trial.chainNotice : trial.chain >= 0 ?
-          `Hook the chain to the matching ${chainStamps[trial.chain]}.` : 'Pick a chain. Match it to a hook.';
-      score = `${trial.score} chains fastened · 6 needed`;
-      demo = trial.phase < 0;
-      for (const [i,button] of trialButtons.entries()) {
-        const mark = i < 3 ? i : hooks[i - 3];
-        const label = `${i + 1} · ${i < 3 ? 'Chain' : 'Hook'} with ${chainStamps[mark]}`;
-        if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label',label);
-      }
+    case 'boards':
+      mask = trial.carrying ? 2 : 1;
+      cue = trial.carrying ? 'Put the plank across the brass brackets.' : 'Drag a plank to the hatch, or tap both.';
+      score = `${trial.score} / ${goal} planks fitted`;
       break;
-    }
-    case 'breath': {
-      const watch = watchingMimic(trial);
-      cue = watch ? 'It sees you. Hold the cloth or Space.' : (trial.elapsed >= 3 && (trial.elapsed - 3) % 5.4 < .75) ?
-        'It is turning around.' : 'It looked away. Breathe.';
-      score = `Air ${Math.floor(trial.air * 100)}% · heard for ${trial.exposed.toFixed(1)}s`;
+    case 'breath':
+      cue = trial.watching ? 'It sees you. Hold the cloth or Space.' : trial.flashUntil > trial.elapsed ?
+        'It heard you. Try the next stare.' : (trial.elapsed >= 3 && (trial.elapsed - 3) % 5.4 < .75) ?
+          'It is turning around.' : 'It looked away. Breathe.';
+      score = `${trial.score} / ${goal} stares · Air ${Math.floor(trial.air * 100)}%`;
       break;
-    }
-    case 'bell': {
-      const ready = bellReady(trial);
-      mask = ready ? 1 : 0;
-      cue = ready ? 'Pull now. The clapper is over the stripe.' : trial.flashUntil > trial.elapsed ?
-        trial.bellNotice : trial.lastBell === bellPhase(trial) ? 'Already rang. Let the clapper swing back.' :
-          'Pull as the clapper crosses the center stripe.';
-      score = `${trial.score} clean strikes · 3 needed`;
+    case 'beam':
+      cue = trial.lit ? 'Keep the crawler in the light.' : 'Aim the light with your pointer or arrows.';
+      score = `Crawler retreat ${Math.floor(100 * clamp(trial.score / goal))}%`;
       break;
-    }
   }
   for (const [i,button] of trialButtons.entries()) {
     button.toggleAttribute('data-lit',Boolean(mask & 1 << i));
     button.toggleAttribute('data-held',id === 'breath' && trial.holding);
     button.toggleAttribute('data-demo',demo);
-    button.toggleAttribute('data-fastened',Boolean(done & 1 << i));
-    button.toggleAttribute('data-blocked',blocked === i);
-    button.disabled = demo || Boolean(done & 1 << i);
+    button.disabled = demo;
   }
   if ($('trial-cue').textContent !== cue) $('trial-cue').textContent = cue;
   if ($('trial-score').textContent !== score) $('trial-score').textContent = score;
@@ -1152,6 +1063,7 @@ function renderUI() {
   const desk = playing && settled && run.view === 'desk';
   paper.inert = !desk || Boolean(run.trial);
   $('look-controls').hidden = Boolean(run.trial);
+  $('stage').dataset.trial = run.trial?.spec.id || '';
   renderTrial();
   if (playing) paperUI();
   hud.clock.textContent = timeText(run.remaining);
@@ -1214,7 +1126,7 @@ function showHelp() {
   showPanel(`<div class="eyebrow">Horse University · Exam instructions</div><h1>How to play</h1>
     <ul><li>Look down to answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li>
     <li>Use arrows to look and 1–4 to answer. Use E to interact. On touch, tap the room controls and objects.</li>
-    <li>You have up to 30 seconds for each sheet trial. Grab bean tins for a shield. Three hits end the exam.</li></ul>
+    <li>Clear each trial to open the next sheet. The exam clock keeps running. Grab bean tins for a shield.</li></ul>
     <button class="primary" id="back-title">Back to title</button>`,'help');
   $('back-title').onclick = intro;
 }
@@ -1222,7 +1134,10 @@ function pause() {
   if (run.mode === 'running') {
     run.mode = 'paused';
     pressed = false;
-    if (run.trial) run.trial.holding = false;
+    if (run.trial) {
+      run.trial.holding = false;
+      run.trial.drag = null;
+    }
     soundLevel();
     updateMusic();
     showPanel('<div class="eyebrow">Room 13 · Clock stopped</div><h1>Paused</h1><button class="primary" id="resume">Resume exam</button>','pause');
@@ -1736,10 +1651,13 @@ function mare(kind,progress) {
 function crawler(progress) {
   const approach = progress ** 1.4, drop = clamp((progress - .58) / .34);
   const center = [mix(3.51,1.40,approach),mix(1.84,-.72,drop ** 2),mix(3.94,1.72,approach)];
+  crawlerBody(center,drop,progress * 43);
+}
+function crawlerBody(center,drop,phase) {
   const forward = direction(-1,-1);
   for (const sign of [-1,1]) {
     for (let i = 0; i < 4; i++) {
-      const beat = Math.sin(progress * 43 + i * 1.3 + sign * 1.5);
+      const beat = Math.sin(phase + i * 1.3 + sign * 1.5);
       const attach = offset(center,forward,sign * .13,0,(i - 1.5) * .16);
       const elbow = offset(attach,forward,sign * .40,mix(.13,-.24,drop),beat * .12);
       const foot = offset(attach,forward,sign * (.60 + i * .05),mix(.22,-.58,drop),beat * .23);
@@ -1858,12 +1776,12 @@ function trialFigures(trial) {
       return [actor('moth',.19 + time * .026 - trial.score * .047)];
     case 'echo':
       return [actor('mare',.17 + time * .025 - trial.score * .17)];
-    case 'chains':
-      return [actor('seam',.25 + time * .021 - trial.score * .043)];
+    case 'boards':
+      return [actor('seam',.64 - trial.score * .16 + Math.sin(time*1.4)*.06)];
     case 'breath':
-      return [actor('mimic',.66 + time * .004 + trial.exposed * .043,mimicTurn(trial))];
-    case 'bell':
-      return [actor('crawler',.15 + time * .028 - trial.score * .15)];
+      return [actor('mimic',.67 + trial.score * .04 + trial.exposed * .05,mimicTurn(trial))];
+    case 'beam':
+      return [];
   }
 }
 function drawFigure(figure) {
@@ -1921,60 +1839,92 @@ function hoofPlates(trial) {
     return screenPoint([x,y+.04,z-.04]);
   });
 }
-function hatchStamp(mark,x,y,z,color) {
-  const shapes = [
-    [[0,.105],[-.106,-.075],[.106,-.075]],
-    [[-.084,.086],[.084,.086],[.084,-.086],[-.084,-.086]],
-    [[-.060,.094],[.060,.094],[.095,.060],[.095,-.060],[.060,-.094],[-.060,-.094],[-.095,-.060],[-.095,.060]]
-  ];
-  shape(color,shapes[mark].map(([a,b]) => [x,y+b,z-a]));
-  if (mark === 2) {
-    side('#332a24',x-.006,z-.046,y-.046,z+.046,y+.046);
-  }
+const boardLevels = [.66,.06,-.54];
+function drawPlank(x,y,near,far) {
+  side('#3a2920',x+.015,near-.05,y-.161,far+.05,y+.135);
+  side('#9c6e46',x,near,y-.139,far,y+.130);
+  side('#c1905a',x-.012,near+.012,y+.091,far-.008,y+.130);
+  side('#6e4933',x-.013,near+.05,y-.069,far-.21,y-.047);
+  side('#b98351',x-.014,near+.36,y+.025,far-.055,y+.043);
+  side('#5b3d2d',x-.015,far-.29,y-.040,far-.16,y+.016);
 }
-function drawChain(from,to,selected) {
-  let prev = from;
-  for (let i = 1; i <= 13; i++) {
-    const t = i / 13;
-    const point = mixPoint(from,to,t);
-    point[1] -= .13 * Math.sin(t * Math.PI);
-    limb(prev,point,.031,.031,'#493b32','#ba9463');
-    if (i % 2 === 0) limb(prev,mixPoint(prev,point,.65),.019,.020,selected ? '#e6bd81' : '#877056');
-    prev = point;
+function boardFixture(trial) {
+  const y = boardLevels[trial.score], x = 3.72, left = 4.49, right = 2.95;
+  const stack = [3.62,-.57,5.18], hatch = [x-.04,y,3.72];
+  block(3.29,-1.33,4.85,3.78,-.77,5.57,['#4f3a29','#332921','#70513b']);
+  for (let i = 0; i < boardLevels.length - trial.score - Number(trial.carrying); i++) {
+    drawPlank(stack[0] - i*.027,stack[1] + i*.105,4.76,5.62);
   }
-}
-function chainFixture(trial) {
-  const x = 3.73, leftZ = 4.52, rightZ = 3.00;
-  const levels = [.84,.16,-.52];
-  const hooks = hookOrder(trial), block = coveredHook(trial);
-  side('#5a4236',x+.02,2.78,-.72,3.22,1.07);
-  side('#5a4236',x+.02,4.30,-.72,4.74,1.07);
-  const targets = [];
-  for (const [column,z] of [leftZ,rightZ].entries()) {
-    for (const [i,y] of levels.entries()) {
-      const mark = column === 0 ? i : hooks[i];
-      const done = Boolean(trial.links & 1 << mark);
-      const chosen = column === 0 && trial.chain === i;
-      side(chosen ? '#be945e' : '#765641',x,z-.184,y-.237,z+.184,y+.239);
-      side('#332a24',x-.01,z-.15,y-.211,z+.15,y+.203);
-      side(done ? '#758b65' : '#a27850',x-.016,z-.119,y-.16,z+.119,y-.087);
-      hatchStamp(mark,x-.024,y+.085,z,done ? '#bfd3a4' : '#efd39d');
-      targets.push(screenPoint([x-.04,y-.035,z]));
+  boardLevels.forEach((level,i) => {
+    for (const z of [left,right]) {
+      side(i === trial.score ? '#d0a264' : '#776047',x+.035,z-.098,level-.186,z+.098,level+.186);
+      side('#2c241d',x+.021,z-.074,level-.126,z+.074,level+.126);
+    }
+    if (i < trial.score) drawPlank(x,level,right-.13,left+.12);
+  });
+  if (trial.carrying) {
+    const point = trial.drag?.moved ? trial.drag.point : screenPoint([3.50,-.45,4.94]);
+    if (point) {
+      const [sx,sy] = point;
+      screenShape('#3e2e23',[[sx-32,sy-6],[sx+31,sy-10],[sx+33,sy+6],[sx-32,sy+9]]);
+      screenShape('#b38352',[[sx-31,sy-7],[sx+30,sy-11],[sx+32,sy+4],[sx-31,sy+8]]);
+      screenShape('#785035',[[sx-25,sy+1],[sx+24,sy-3],[sx+24,sy-1],[sx-25,sy+3]]);
     }
   }
-  levels.forEach((y,i) => {
-    const tied = trial.links & 1 << i;
-    const from = [x-.037,y-.105,leftZ];
-    const to = tied ? [x-.037,levels[hooks.indexOf(i)]-.105,rightZ] :
-      [x-.28,y-.29,leftZ-.13 - (trial.chain === i ? .18 : 0)];
-    drawChain(from,to,trial.chain === i);
+  return [screenPoint(stack),screenPoint(hatch)];
+}
+const crawlVent = [3.81,1.33,4.40];
+function trialCrawler(trial) {
+  const time = trial.elapsed;
+  const path = [3.11 + .35*Math.cos(time*.96),1.04 + .19*Math.sin(time*1.28),3.70 + .74*Math.sin(time*.87)];
+  return mixPoint(path,crawlVent,clamp(trial.score / trial.spec.goal)**2);
+}
+function beamCenter(trial) {
+  return [trial.aim[0]*canvas.width,trial.aim[1]*canvas.height];
+}
+function beamRadius() {
+  return Math.min(canvas.width*.24,34);
+}
+function crawlerInBeam(trial) {
+  const spider = screenPoint(trialCrawler(trial));
+  if (!trial.aimed || !focused() || !spider) return false;
+  const [x,y] = beamCenter(trial);
+  return Math.hypot(spider[0]-x,spider[1]-y) <= beamRadius()*.83;
+}
+function beamFixture(trial) {
+  const center = trialCrawler(trial), [x,y] = beamCenter(trial);
+  const radius = beamRadius(), sideCount = 12;
+  side('#5b5142',3.83,4.14,1.17,4.67,1.49);
+  side('#191c19',3.82,4.18,1.20,4.63,1.46);
+  for (const level of [1.24,1.33,1.41]) side('#545140',3.81,4.19,level,4.62,level+.023);
+  crawlerBody(center,0,trial.elapsed*9);
+  screenShape('#e9b77522',[[canvas.width*.48,canvas.height],[x-radius*.61,y+radius*.33],
+    [x+radius*.61,y+radius*.33],[canvas.width*.52,canvas.height]]);
+  const ring = Array.from({length:sideCount},(_,i) => {
+    const angle = i * 2 * Math.PI / sideCount;
+    return [Math.round(x+radius*Math.cos(angle)),Math.round(y+radius*Math.sin(angle))];
   });
-  if (block >= 0) {
-    const y = levels[block], wave = trial.elapsed * 3;
-    tendril([x+.03,y+.18,3.78],[x-.57,y-.25,3.30],
-      [x-.18,y+.11,rightZ-.08],.122,wave);
+  screenShape(trial.lit ? '#f3c78333' : '#efd69c24',ring);
+  ctx.beginPath();
+  ctx.rect(0,0,canvas.width,canvas.height);
+  ring.forEach(([a,b],i) => i ? ctx.lineTo(a,b) : ctx.moveTo(a,b));
+  ctx.closePath();
+  ctx.fillStyle = '#070a10bd';
+  ctx.fill('evenodd');
+  ctx.strokeStyle = trial.lit ? '#ffe0a0bb' : '#be976455';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ring.forEach(([a,b],i) => i ? ctx.lineTo(a,b) : ctx.moveTo(a,b));
+  ctx.closePath();
+  ctx.stroke();
+  if (!trial.lit) {
+    const eye = screenPoint(center);
+    if (eye) {
+      ctx.fillStyle = '#a87054';
+      ctx.fillRect(Math.round(eye[0])-3,Math.round(eye[1]),2,1);
+      ctx.fillRect(Math.round(eye[0])+2,Math.round(eye[1]),2,1);
+    }
   }
-  return targets;
 }
 function breathCloth(trial) {
   const x = Math.round(canvas.width * .45), y = canvas.height - (trial.holding ? 32 : 19);
@@ -1991,25 +1941,6 @@ function breathCloth(trial) {
   ctx.fillRect(x-17,y+5,Math.round(trial.air*34),4);
   return [[x,y-2]];
 }
-function ceilingBell(trial) {
-  const x = 3.48, z = 3.72, position = bellPosition(trial);
-  const arcZ = value => mix(4.49,2.95,value);
-  const ready = bellReady(trial);
-  const support = [x,1.65,z], swing = [x,.57 + Math.abs(position-.5)*.37,arcZ(position)];
-  limb([x,2.1,z],support,.036,.033,'#64503a','#95734e');
-  side('#917044',x,z-.28,1.38,z+.28,1.45);
-  shape('#ae8150',[[x,1.59,z-.12],[x,1.59,z+.12],[x,1.39,z+.24],[x,1.39,z-.24]]);
-  side('#e0ac6c',x-.012,z-.19,1.36,z+.19,1.40);
-  side('#3a3328',x+.02,2.91,.47,4.53,.55);
-  side('#84a06b',x+.01,arcZ(.66),.48,arcZ(.34),.54);
-  limb(support,swing,.028,.037,'#785c3d','#a78254');
-  side(ready ? '#ffe09e' : '#a48054',x-.02,swing[2]-.065,swing[1]-.08,swing[2]+.065,swing[1]+.036);
-  const tug = .17 * clamp(1 - (trial.elapsed - (trial.bellPulledAt ?? -1)) / .27);
-  const grip = [x,-.24-tug,z+.28];
-  limb([x,1.42,z+.21],grip,.013,.022,'#bf9a68','#d3aa76');
-  side('#c1a179',x-.02,grip[2]-.11,grip[1]-.063,grip[2]+.11,grip[1]+.045);
-  return [screenPoint(grip)];
-}
 function drawTrialObjects() {
   const trial = run.trial;
   let points = [];
@@ -2017,9 +1948,9 @@ function drawTrialObjects() {
     switch (trial.spec.id) {
       case 'hands': points = windowHands(trial); break;
       case 'echo': points = hoofPlates(trial); break;
-      case 'chains': points = chainFixture(trial); break;
+      case 'boards': points = boardFixture(trial); break;
       case 'breath': points = breathCloth(trial); break;
-      case 'bell': points = ceilingBell(trial); break;
+      case 'beam': beamFixture(trial); break;
     }
   }
   placeTrialObjects(points);
@@ -2189,16 +2120,77 @@ for (const type of ['selectstart','dragstart']) {
 }
 const bindings = {ArrowLeft:'left',KeyA:'left',ArrowUp:'front',KeyW:'front',ArrowRight:'right',KeyD:'right',ArrowDown:'desk',KeyS:'desk'};
 for (const button of viewButtons) button.onclick = () => { if (!run.trial) go(button.dataset.view); };
+function localPointer(event) {
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+  return [(event.clientX - rect.left) / rect.width * canvas.width,
+    (event.clientY - rect.top) / rect.height * canvas.height];
+}
+function aimBeam(trial,x,y) {
+  trial.aim = [clamp(x),clamp(y)];
+  trial.aimed = true;
+}
+function steerLight(event) {
+  const trial = run.trial;
+  if (run.mode !== 'running' || trial?.spec.id !== 'beam') return;
+  const point = localPointer(event);
+  if (point) aimBeam(trial,point[0]/canvas.width,point[1]/canvas.height);
+}
+canvas.addEventListener('pointermove',steerLight);
+canvas.addEventListener('pointerdown',event => {
+  if (run.mode !== 'running' || run.trial?.spec.id !== 'beam' || event.button !== 0) return;
+  canvas.setPointerCapture(event.pointerId);
+  steerLight(event);
+});
 trialButtons.forEach((button,i) => {
-  button.addEventListener('click',() => { if (run.trial?.spec.id !== 'breath') trialInput(i); });
-  button.addEventListener('pointerdown',event => {
-    if (run.trial?.spec.id !== 'breath') return;
-    event.preventDefault();
-    button.setPointerCapture(event.pointerId);
-    trialInput(i);
+  button.addEventListener('click',event => {
+    const id = run.trial?.spec.id;
+    if (id !== 'breath' && (id !== 'boards' || i !== 0 || !event.detail)) trialInput(i);
   });
-  for (const event of ['pointerup','pointercancel','lostpointercapture']) {
-    button.addEventListener(event,() => { if (run.trial) run.trial.holding = false; });
+  button.addEventListener('pointerdown',event => {
+    const trial = run.trial;
+    if (run.mode !== 'running' || !trial || event.button !== 0) return;
+    if (trial.spec.id === 'boards' && i === 0) {
+      event.preventDefault();
+      trial.drag = {id:event.pointerId,start:[event.clientX,event.clientY],point:localPointer(event),moved:false};
+      button.setPointerCapture(event.pointerId);
+    } else if (trial.spec.id === 'breath') {
+      event.preventDefault();
+      button.setPointerCapture(event.pointerId);
+      trialInput(i);
+    }
+  });
+  button.addEventListener('pointermove',event => {
+    const trial = run.trial, drag = trial?.drag;
+    if (run.mode !== 'running' || !drag || drag.id !== event.pointerId) return;
+    if (Math.hypot(event.clientX-drag.start[0],event.clientY-drag.start[1]) >= 8) drag.moved = true;
+    if (drag.moved) {
+      drag.point = localPointer(event);
+      trial.carrying = true;
+    }
+  });
+  button.addEventListener('pointerup',event => {
+    const trial = run.trial;
+    if (!trial) return;
+    if (trial.spec.id === 'breath') trial.holding = false;
+    const drag = trial.drag;
+    if (!drag || drag.id !== event.pointerId) return;
+    trial.drag = null;
+    if (!drag.moved) {
+      trialInput(0);
+    } else {
+      const box = trialButtons[1].getBoundingClientRect();
+      if (event.clientX >= box.left-12 && event.clientX <= box.right+12 &&
+          event.clientY >= box.top-12 && event.clientY <= box.bottom+12) trialInput(1);
+    }
+  });
+  for (const name of ['pointercancel','lostpointercapture']) {
+    button.addEventListener(name,event => {
+      const trial = run.trial;
+      if (!trial) return;
+      if (trial.spec.id === 'breath') trial.holding = false;
+      if (trial.drag?.id === event.pointerId) trial.drag = null;
+    });
   }
 });
 $('sound').onclick = () => {
@@ -2232,8 +2224,16 @@ window.addEventListener('keydown',event => {
   if (run.mode !== 'running' || event.metaKey || event.ctrlKey || event.altKey) return;
   if (run.trial) {
     const id = run.trial.spec.id;
-    const index = event.code === 'Space' && (id === 'breath' || id === 'bell') ? 0 :
-      /^Digit[1-6]$/.test(event.code) ? Number(event.code.slice(-1)) - 1 : -1;
+    if (id === 'beam' && bindings[event.code]) {
+      const direction = bindings[event.code];
+      const [x,y] = run.trial.aim;
+      event.preventDefault();
+      aimBeam(run.trial,x + (direction === 'right' ? .045 : direction === 'left' ? -.045 : 0),
+        y + (direction === 'desk' ? .045 : direction === 'front' ? -.045 : 0));
+      return;
+    }
+    const index = event.code === 'Space' && id === 'breath' ? 0 :
+      /^Digit[1-3]$/.test(event.code) ? Number(event.code.slice(-1)) - 1 : -1;
     if (index >= 0 && index < run.trial.spec.buttons.length) {
       event.preventDefault();
       if (!event.repeat) trialInput(index);
@@ -2269,7 +2269,10 @@ window.addEventListener('keyup',event => {
 });
 window.addEventListener('blur',() => {
   pressed = false;
-  if (run.trial) run.trial.holding = false;
+  if (run.trial) {
+    run.trial.holding = false;
+    run.trial.drag = null;
+  }
 });
 document.addEventListener('visibilitychange',() => {
   if (document.hidden && run.mode === 'running') pause();
