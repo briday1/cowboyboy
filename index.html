@@ -8,7 +8,8 @@
 @font-face{font-family:ExamPixel;src:url("./assets/PressStart2P.ttf") format("truetype");font-display:swap}
 :root{color-scheme:dark;--ink:#e9dfc4;--dim:#aaa28e;--red:#ff816e;--gold:#efbd75;--pixel:ExamPixel,ui-monospace,monospace}
 *{box-sizing:border-box}
-body{margin:0;background:#080b0b;color:var(--ink);font:16px/1.45 system-ui,sans-serif}
+body{margin:0;background:#080b0b;color:var(--ink);font:16px/1.45 system-ui,sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 main{max-width:1200px;margin:auto;padding:clamp(4px,1vw,12px)}
 button{cursor:pointer}
 button:disabled{cursor:default}
@@ -22,10 +23,15 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .hud,.controls,.look{z-index:2}
 .hud,.utility{display:flex;gap:4px}
 .hud{align-items:center;top:12px;left:12px;flex-wrap:wrap;max-width:calc(100% - 200px)}
-.hud span{padding:5px 7px;background:#0e1410e6;border-bottom:2px solid #544a34}
+.hud > span{padding:5px 7px;background:#0e1410e6;border-bottom:2px solid #544a34}
 .hud .clock{font-size:12px;color:var(--gold)}
 .hud .danger,.hud .clock.low{color:var(--red)}
-.hud .bean{color:#e9ac66}
+.hud .bean{color:#ffdf9a;background:#4e3419f2;border:1px solid #e4ae5d;border-bottom-width:2px}
+.hud .bean[data-state="shield"]{color:#e2f5c2;background:#2e4221f2;border-color:#9fbc70}
+.hud .bean[data-state="blocked"]{color:#fff1ba;background:#573e23f2}
+#bean-timer{color:#fff3cb}
+.controls button[data-beans]{background:#5b3a1b;color:#fff1b7;border-color:#f1b65c;box-shadow:0 0 0 1px #b9782c}
+#act[data-beans]{background:#e6b969;color:#28190c;border-color:#fff0b5}
 .utility{z-index:4;top:12px;right:12px}
 .stage:not(.in-exam) .hud,.stage:not(.in-exam) .controls,.stage:not(.in-exam) #pause{display:none}
 .look{right:12px;top:47px;padding:3px 6px;background:#0e1410d9;color:#cbc2a8;font-size:8px;text-align:right;pointer-events:none}
@@ -56,13 +62,13 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
   .hud,.utility,.controls,.cue{font-size:7px}
   .hud,.utility{top:8px}
   .hud{left:8px;max-width:calc(100% - 135px);gap:2px}
-  .hud span{padding:4px 5px}
+  .hud > span{padding:4px 5px}
   .hud .clock{font-size:9px}
   .utility,.look{right:8px}
   .controls{bottom:8px;gap:3px}
   .controls button,.utility button{padding:5px 6px;min-height:34px}
   .look{top:50px;font-size:7px}
-  .cue{top:76px}
+  .cue{top:93px}
   .panel ul{font-size:14px}
 }
 .paper{position:absolute;top:0;left:0;transform-origin:0 0;box-sizing:border-box;width:540px;height:464px;
@@ -93,6 +99,12 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .answers{display:grid;gap:4px}
 .paper .answers button{min-height:40px;padding:7px 10px;text-align:left;font-size:13px;border-bottom:1px dashed #a18153}
 .paper .answers button[aria-pressed=true]{text-decoration:underline}
+.paper button[aria-pressed=true]{opacity:1}
+.paper button[data-wrong]{color:#872e24;text-decoration:line-through;text-decoration-thickness:2px;opacity:1}
+.paper .status[data-result="correct"]{color:#305027}
+.paper .status[data-result="incorrect"]{color:#872e24}
+.paper-wait{text-align:center;line-height:1.8;color:#694a31}
+.paper-wait strong{display:block;margin:8px 0;font-size:24px;color:#793f2d}
 .paper-foot{display:flex;align-items:center;gap:4px;min-height:36px;border-top:2px solid #a48454}
 .paper-foot button{padding:8px 5px;white-space:nowrap}
 .paper-foot .status{flex:1;text-align:center;font-size:9px;color:#694a31}
@@ -107,11 +119,11 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 <main>
 <div class="stage" id="stage">
 <canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas><div class="vignette"></div>
-<div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden>BEAN BONUS READY</span></div>
+<div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden><span id="bean-status" role="status"></span><span id="bean-timer" aria-hidden="true"></span></span></div>
 <div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div>
 <div class="look" id="look"></div>
 <section class="paper" id="paper" aria-label="Exam paper" hidden>
-<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div></div>
+<div class="eyebrow" id="sheet"></div><h2 id="question"></h2><div class="paper-body"><div id="diagram" hidden></div><div class="answers" id="answers"></div><div class="paper-wait" id="sheet-wait" hidden>Next sheet in<strong id="sheet-time"></strong>Look up while you wait.</div></div>
 <div class="paper-foot"><button id="prev">Previous</button><span class="status" id="paper-status"></span><button id="next">Next</button><button id="submit" hidden>Turn in exam</button></div>
 <progress id="writing" max="1" value="0" aria-label="Writing progress"></progress>
 </section>
@@ -239,6 +251,7 @@ function makePlate(kind, targets) {
   return diagram;
 }
 const sheets = ['External landmarks','Hindquarters and joints','Lower limb','Conformation','Digestive tract','The hindgut'];
+const sheetSize = 3;
 const releases = [0, 80, 178, 281, 391, 510];
 const examTime = 720;
 const writingTime = 2.3;
@@ -247,6 +260,11 @@ const views = {
   left:{yaw:-.77,pitch:0,label:'Left · Window'},
   front:{yaw:0,pitch:0,label:'Ahead · Hall'},
   right:{yaw:.77,pitch:0,label:'Right · Wall seam'}
+};
+const beanSpots = {
+  left:{label:'← Window',position:[-2.53,-.714,3.55]},
+  front:{label:'↑ Hall',position:[.6,-1.344,4.35]},
+  right:{label:'→ Seam',position:[2.69,-.694,3.78]}
 };
 const threats = [
   {id:'moth',view:'left',name:'Mothman',cue:'LEFT · Wings scrape the window.',action:'Hold the lamp',method:'hold',time:.85,pan:-.85,loss:'Mothman came through the glass.'},
@@ -468,7 +486,7 @@ function warning({id,pan}, near = 0) {
   }
 }
 function start() {
-  Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),pending:null,threat:null,nextThreat:11,previousThreat:null,deck:[],beans:null,beanShield:false,nextBeans:27,nextTick:1,notice:'',noticeUntil:0,hitUntil:0});
+  Object.assign(run,{mode:'running',view:'front',remaining:examTime,elapsed:0,health:3,page:0,answers:Array(exam.length).fill(null),wrongAnswers:exam.map(() => new Set()),pending:null,threat:null,nextThreat:11,previousThreat:null,deck:[],beans:null,beanShield:false,beanUsedUntil:0,nextBeans:27,nextTick:1,notice:'',noticeUntil:0,hitUntil:0});
   Object.assign(camera,{yaw:0,pitch:0,y:0,z:0,lean:0});
   lastPaper = '';
   pressed = false;
@@ -495,18 +513,20 @@ function focused() {
   return Math.abs(camera.yaw - target.yaw) < .022 && Math.abs(camera.pitch - target.pitch) < .022 &&
     Math.abs(camera.z - (target.z ?? 0)) < .025;
 }
-function unlocked() {
-  return Math.max(0,releases.findLastIndex(t => run.elapsed >= t));
+function sheetRelease(page) {
+  return releases[Math.floor(page / sheetSize)];
 }
 function changePage(delta) {
   if (run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
+  if (delta > 0 && run.answers[run.page] === null) return;
   const next = run.page + delta;
-  if (next >= 0 && next < (unlocked() + 1) * 3) run.page = next;
+  if (next >= 0 && next < exam.length) run.page = next;
   renderUI();
 }
 function choose(option) {
   if (run.mode !== 'running' || run.view !== 'desk' || !focused() || run.pending) return;
-  if (run.answers[run.page] === option) return;
+  const page = run.page;
+  if (run.elapsed < sheetRelease(page) || run.answers[page] !== null || run.wrongAnswers[page].has(option)) return;
   run.pending = {page:run.page,option,progress:0};
   for (let i = 0; i < 3; i++) noise(.16,1750,.15,.08,i * .14);
   renderUI();
@@ -544,7 +564,10 @@ function resolveThreat(survived) {
   note(86,.61,.36,kind.pan,'sawtooth',26);
   if (run.beanShield) {
     run.beanShield = false;
-    run.notice = 'BEAN BONUS · The beans absorbed the hit.';
+    run.beanUsedUntil = run.elapsed + 3.2;
+    run.nextBeans = Math.max(run.nextBeans,run.beanUsedUntil);
+    run.notice = '';
+    note(523,.26,.17,kind.pan,'triangle',294);
   } else {
     run.health--;
     run.notice = kind.loss;
@@ -554,30 +577,29 @@ function resolveThreat(survived) {
 function updateBeans() {
   if (run.beans && run.elapsed >= run.beans.until) run.beans = null;
   if (!run.beans && !run.beanShield && run.elapsed >= run.nextBeans) {
-    const spots = ['left','front','right'].filter(view => view !== run.threat?.kind.view);
+    const spots = Object.keys(beanSpots).filter(view => view !== run.threat?.kind.view);
     const view = spots[Math.floor(Math.random() * spots.length)];
-    run.beans = {view,until:run.elapsed + 8};
+    run.beans = {view,until:run.elapsed + 12};
     run.nextBeans = run.elapsed + 45 + Math.random() * 25;
     const pan = views[view].yaw;
-    note(466,.22,.14,pan);
-    note(698,.32,.15,pan,'triangle',545,.17);
+    note(466,.21,.17,pan);
+    note(698,.23,.20,pan,'triangle',545,.13);
+    note(932,.34,.17,pan,'triangle',699,.26);
   }
 }
 function interact() {
   if (run.mode !== 'running' || !focused()) return;
   const threat = run.threat;
-  if (threat?.kind.view === run.view) {
+  if (threat?.kind.view === run.view && threat.kind.method !== 'watch') {
     if (threat.kind.method === 'tap') {
       note(1230,.42,.19,0,'triangle',915);
       resolveThreat(true);
-    } else if (threat.kind.method === 'hold') pressed = true;
+    } else pressed = true;
     return;
   }
   if (run.beans?.view === run.view) {
     run.beans = null;
     run.beanShield = true;
-    run.notice = 'BEAN BONUS · The next hit is covered.';
-    run.noticeUntil = run.elapsed + 3.1;
     for (const [i, hz] of [392,523,659].entries()) note(hz,.24,.14,0,'triangle',hz,i * .09);
   }
 }
@@ -593,9 +615,11 @@ function tick(dt) {
     const item = run.pending;
     item.progress += dt;
     if (item.progress >= writingTime) {
-      run.answers[item.page] = item.option;
+      const correct = item.option === exam[item.page][2];
+      if (correct) run.answers[item.page] = item.option;
+      else run.wrongAnswers[item.page].add(item.option);
       run.pending = null;
-      note(405,.14,.11,.1,'triangle',240);
+      note(correct ? 405 : 210,.14,.11,.1,'triangle',correct ? 240 : 115);
     }
   }
   if (!run.threat && run.elapsed >= run.nextThreat) spawn();
@@ -623,48 +647,73 @@ function setCue(text) {
   if (lastCue !== text) { $('cue').textContent = text; lastCue = text; }
 }
 function paperUI() {
-  const available = (unlocked() + 1) * 3, page = run.page;
-  const key = [page,run.answers[page],available,Boolean(run.pending),answerCount()].join('/');
+  const page = run.page, sheet = Math.floor(page / sheetSize);
+  const wait = Math.max(0,sheetRelease(page) - run.elapsed);
+  const answer = run.answers[page], wrong = run.wrongAnswers[page];
+  const writing = Boolean(run.pending);
+  const key = [page,answer,wrong.size,wait > 0,writing,answerCount()].join('/');
   if (key !== lastPaper) {
     lastPaper = key;
-    $('sheet').textContent = `Sheet ${Math.floor(page / 3) + 1} / 6 · ${sheets[Math.floor(page / 3)]} · Question ${page + 1}`;
+    $('sheet').textContent = `Sheet ${sheet + 1} / ${sheets.length} · ${sheets[sheet]} · Question ${page + 1}`;
     const task = practical[page];
-    $('question').textContent = task ? task[1] : exam[page][0];
-    const plate = task ? makePlate(task[0],task[2]) : null;
+    $('question').textContent = wait > 0 ? 'Waiting for the next sheet' : task ? task[1] : exam[page][0];
+    $('sheet-wait').hidden = wait === 0;
+    const plate = !wait && task ? makePlate(task[0],task[2]) : null;
     $('diagram').hidden = !plate;
     $('diagram').replaceChildren(...(plate ? [plate] : []));
     const answers = $('answers');
-    answers.hidden = Boolean(plate);
-    answers.replaceChildren(...(plate ? [] : exam[page][1].map((answer,i) => {
+    answers.hidden = Boolean(plate) || wait > 0;
+    answers.replaceChildren(...(answers.hidden ? [] : exam[page][1].map((text,i) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = `${i + 1}. ${answer}`;
+      button.textContent = `${i + 1}. ${text}`;
       button.onclick = () => choose(i);
       return button;
     })));
     const options = (plate || answers).querySelectorAll('button');
     options.forEach((button,i) => {
-      button.disabled = Boolean(run.pending);
-      button.setAttribute('aria-pressed',String(run.answers[page] === i));
+      const tried = wrong.has(i);
+      button.disabled = writing || answer !== null || tried;
+      button.setAttribute('aria-pressed',String(answer === i));
+      button.toggleAttribute('data-wrong',tried);
+      if (tried) button.setAttribute('aria-label', `${button.getAttribute('aria-label') || button.textContent}, incorrect`);
     });
-    $('prev').disabled = page === 0 || Boolean(run.pending);
-    $('next').disabled = page + 1 >= available || Boolean(run.pending);
+    $('prev').disabled = page === 0 || writing;
+    $('next').disabled = page + 1 === exam.length || answer === null || writing;
     $('submit').hidden = answerCount() < exam.length;
-    $('submit').disabled = Boolean(run.pending);
+    $('submit').disabled = writing;
   }
-  $('writing').value = run.pending ? run.pending.progress / writingTime : run.answers[page] !== null ? 1 : 0;
-  let status = run.answers[page] !== null ? 'Answer written.' : practical[page] ? 'Stamp a marker.' : 'Choose an answer.';
-  if (page + 1 >= available && available < exam.length && run.answers[page] !== null) {
-    status = `Next sheet in ${timeText(releases[unlocked() + 1] - run.elapsed)}`;
+  if (wait > 0) {
+    const time = timeText(wait);
+    if ($('sheet-time').textContent !== time) $('sheet-time').textContent = time;
   }
-  if (run.pending) status = 'Writing…';
-  if ($('paper-status').textContent !== status) $('paper-status').textContent = status;
+  $('writing').value = writing ? run.pending.progress / writingTime : answer !== null ? 1 : 0;
+  const status = $('paper-status');
+  const result = writing || wait > 0 ? '' : answer !== null ? 'correct' : wrong.size ? 'incorrect' : '';
+  const message = writing ? 'Writing…' : wait > 0 ? '' :
+    result === 'correct' ? (page + 1 < exam.length ? 'Correct. Press Next.' : 'Correct. Turn in the exam.') :
+    result === 'incorrect' ? 'Incorrect. Try another.' : practical[page] ? 'Stamp a marker.' : 'Choose an answer.';
+  if (status.textContent !== message) status.textContent = message;
+  if (status.dataset.result !== result) status.dataset.result = result;
+}
+function renderBeans(canGrab) {
+  const {beans,beanShield,beanUsedUntil,elapsed} = run;
+  const state = beanShield ? 'shield' : elapsed < beanUsedUntil ? 'blocked' : beans ? 'drop' : '';
+  const badge = $('bean-hud');
+  badge.hidden = !state;
+  if (!state) return;
+  if (badge.dataset.state !== state) badge.dataset.state = state;
+  const message = state === 'shield' ? 'Bean shield on · blocks next hit' :
+    state === 'blocked' ? 'Bean shield blocked the hit' :
+    canGrab ? 'Bean bonus · grab the tin' : `Bean bonus · ${beanSpots[beans.view].label}`;
+  if ($('bean-status').textContent !== message) $('bean-status').textContent = message;
+  const time = state === 'drop' ? ` · ${Math.ceil(beans.until - elapsed)}s` : '';
+  if ($('bean-timer').textContent !== time) $('bean-timer').textContent = time;
 }
 function renderUI() {
   const playing = run.mode === 'running', settled = focused(), threat = run.threat;
   const desk = playing && settled && run.view === 'desk';
   paper.inert = !desk;
-  $('bean-hud').hidden = !run.beanShield;
   if (playing) paperUI();
   hud.clock.textContent = timeText(run.remaining);
   hud.clock.classList.toggle('low',run.remaining <= 60);
@@ -680,12 +729,15 @@ function renderUI() {
   $('look').hidden = !playing;
   for (const button of viewButtons) {
     button.disabled = !playing;
+    button.toggleAttribute('data-beans',playing && run.beans?.view === button.dataset.view);
     button.setAttribute('aria-pressed',String(playing && run.view === button.dataset.view));
   }
   const engaged = playing && settled && threat && threat.kind.view === run.view;
-  const beanReady = playing && settled && run.beans?.view === run.view && !engaged;
   const canAct = engaged && threat.kind.method !== 'watch';
+  const beanReady = playing && settled && run.beans?.view === run.view && !canAct;
+  renderBeans(beanReady);
   $('act').disabled = !canAct && !beanReady;
+  $('act').toggleAttribute('data-beans',beanReady);
   $('act').textContent = canAct ? 'E · ' + threat.kind.action : beanReady ? 'E · Grab beans' : 'E · Interact';
   if (!playing) setCue('');
   else if (engaged) {
@@ -694,10 +746,8 @@ function renderUI() {
     const steps = kind.time ? Math.floor(threat.progress / kind.time * 5) : 0;
     const bars = steps > 0 ? ' ' + '■'.repeat(steps) + '□'.repeat(5 - steps) : '';
     setCue(`${kind.name.toUpperCase()} · ${instruction}${bars}`);
-  } else if (threat) setCue(threat.kind.cue + (beanReady ? ' · E to grab beans here.' : ''));
-  else if (beanReady) setCue('BEAN BONUS · Grab the tin before it vanishes.');
+  } else if (threat) setCue(threat.kind.cue);
   else if (run.noticeUntil > run.elapsed) setCue(run.notice);
-  else if (run.beans) setCue(`BEAN BONUS · A tin rattles ${{left:'at the window',front:'in the hall',right:'by the wall'}[run.beans.view]}.`);
   else setCue('');
 }
 function showPanel(html) {
@@ -709,7 +759,7 @@ function showPanel(html) {
 function intro() {
   showPanel(`<div class="eyebrow">COWBOYBOY · HORSE UNIVERSITY</div><h1>The Night Final</h1>
   <p>You have twelve minutes to pass horse anatomy. Someone has already taken attendance.</p>
-  <ul><li>Look down to work the exam. Stamp the marked diagrams or pick a written answer. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. A Bean Bonus tin can absorb one hit if you grab it in time.</li><li>Three hits end the exam. Fill all 18 answers and get at least 14 right before the clock runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
+  <ul><li>Look down to work the exam. Stamp a diagram or pick a written answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li><li>Sounds tell you where to turn. Follow the prompt once you see what’s there. When Bean Bonus appears, turn toward the highlighted location and grab the tin. It automatically blocks your next hit.</li><li>Three hits end the exam. Solve all 18 questions and turn in the paper before time runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
   <button class="primary" id="begin">Sit the final</button>`);
   $('begin').onclick = start;
 }
@@ -734,13 +784,13 @@ function finish(reason) {
   pressed = false;
   soundLevel();
   updateMusic();
-  const correct = run.answers.filter((choice,i) => choice === exam[i][2]).length;
-  const passed = reason === 'submit' && correct >= 14;
-  const result = reason === 'caught' ? 'Something got in.' : reason === 'time' ? 'Time’s up.' : passed ? 'You passed.' : 'You failed the final.';
-  const review = exam.map(([prompt,options,index,explanation],i) => run.answers[i] === index ? '' : `<li><strong>${prompt}</strong> ${explanation}</li>`).join('');
+  const passed = reason === 'submit';
+  const result = reason === 'caught' ? 'Something got in.' : reason === 'time' ? 'Time’s up.' : 'You passed.';
+  const review = exam.map(([prompt,,,explanation],i) => run.answers[i] !== null && !run.wrongAnswers[i].size ?
+    '' : `<li><strong>${prompt}</strong> ${explanation}</li>`).join('');
   showPanel(`<div class="eyebrow">HORSE UNIVERSITY · EXAM REPORT</div><h1>${result}</h1>
-  <p>${correct} / 18 correct · ${answerCount()} answered · ${timeText(run.remaining)} left</p>
-  ${passed ? '<p>The proctor signs your diploma. His hoof leaves no ink.</p>' : '<p>Pass mark: 14 correct and all 18 answers turned in.</p>'}
+  <p>${answerCount()} / ${exam.length} solved · ${timeText(run.remaining)} left</p>
+  ${passed ? '<p>The proctor signs your diploma. His hoof leaves no ink.</p>' : '<p>Solve all 18 questions and turn in the paper to pass.</p>'}
   ${review ? `<details><summary>Review missed and unanswered questions</summary><ol class="review">${review}</ol></details>` : ''}
   <p><small>References: <a href="https://afs.ca.uky.edu/files/equine_anatomy.pdf" target="_blank" rel="noopener">Parts of the Horse</a> · <a href="https://www.extension.iastate.edu/equine/synopsis-digestive-anatomy-and-physiology-horse" target="_blank" rel="noopener">Equine digestion</a></small></p>
   <button class="primary" id="retry">Retake the final</button>`);
@@ -909,21 +959,27 @@ function creature(kind, strength) {
   monster(kind.id,location,strength);
 }
 function beanCan(view) {
-  const spots = {left:[-2.1,-.44,3.7],front:[.85,-.43,3.12],right:[2.38,-.42,4.1]};
-  const p = cameraPoint(spots[view]);
+  const p = cameraPoint(beanSpots[view].position);
   if (p[2] < .2) return;
   const [x,y] = project(p);
-  const size = Math.max(5,Math.round(46 / p[2]));
-  const top = Math.round(y) - size;
+  const size = Math.max(8,Math.round(77 / p[2]));
+  const top = Math.round(y) - size - 3;
   const left = Math.round(x - size / 2);
-  ctx.fillStyle = '#6c3119';
-  ctx.fillRect(left,top,size,size + 4);
-  ctx.fillStyle = '#e0aa61';
-  ctx.fillRect(left + 1,top + 2,size - 2,size - 1);
-  ctx.fillStyle = '#a74a2e';
-  ctx.fillRect(left + 2,top + 4,size - 4,Math.max(2,size - 7));
-  ctx.fillStyle = '#fff0a0';
-  ctx.fillRect(left + size - 3,top + 1,2,2);
+  ctx.fillStyle = '#f7ac4833';
+  ctx.fillRect(left - 3,top - 3,size + 6,size + 9);
+  ctx.fillStyle = '#66341b';
+  ctx.fillRect(left - 1,top,size + 2,size + 3);
+  ctx.fillStyle = '#efba64';
+  ctx.fillRect(left + 1,top + 1,size - 2,size + 1);
+  ctx.fillStyle = '#a7442a';
+  ctx.fillRect(left + 1,top + 4,size - 2,size - 5);
+  ctx.fillStyle = '#ffefae';
+  ctx.fillRect(left + 2,top + 1,size - 5,2);
+  if (size >= 11) {
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('B',Math.round(x),top + Math.floor(size * .75));
+  }
 }
 function room() {
   ctx.fillStyle = '#111912';
@@ -1026,6 +1082,9 @@ function frame(now) {
   room();
   placeExamSheet();
   requestAnimationFrame(frame);
+}
+for (const type of ['selectstart','dragstart']) {
+  $('stage').addEventListener(type,event => event.preventDefault());
 }
 const bindings = {ArrowLeft:'left',KeyA:'left',ArrowUp:'front',KeyW:'front',ArrowRight:'right',KeyD:'right',ArrowDown:'desk',KeyS:'desk'};
 for (const button of viewButtons) button.onclick = () => go(button.dataset.view);
