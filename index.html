@@ -50,40 +50,67 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .bean-pickup{position:absolute;transform:translate(-50%,-50%);min-width:48px;min-height:48px;
   border:2px solid #ffe7a033;border-radius:0;background:transparent;padding:0;touch-action:manipulation}
 .bean-pickup:hover,.bean-pickup:focus-visible{border-color:#ffe7a0;background:#ffc95a18}
-.trial{position:absolute;z-index:2;left:50%;bottom:12px;transform:translateX(-50%);width:min(460px,calc(100% - 18px));
-  padding:9px 11px;background:#111712ed;border:1px solid #9a7752;font:9px/1.65 var(--pixel);color:#efdfb8}
-.trial-head{display:flex;justify-content:space-between;gap:8px;color:#f2bf78;text-transform:uppercase}
+.trial{position:absolute;z-index:2;left:50%;top:72px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 18px);
+  text-align:center;color:#f0deb8;font:9px/1.65 var(--pixel);pointer-events:none;text-shadow:2px 2px #080c0a}
+.trial-head{display:flex;justify-content:center;align-items:center;gap:8px;color:#f2bf78;text-transform:uppercase}
+.trial-head strong,.trial-head span{padding:4px 6px;background:#111813ef;border-bottom:2px solid #735939}
 .trial p{margin:5px 0}
-.trial-buttons{display:flex;gap:5px}
-.trial-buttons button{flex:1;min-width:0;min-height:37px;border:1px solid #88765a;background:#2b3024;color:#f2dfb5;
-  padding:5px;font:inherit;touch-action:none}
-.trial-buttons button[data-lit]{background:#edb269;color:#261809;border-color:#fff0bd}
-.trial-buttons button[data-held]{background:#305347;border-color:#98c8a0}
-.trial-score{color:#c8b898}
-.trial-hand{position:absolute;z-index:2;transform:translate(-50%,-50%);width:48px;height:48px;
-  background:#e0a35419;border:1px solid #d5a968;color:#fff2c1;font:10px var(--pixel);touch-action:manipulation}
-.trial-track{height:14px;position:relative;margin:6px 0 8px;border:1px solid #715f47;background:#392c26;overflow:hidden}
-.trial-track i{position:absolute;display:block;height:100%}
-#trial-band{left:34%;width:32%;background:#526c44}
-#trial-marker{width:4px;transform:translateX(-50%);background:#f4d794}
-#trial-fill{left:0;background:#81ae83}
+.trial-score{color:#ccc095;font-size:8px}
+.trial-object{position:absolute;z-index:2;transform:translate(-50%,-50%);display:grid;place-items:center;width:49px;height:49px;
+  background:#251e130c;color:#ffedc1;border:1px solid #a98d5a8c;padding:0;border-radius:0;touch-action:none;
+  font:9px/1 var(--pixel);text-shadow:1px 2px #1b1a11;box-shadow:inset 0 0 0 2px #211d1473}
+.trial-object[data-wide]{width:75px}
+.trial-object:hover,.trial-object:focus-visible{border-color:#ffe5a3;background:#f4c47725}
+.trial-object[data-lit]{color:#fff6d1;border-color:#ffcf84;box-shadow:0 0 0 2px #ab713d,inset 0 0 0 2px #edbb6b45}
+.trial-object[data-held]{border-color:#b6cc9a;background:#33524054}
+.trial-object[data-demo]{pointer-events:none;opacity:.66}
 .ending-caption{position:absolute;z-index:2;bottom:30px;left:50%;transform:translateX(-50%);width:max-content;
   max-width:calc(100% - 20px);margin:0;padding:8px 11px;text-align:center;background:#0b1010e8;color:#f1ddaf;font:10px/1.7 var(--pixel)}
 .ending-caption strong{color:#f2ad6c}
 .stage.end-black .overlay{background:#030405}
 .stage.end-black .panel{background:none;border:0;box-shadow:none;text-align:center}
 .stage.end-black .utility{display:none}
-.overlay{position:absolute;inset:0;z-index:3;background:#070a09dc;display:grid;place-items:center;overflow:auto;padding:52px 18px 18px}
-.panel{max-width:560px;width:100%;padding:clamp(14px,4vw,30px);background:#141a16;border:1px solid #6b6652;box-shadow:7px 7px 0 #030504;color:var(--ink)}
-.panel .eyebrow{font:10px/1.65 var(--pixel);color:var(--gold)}
-.panel h1{font:clamp(21px,4vw,35px)/1.35 var(--pixel);margin:8px 0 14px;text-transform:uppercase;color:#f4e3be}
-.panel p{margin:8px 0}
-.panel ul{padding-left:19px;margin:8px 0 15px}
-.panel button{margin-top:5px;padding:10px 12px;font:10px/1.6 var(--pixel);text-transform:uppercase;border-radius:0}
-.primary{background:#ddb57b;color:#19140d;border:1px solid #e3c491}
+.overlay{position:absolute;inset:0;z-index:3;display:grid;place-items:center;overflow:auto;padding:54px 18px 24px;
+  background:#080d0deb;font:9px/1.9 var(--pixel)}
+.panel{max-width:560px;width:100%;padding:clamp(16px,4vw,28px);background:#151e1a;color:#eadab6;
+  border:2px solid #917957;box-shadow:inset 0 0 0 4px #101512,inset 0 0 0 6px #514b38,7px 7px 0 #040606;
+  clip-path:polygon(0 7px,7px 7px,7px 0,calc(100% - 7px) 0,calc(100% - 7px) 7px,100% 7px,
+    100% calc(100% - 7px),calc(100% - 7px) calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,7px calc(100% - 7px),0 calc(100% - 7px))}
+.panel .eyebrow{font:8px/1.7 var(--pixel);letter-spacing:.065em;color:#cfac75;text-transform:uppercase}
+.panel h1{font:clamp(18px,3.6vw,30px)/1.45 var(--pixel);margin:9px 0 13px;text-transform:uppercase;color:#f4e3be}
+.panel p{margin:8px 0 12px}
+.panel ul{margin:10px 0 14px;padding-left:20px}
+.panel li{margin-bottom:9px}
+.panel button{display:block;width:max-content;max-width:100%;min-height:40px;margin-top:7px;padding:8px 12px;
+  border:2px solid #a4865c;border-radius:0;background:#212820;color:#edd9ad;font:9px/1.5 var(--pixel);text-transform:uppercase}
+.panel .primary{background:#e4b573;color:#211909;border-color:#f0d29a;box-shadow:inset 0 -3px #a77745}
+.panel button:hover,.panel button:focus-visible{background:#f0ce91;color:#20170d}
 .panel a{color:#f2ca91}
-.review{max-height:180px;overflow:auto;padding-right:7px;font-size:14px}
-.review li{margin-bottom:7px}
+.review{max-height:152px;overflow:auto;padding-right:7px;font:12px/1.45 ui-monospace,monospace}
+.overlay[data-screen="title"]{place-items:center stretch;padding:clamp(38px,6vw,82px);
+  background:linear-gradient(90deg,#0a1014 0%,#0a1014ed 28%,#0a101440 55%,transparent 76%)}
+.overlay[data-screen="title"] .panel{max-width:640px;width:100%;padding:0;border:0;box-shadow:none;background:none;clip-path:none}
+.title-screen{width:max-content;max-width:100%}
+.title-screen .title-index{margin:0 0 17px;color:#b7b8a0;font:9px/1.6 var(--pixel);letter-spacing:.1em;text-transform:uppercase}
+.title-screen h1{margin:0;font:clamp(26px,5vw,59px)/1.25 var(--pixel);letter-spacing:-.08em;color:#f7e0ab;text-shadow:3px 5px #4a312a}
+.title-screen .subtitle{margin:13px 0 25px;color:#eca767;font:clamp(10px,1.8vw,19px)/1.5 var(--pixel);letter-spacing:.1em;text-transform:uppercase}
+.title-actions{display:grid;gap:7px;width:min(264px,100%)}
+.title-actions button{width:100%;margin:0;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.title-actions button span{font:13px ui-monospace,monospace}
+.title-screen .title-note{margin:17px 0 0;color:#a79a80;font:7px/1.55 var(--pixel);text-transform:uppercase}
+.stage.end-black .panel button{margin:12px auto 0}
+@media(max-width:600px){
+  .overlay{padding:48px 12px 15px;font-size:8px}
+  .overlay[data-screen="title"]{place-items:stretch;padding:65px 12px 21px;
+    background:linear-gradient(180deg,#0a1014f5,transparent 42%,transparent 69%,#0a1014eb)}
+  .overlay[data-screen="title"] .panel{display:flex;justify-content:center}
+  .title-screen{width:100%;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .title-screen .title-index{margin-bottom:10px;font-size:7px}
+  .title-screen h1{font-size:clamp(21px,7.8vw,38px);letter-spacing:-.09em}
+  .title-screen .subtitle{font-size:10px;margin:9px 0 0}
+  .title-actions{margin-top:auto}
+  .title-screen .title-note{margin-top:9px}
+}
 @media(max-width:600px){
   .stage{min-height:min(540px,calc(100svh - 8px))}
   .hud,.utility,.controls,.cue{font-size:7px}
@@ -96,8 +123,8 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
   .controls button,.utility button{padding:5px 6px;min-height:34px}
   .look{top:50px;font-size:7px}
   .cue{top:93px}
-  .panel ul{font-size:14px}
-  .trial{font-size:8px;bottom:8px}
+  .trial{font-size:7px;top:89px}
+  .trial-score{font-size:7px}
 }
 .paper{position:absolute;top:0;left:0;transform-origin:0 0;box-sizing:border-box;width:540px;height:464px;
   display:flex;flex-direction:column;padding:28px 28px 22px;color:#342818;
@@ -155,9 +182,11 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 <div class="stage" id="stage">
 <canvas id="room" width="384" height="216" aria-label="First-person view from the exam desk"></canvas>
 <button type="button" class="bean-pickup" id="bean-pickup" aria-label="Grab the bean tin" hidden></button><div class="vignette"></div>
-<button type="button" class="trial-hand" data-hand="0" aria-label="Swat the left hand" hidden>1</button>
-<button type="button" class="trial-hand" data-hand="1" aria-label="Swat the middle hand" hidden>2</button>
-<button type="button" class="trial-hand" data-hand="2" aria-label="Swat the right hand" hidden>3</button>
+<div id="trial-buttons">
+  <button type="button" class="trial-object" hidden></button>
+  <button type="button" class="trial-object" hidden></button>
+  <button type="button" class="trial-object" hidden></button>
+</div>
 <div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden><span id="bean-status" role="status"></span><span id="bean-timer" aria-hidden="true"></span></span></div>
 <div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div>
 <div class="look" id="look"></div>
@@ -173,10 +202,6 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 <section class="trial" id="trial" aria-label="Sheet trial" hidden>
   <div class="trial-head"><strong id="trial-title"></strong><span id="trial-time" aria-hidden="true"></span></div>
   <p id="trial-cue" role="status"></p>
-  <div class="trial-track" id="trial-track" hidden aria-hidden="true">
-    <i id="trial-band" hidden></i><i id="trial-marker" hidden></i><i id="trial-fill" hidden></i>
-  </div>
-  <div class="trial-buttons" id="trial-buttons"><button type="button"></button><button type="button"></button><button type="button"></button></div>
   <p class="trial-score" id="trial-score"></p>
 </section>
 <p class="ending-caption" id="ending-caption" role="status" hidden>Your reward is a <strong>Boys Trip.</strong></p>
@@ -668,17 +693,15 @@ function collectBeans() {
 }
 const trialDuration = 30;
 const trials = [
-  {id:'hands',name:'Hands at the window',view:'left',buttons:['1 · Left','2 · Middle','3 · Right']},
-  {id:'echo',name:'Ghost hoofbeats',view:'front',buttons:['1 · Low','2 · Middle','3 · High']},
+  {id:'hands',name:'Hands at the window',view:'left',buttons:['1 · Swat left hand','2 · Swat middle hand','3 · Swat right hand']},
+  {id:'echo',name:'Ghost hoofbeats',view:'front',buttons:['1 · Low hoof plate','2 · Middle hoof plate','3 · High hoof plate']},
   {id:'latch',name:'The seam latch',view:'right',buttons:['1 · Turn left','2 · Turn right']},
-  {id:'breath',name:'The Mimic is watching',view:'left',buttons:['Hold breath · Space']},
-  {id:'bell',name:'The ceiling bell',view:'right',buttons:['Strike bell · Space']}
+  {id:'breath',name:'The Mimic is watching',view:'left',buttons:['Hold bandana · Space']},
+  {id:'bell',name:'The ceiling bell',view:'right',buttons:['Pull bell rope · Space']}
 ];
 const handPatterns = [1,4,3,2,5,4,6,3];
 const trialButtons = [...$('trial-buttons').querySelectorAll('button')];
-const trialHands = [...document.querySelectorAll('[data-hand]')];
 const echoPitches = [168,246,346];
-for (const button of trialHands) button.onclick = () => trialInput(Number(button.dataset.hand));
 function startTrial(sheet) {
   const spec = trials[sheet - 1];
   run.trial = {spec,sheet,elapsed:0,phase:-1,score:0,removed:0,entered:0,heard:-1,position:.5,
@@ -689,8 +712,10 @@ function startTrial(sheet) {
   go(spec.view);
   $('trial-title').textContent = spec.name;
   trialButtons.forEach((button,i) => {
-    button.hidden = i >= spec.buttons.length;
-    button.textContent = spec.buttons[i] || '';
+    button.hidden = true;
+    button.setAttribute('aria-label',spec.buttons[i] || '');
+    button.textContent = spec.buttons.length === 1 ? 'SPACE' : String(i + 1);
+    button.toggleAttribute('data-wide',spec.buttons.length === 1);
   });
   note(370,.52,.20,0,'triangle',353);
   note(550,.44,.14,0,'triangle',482,.19);
@@ -733,6 +758,8 @@ function trialInput(i) {
     case 'echo': {
       const pattern = trial.patterns[trial.phase];
       if (!echoStage(trial).input || trial.entered === pattern.length) return;
+      trial.pressedPad = i;
+      trial.pressedPadUntil = trial.elapsed + .22;
       note(echoPitches[i],.25,.19);
       if (pattern[trial.entered] !== i) {
         trial.entered = 0;
@@ -837,40 +864,39 @@ function renderTrial() {
   const id = trial.spec.id;
   const time = Math.max(0,Math.ceil(trialDuration - trial.elapsed));
   $('trial-time').textContent = time + 's';
-  let cue = '', score = '', mask = 0, marker = null, fill = null;
+  let cue = '', score = '', mask = 0, demo = false;
   switch (id) {
     case 'hands':
       mask = handTargets(trial);
-      cue = mask ? 'Slap the raised hands.' : 'Watch the sill.';
+      cue = mask ? 'Tap the hands or press their numbers.' : 'Watch the sill.';
       score = `${trial.score} swatted · 8 needed`;
       break;
     case 'echo': {
       const echo = echoStage(trial);
       const pattern = trial.patterns[trial.phase];
-      mask = echo.cue < 0 ? 0 : 1 << echo.cue;
+      const pad = trial.pressedPadUntil > trial.elapsed ? trial.pressedPad : echo.cue;
+      mask = pad < 0 ? 0 : 1 << pad;
+      demo = !echo.input;
       cue = trial.flashUntil > trial.elapsed ? 'Try the pattern again.' : !pattern ? 'Listen for the first hoofbeats.' :
-        !echo.input ? 'Watch the pattern.' : trial.entered === pattern.length ? 'The mare backs away.' : 'Repeat the pattern.';
+        !echo.input ? 'Watch the iron plates.' : trial.entered === pattern.length ? 'The mare backs away.' : 'Tap the plates in the same order.';
       score = `${trial.score} patterns echoed · 2 needed`;
       break;
     }
     case 'latch':
-      marker = trial.position;
-      cue = 'Keep the needle inside the green band.';
+      cue = 'Turn the wheel to keep the needle in green.';
       score = `${Math.floor(trial.score)}s steady · 15s needed`;
       break;
     case 'breath': {
       const watch = watchingMimic(trial);
-      fill = trial.air;
-      cue = watch ? 'It sees you. Hold your breath.' : (trial.elapsed >= 3 && (trial.elapsed - 3) % 5.4 < .75) ?
+      cue = watch ? 'It sees you. Hold the cloth or Space.' : (trial.elapsed >= 3 && (trial.elapsed - 3) % 5.4 < .75) ?
         'It is turning around.' : 'It looked away. Breathe.';
       score = `Air ${Math.floor(trial.air * 100)}% · heard for ${trial.exposed.toFixed(1)}s`;
       break;
     }
     case 'bell': {
-      marker = bellPosition(trial);
       const phase = bellPhase(trial);
       cue = phase < 0 ? 'Wait for the swing.' : phase >= 5 || trial.lastBell === phase ? 'Wait for the next swing.' :
-        trial.flashUntil > trial.elapsed ? 'Missed. Watch the next pass.' : 'Strike when the clapper crosses green.';
+        trial.flashUntil > trial.elapsed ? 'Missed. Watch the next pass.' : 'Pull the rope when the clapper crosses green.';
       score = `${trial.score} clean strikes · 3 needed`;
       break;
     }
@@ -878,13 +904,9 @@ function renderTrial() {
   for (const [i,button] of trialButtons.entries()) {
     button.toggleAttribute('data-lit',Boolean(mask & 1 << i));
     button.toggleAttribute('data-held',id === 'breath' && trial.holding);
+    button.toggleAttribute('data-demo',demo);
+    button.disabled = demo;
   }
-  $('trial-track').hidden = marker === null && fill === null;
-  $('trial-band').hidden = marker === null;
-  $('trial-marker').hidden = marker === null;
-  $('trial-fill').hidden = fill === null;
-  if (marker !== null) $('trial-marker').style.left = `${marker * 100}%`;
-  if (fill !== null) $('trial-fill').style.width = `${fill * 100}%`;
   if ($('trial-cue').textContent !== cue) $('trial-cue').textContent = cue;
   if ($('trial-score').textContent !== score) $('trial-score').textContent = score;
 }
@@ -1076,18 +1098,34 @@ function renderUI() {
   else if (run.noticeUntil > run.elapsed) setCue(run.notice);
   else setCue('');
 }
-function showPanel(html) {
+function showPanel(html,screen = 'menu') {
+  $('overlay').dataset.screen = screen;
   $('panel').innerHTML = html;
   $('overlay').hidden = false;
   renderUI();
   $('panel').querySelector('button')?.focus();
 }
 function intro() {
-  showPanel(`<div class="eyebrow">COWBOYBOY · HORSE UNIVERSITY</div><h1>The Night Final</h1>
-  <p>You have twelve minutes to pass horse anatomy. Someone has already taken attendance.</p>
-  <ul><li>Look down to answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li><li>The proctor tests your composure between sheets. Each trial lasts 30 seconds. Follow its on-screen controls.</li><li>Click bean tins to block one hit. Three hits end the exam. Solve all 18 questions before time runs out.</li></ul><p><small>Arrow keys to look, 1–4 to answer, E to interact, Esc to pause. You can also use the on-screen controls.</small></p>
-  <button class="primary" id="begin">Sit the final</button>`);
+  showPanel(`<div class="title-screen">
+    <p class="title-index">Horse University · Room 13</p>
+    <h1>Cowboyboy</h1>
+    <p class="subtitle">The Night Final</p>
+    <div class="title-actions">
+      <button class="primary" id="begin">Sit the final <span aria-hidden="true">›</span></button>
+      <button id="help">How to play <span aria-hidden="true">›</span></button>
+    </div>
+    <p class="title-note">Horse anatomy · 12 minutes</p>
+  </div>`,'title');
   $('begin').onclick = start;
+  $('help').onclick = showHelp;
+}
+function showHelp() {
+  showPanel(`<div class="eyebrow">Horse University · Exam instructions</div><h1>How to play</h1>
+    <ul><li>Look down to answer. A correct answer unlocks Next. Looking away interrupts your pencil.</li>
+    <li>Use arrows to look and 1–4 to answer. Use E to interact. On touch, tap the room controls and objects.</li>
+    <li>Each new sheet starts a 30-second trial. Grab bean tins for a shield. Three hits end the exam.</li></ul>
+    <button class="primary" id="back-title">Back to title</button>`,'help');
+  $('back-title').onclick = intro;
 }
 function pause() {
   if (run.mode === 'running') {
@@ -1096,7 +1134,7 @@ function pause() {
     if (run.trial) run.trial.holding = false;
     soundLevel();
     updateMusic();
-    showPanel('<div class="eyebrow">CLOCK STOPPED</div><h1>Paused</h1><button class="primary" id="resume">Resume exam</button>');
+    showPanel('<div class="eyebrow">Room 13 · Clock stopped</div><h1>Paused</h1><button class="primary" id="resume">Resume exam</button>','pause');
     $('resume').onclick = pause;
   } else if (run.mode === 'paused') {
     run.mode = 'running';
@@ -1234,6 +1272,92 @@ function professorFace(head,pose,palette) {
     at(face,'#875a4a',[[-.15,.16],[.123,.18],[.17,-.07],[.07,-.22],[-.12,-.16]]);
     at(face,palette.skin,[[-.15,.15],[.09,.19],[.135,-.06],[.07,-.17],[-.12,-.13]]);
     at(face,'#4b3b38',[[-.12,.065],[-.034,.045],[-.044,.014],[-.11,.024]]);
+  }
+}
+
+function screenShape(color,points) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  points.forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y));
+  ctx.closePath();
+  ctx.fill();
+}
+function drawSplash() {
+  const w = canvas.width, h = canvas.height, narrow = w < 240;
+  const rect = (color,x,y,width,height) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(Math.round(x),Math.round(y),Math.round(width),Math.round(height));
+  };
+  const moonX = Math.round(w * (narrow ? .67 : .78)), moonY = narrow ? 79 : 50;
+  const radius = narrow ? 24 : 32, horizon = narrow ? 153 : 159;
+  rect('#0c151b',0,0,w,h);
+  rect('#12222a',0,narrow ? 57 : 25,w,142);
+  rect('#182b31',0,moonY - 14,w,109);
+  for (let i = 0; i < 43; i++) {
+    const x = (i * 97 + 21) % w, y = 11 + (i * 41 % (horizon - 19));
+    rect(i % 6 ? '#405257' : '#839077',x,y,i % 5 ? 1 : 2,1);
+  }
+  for (let y = -radius; y <= radius; y++) {
+    const half = Math.round(Math.sqrt(radius ** 2 - y ** 2));
+    rect(y > radius * .6 ? '#bd9b70' : y > 0 ? '#cbb78e' : '#e1d1a2',moonX - half,moonY + y,half * 2 + 1,1);
+  }
+  for (let i = 0; i < 13; i++) {
+    const y = moonY - radius + 5 + i * 4;
+    const x = moonX + (i * 19 % radius) - radius * .55;
+    rect(i % 3 ? '#a5a182' : '#d9c89c',x,y,4 + i % 7,1);
+  }
+  screenShape('#132027',[[0,horizon - 22],[w*.13,horizon - 47],[w*.29,horizon - 31],[w*.42,horizon - 44],
+    [w*.56,horizon - 14],[w*.74,horizon - 35],[w,horizon - 23],[w,h],[0,h]]);
+  screenShape('#10191e',[[0,horizon - 11],[w*.21,horizon - 23],[w*.40,horizon - 15],[w*.60,horizon - 26],
+    [w*.80,horizon - 9],[w,horizon - 19],[w,h],[0,h]]);
+  rect('#10161b',0,horizon,w,h - horizon);
+
+  const center = Math.round(w * (narrow ? .53 : .75));
+  const base = horizon + 7, roof = base - 55;
+  const b = (color,x,y,width,height) => rect(color,center + x,base + y,width,height);
+  screenShape('#151e22',[[center-69,base-32],[center-51,roof],[center+50,roof],[center+68,base-31]]);
+  b('#243035',-63,-33,125,33);
+  b('#313d3b',-59,-30,117,3);
+  b('#131a1f',-57,-24,113,23);
+  for (const x of [-52,-34,30,48]) {
+    b('#536052',x,-25,9,15);
+    b('#273331',x+1,-23,7,12);
+    b('#354440',x+4,-23,1,12);
+  }
+  b('#303635',-20,-37,40,36);
+  screenShape('#34413e',[[center-22,base-37],[center,base-57],[center+22,base-37]]);
+  b('#9c8d66',-4,-45,8,8);
+  b('#292924',-3,-44,6,6);
+  b('#b39e72',-1,-43,1,3);
+  b('#5d4e37',-14,-25,28,25);
+  b('#ae8154',-10,-23,20,23);
+  b('#d49a59',-8,-21,16,21);
+  b('#492f2d',-3,-21,6,21);
+  b('#f0b471',-6,-19,2,12);
+  b('#77735a',-15,0,30,2);
+  b('#3d3d33',-19,2,38,2);
+  screenShape('#292629',[[center-13,base+4],[center+12,base+4],[center+63,h],[center-64,h]]);
+  screenShape('#48362c',[[center-7,base+4],[center+8,base+4],[center+32,h],[center-29,h]]);
+  for (let i = 0; i < 20; i++) {
+    const x = (i * 83 + 5) % w, y = horizon + 4 + i * 13 % Math.max(1,h - horizon - 4);
+    rect(i % 4 ? '#263033' : '#574437',x,y,2 + i % 4,1);
+  }
+
+  const rider = Math.round(w * (narrow ? .54 : .73)), boot = narrow ? 191 : 215;
+  const figure = (color,points) => screenShape(color,points.map(([x,y]) => [rider + x,boot + y]));
+  figure('#090d10',[[-17,-40],[-11,-50],[8,-53],[19,-42],[25,-5],[18,0],[-23,0]]);
+  figure('#1d2428',[[-13,-43],[-7,-49],[7,-48],[12,-34],[10,-15],[-4,-11],[-13,-21]]);
+  figure('#3d3431',[[-12,-40],[-6,-45],[-2,-34],[-8,-19],[-14,-23]]);
+  figure('#0a0e11',[[-29,-52],[-23,-56],[-12,-59],[-10,-71],[8,-74],[16,-63],[15,-57],[28,-54],[30,-50],[4,-46],[-17,-47]]);
+  figure('#544739',[[-13,-58],[-10,-71],[7,-74],[10,-70],[-7,-66],[-9,-59]]);
+  rect('#5c4734',rider - 16,boot - 57,28,2);
+  rect('#8f6241',rider + 10,boot - 56,8,2);
+  for (const side of [-1,1]) {
+    for (let i = 0; i < 4; i++) {
+      const x = center + side * (24 + i * 16), y = base + 9 + i * 8;
+      rect('#0b1115',x,y - 12,4,18);
+      rect('#293133',x,y - 12,2,10);
+    }
   }
 }
 
@@ -1576,12 +1700,25 @@ function drawFigure(figure) {
   creature(figure.kind,figure.progress,figure.aside,figure.away);
   ctx.restore();
 }
-function drawTrialHands() {
-  const active = run.mode === 'running' && run.trial?.spec.id === 'hands';
-  const mask = active ? handTargets(run.trial) : 0;
-  trialHands.forEach((button,i) => {
-    button.hidden = !(mask & 1 << i);
+function screenPoint(world) {
+  const point = cameraPoint(world);
+  return point[2] >= .17 ? project(point) : null;
+}
+function placeTrialObjects(points) {
+  const interactive = run.mode === 'running' && focused();
+  trialButtons.forEach((button,i) => {
+    const point = points[i];
+    button.hidden = !interactive || !point ||
+      point[0] < 0 || point[0] > canvas.width || point[1] < 0 || point[1] > canvas.height;
     if (button.hidden) return;
+    button.style.left = `${100 * point[0] / canvas.width}%`;
+    button.style.top = `${100 * point[1] / canvas.height}%`;
+  });
+}
+function windowHands(trial) {
+  const active = handTargets(trial);
+  return [0,1,2].map(i => {
+    if (!(active & 1 << i)) return null;
     const z = 3.08 + i * .93;
     const wrist = [-3.83,-.66,z];
     limb(wrist,[-3.72,-.43,z],.09,.10,'#5a4a40','#b78961');
@@ -1589,10 +1726,101 @@ function drawTrialHands() {
       const d = (finger - 1) * .061;
       limb([-3.72,-.43,z + d],[-3.67,-.32 + Math.abs(d) * -.2,z + d],.021,.014,'#ba8962');
     }
-    const [x,y] = project(cameraPoint([-3.71,-.40,z]));
-    button.style.left = `${100 * x / canvas.width}%`;
-    button.style.top = `${100 * y / canvas.height}%`;
+    return screenPoint([-3.71,-.40,z]);
   });
+}
+function hoofPlates(trial) {
+  const z = 3.86;
+  const active = trial.pressedPadUntil > trial.elapsed ? trial.pressedPad : echoStage(trial).cue;
+  block(-1.12,-1.34,z,-1.00,-.86,z+.15,['#322923','#231d17','#685239']);
+  block(1.00,-1.34,z,1.12,-.86,z+.15,['#322923','#231d17','#685239']);
+  front('#24211a',-1.19,-.90,1.19,-.26,z+.04);
+  front('#6b563e',-1.15,-.85,1.15,-.29,z);
+  front('#473a2a',-1.12,-.81,1.12,-.34,z-.01);
+  return [-.76,0,.76].map((x,i) => {
+    const y = -.56, on = i === active;
+    front(on ? '#ad7843' : '#2b2b22',x-.28,y-.23,x+.28,y+.21,z-.024);
+    front(on ? '#493727' : '#3a3a2c',x-.23,y-.19,x+.23,y+.17,z-.029);
+    shape(on ? '#ffd89a' : '#a5956f',[
+      [x-.16,y+.11,z-.035],[x-.08,y+.11,z-.035],[x-.105,y-.04,z-.035],[x-.052,y-.109,z-.035],
+      [x+.050,y-.109,z-.035],[x+.105,y-.04,z-.035],[x+.08,y+.11,z-.035],[x+.16,y+.11,z-.035],
+      [x+.18,y-.04,z-.035],[x+.104,y-.173,z-.035],[x-.104,y-.173,z-.035],[x-.18,y-.04,z-.035]
+    ]);
+    return screenPoint([x,y+.04,z-.04]);
+  });
+}
+function latchFixture(trial) {
+  const x = 3.75, z = 3.74, center = [x,-.26,z];
+  const meterZ = fraction => mix(4.44,3.04,fraction);
+  side('#1d2019',x+.04,2.94,.39,4.54,.78);
+  side('#876746',x+.02,2.98,.43,4.50,.74);
+  side('#3f3327',x,3.04,.47,4.44,.70);
+  side('#779267',x-.01,meterZ(.66),.48,meterZ(.34),.69);
+  const at = meterZ(trial.position);
+  side('#f8d395',x-.018,at-.019,.44,at+.019,.73);
+
+  const radial = (r,angle) => [x,center[1] + r * Math.cos(angle),z + r * Math.sin(angle)];
+  const ring = Array.from({length:8},(_,i) => radial(.39,i * Math.PI / 4));
+  shape('#816346',ring);
+  shape('#2f3026',Array.from({length:8},(_,i) => radial(.302,i * Math.PI / 4)));
+  for (let i = 0; i < 4; i++) {
+    const angle = (trial.position - .5) * 5 + i * Math.PI / 2;
+    limb(center,radial(.35,angle),.055,.045,'#ad8b5e','#cfab75');
+  }
+  side('#ccab73',x-.025,z-.066,-.318,z+.066,-.198);
+  return [1,-1].map(sign => {
+    const grip = z + sign * .47;
+    side('#ad8859',x-.02,grip-.09,-.35,grip+.09,-.17);
+    side('#6e553c',x-.025,grip-.068,-.32,grip+.068,-.20);
+    return screenPoint([x-.028,-.26,grip]);
+  });
+}
+function breathCloth(trial) {
+  const x = Math.round(canvas.width * .45), y = canvas.height - (trial.holding ? 32 : 19);
+  const patch = (color,points) => screenShape(color,points.map(([a,b]) => [x+a,y+b]));
+  patch('#2b211a',[[-55,24],[-34,-10],[-20,-14],[-17,5],[-35,27]]);
+  patch('#2b211a',[[54,24],[33,-11],[21,-14],[16,6],[35,27]]);
+  patch('#a17456',[[-32,-9],[-24,-14],[-15,-9],[-15,2],[-25,4]]);
+  patch('#a17456',[[32,-9],[24,-14],[15,-9],[15,2],[25,4]]);
+  patch(trial.holding ? '#804d42' : '#754639',[[-23,-9],[-15,-18],[16,-17],[23,-7],[16,12],[0,17],[-17,12]]);
+  patch('#b67d58',[[-18,-7],[-13,-12],[14,-12],[18,-7],[14,-5],[-14,-5]]);
+  ctx.fillStyle = '#3a2920';
+  ctx.fillRect(x-17,y+5,34,4);
+  ctx.fillStyle = '#a4c08a';
+  ctx.fillRect(x-17,y+5,Math.round(trial.air*34),4);
+  return [[x,y-2]];
+}
+function ceilingBell(trial) {
+  const x = 3.48, z = 3.72, position = bellPosition(trial);
+  const arcZ = value => mix(4.49,2.95,value);
+  const inBand = Math.abs(position - .5) <= .16;
+  const support = [x,1.65,z], swing = [x,.57 + Math.abs(position-.5)*.37,arcZ(position)];
+  limb([x,2.1,z],support,.036,.033,'#64503a','#95734e');
+  side('#917044',x,z-.28,1.38,z+.28,1.45);
+  shape('#ae8150',[[x,1.59,z-.12],[x,1.59,z+.12],[x,1.39,z+.24],[x,1.39,z-.24]]);
+  side('#e0ac6c',x-.012,z-.19,1.36,z+.19,1.40);
+  side('#3a3328',x+.02,2.91,.47,4.53,.55);
+  side('#84a06b',x+.01,arcZ(.66),.48,arcZ(.34),.54);
+  limb(support,swing,.028,.037,'#785c3d','#a78254');
+  side(inBand ? '#ffce84' : '#ba8a54',x-.02,swing[2]-.065,swing[1]-.08,swing[2]+.065,swing[1]+.036);
+  const grip = [x,-.24,z+.28];
+  limb([x,1.42,z+.21],grip,.013,.022,'#bf9a68','#d3aa76');
+  side('#c1a179',x-.02,grip[2]-.11,grip[1]-.063,grip[2]+.11,grip[1]+.045);
+  return [screenPoint(grip)];
+}
+function drawTrialObjects() {
+  const trial = run.trial;
+  let points = [];
+  if (trial) {
+    switch (trial.spec.id) {
+      case 'hands': points = windowHands(trial); break;
+      case 'echo': points = hoofPlates(trial); break;
+      case 'latch': points = latchFixture(trial); break;
+      case 'breath': points = breathCloth(trial); break;
+      case 'bell': points = ceilingBell(trial); break;
+    }
+  }
+  placeTrialObjects(points);
 }
 function beanCan(view) {
   const p = cameraPoint(beanSpots[view].position);
@@ -1728,7 +1956,7 @@ function room() {
   block(-.99,-.53,1.46,-.91,-.12,1.56,['#554624','#453719','#8e7d45']);
   block(-1.13,-.15,1.34,-.73,-.04,1.73,['#695a32','#554624','#877441']);
   flat('#b6a573',-.99,1.41,-.86,1.57,-.039);
-  drawTrialHands();
+  drawTrialObjects();
   placeBeanPickup(run.beans && !run.trial ? beanCan(run.beans.view) : null);
 }
 function frame(now) {
@@ -1749,7 +1977,8 @@ function frame(now) {
   }
   const readingFocal = Math.min(148,canvas.width * .65);
   focal = 178 + (readingFocal - 178) * camera.lean;
-  room();
+  if (run.mode === 'intro') drawSplash();
+  else room();
   placeExamSheet();
   requestAnimationFrame(frame);
 }
@@ -1791,7 +2020,13 @@ for (const name of ['pointerup','pointercancel','lostpointercapture']) {
   $('act').addEventListener(name,() => { pressed = false; });
 }
 window.addEventListener('keydown',event => {
-  if (event.code === 'Escape') { if (!event.repeat) pause(); return; }
+  if (event.code === 'Escape') {
+    if (!event.repeat) {
+      if (run.mode === 'intro' && $('overlay').dataset.screen === 'help') intro();
+      else pause();
+    }
+    return;
+  }
   if (run.mode !== 'running' || event.metaKey || event.ctrlKey || event.altKey) return;
   if (run.trial) {
     const id = run.trial.spec.id;
