@@ -64,6 +64,8 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 .trial-object[data-lit]{color:#fff6d1;border-color:#ffcf84;box-shadow:0 0 0 2px #ab713d,inset 0 0 0 2px #edbb6b45}
 .trial-object[data-held]{border-color:#b6cc9a;background:#33524054}
 .trial-object[data-demo]{pointer-events:none;opacity:.66}
+.trial-object[data-blocked]{border-color:#b75f57;background:#522a2b55}
+.trial-object[data-fastened]{border-color:#71846b;color:#b6c59a;opacity:.75}
 .ending-caption{position:absolute;z-index:2;bottom:30px;left:50%;transform:translateX(-50%);width:max-content;
   max-width:calc(100% - 20px);margin:0;padding:8px 11px;text-align:center;background:#0b1010e8;color:#f1ddaf;font:10px/1.7 var(--pixel)}
 .ending-caption strong{color:#f2ad6c}
@@ -186,6 +188,9 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
   <button type="button" class="trial-object" hidden></button>
   <button type="button" class="trial-object" hidden></button>
   <button type="button" class="trial-object" hidden></button>
+  <button type="button" class="trial-object" hidden></button>
+  <button type="button" class="trial-object" hidden></button>
+  <button type="button" class="trial-object" hidden></button>
 </div>
 <div class="hud" aria-label="Exam status"><span class="clock" id="clock">12:00</span><span id="progress">0 / 18 answered</span><span id="nerve">Composure 3 / 3</span><span class="bean" id="bean-hud" hidden><span id="bean-status" role="status"></span><span id="bean-timer" aria-hidden="true"></span></span></div>
 <div class="utility"><button id="sound" aria-pressed="true">Sound on</button><button id="pause" disabled>Pause</button></div>
@@ -211,6 +216,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #f7a74a;outline-offset:3p
 <script>
 'use strict';
 const $ = id => document.getElementById(id);
+const debugExam = new URLSearchParams(window.location.search).get('debug') === '1';
 const exam = [
   ['Where on a horse is the poll?', ['Between and just behind the ears','Above the tail','At the shoulder','Under the jaw'],0,'The poll is at the top of the head, just behind the ears.'],
   ['What is the ridge where the neck meets the back?', ['Croup','Withers','Loin','Barrel'],1,'The withers are the ridge above the shoulders.'],
@@ -342,7 +348,7 @@ const beanSpots = {
 const threats = [
   {id:'moth',view:'left',name:'Mothman',cue:'LEFT · Wings scrape the window.',action:'Hold the lamp',method:'hold',time:.85,pan:-.85,loss:'Mothman came through the glass.'},
   {id:'monitor',view:'front',name:'The Hall Monitor',cue:'AHEAD · Heavy hoofbeats in the hall.',action:'Keep looking at it',method:'watch',time:1.5,pan:0,loss:'The Hall Monitor reached your desk.'},
-  {id:'seam',view:'right',name:'The Seam',cue:'RIGHT · A whisper inside the wall.',action:'Hold the latch',method:'hold',time:1.45,pan:.85,loss:'The wall opened beside you.'},
+  {id:'seam',view:'right',name:'The Seam',cue:'RIGHT · Something wet drags behind the hatch.',action:'Hold the latch',method:'hold',time:1.45,pan:.85,loss:'The hatch opened and a tentacle reached your desk.'},
   {id:'mimic',view:'left',name:'The Window Mimic',cue:'LEFT · Three taps on the glass.',action:'Keep your eyes on it',method:'watch',time:1.65,pan:-.85,loss:'The reflection climbed out of the window.'},
   {id:'mare',view:'front',name:'The Hollow Mare',cue:'AHEAD · A ragged whinny.',action:'Ring the desk bell',method:'tap',time:0,pan:0,loss:'The Hollow Mare leaned over your paper.'},
   {id:'crawler',view:'right',name:'The Ceiling Crawler',cue:'RIGHT · Claws run along the ceiling.',action:'Hold the lamp',method:'hold',time:1.05,pan:.85,loss:'Something dropped onto your shoulder.'}
@@ -695,17 +701,52 @@ const trialDuration = 30;
 const trials = [
   {id:'hands',name:'Hands at the window',view:'left',buttons:['1 · Swat left hand','2 · Swat middle hand','3 · Swat right hand']},
   {id:'echo',name:'Ghost hoofbeats',view:'front',buttons:['1 · Low hoof plate','2 · Middle hoof plate','3 · High hoof plate']},
-  {id:'latch',name:'The seam latch',view:'right',buttons:['1 · Turn left','2 · Turn right']},
+  {id:'chains',name:'Chain the hatch',view:'right',buttons:['Chain 1','Chain 2','Chain 3','Hook 4','Hook 5','Hook 6']},
   {id:'breath',name:'The Mimic is watching',view:'left',buttons:['Hold bandana · Space']},
   {id:'bell',name:'The ceiling bell',view:'right',buttons:['Pull bell rope · Space']}
 ];
 const handPatterns = [1,4,3,2,5,4,6,3];
 const trialButtons = [...$('trial-buttons').querySelectorAll('button')];
 const echoPitches = [168,246,346];
+const chainStamps = ['triangle','square','ring'];
+const hookOrders = [[1,2,0],[2,0,1],[1,0,2],[2,1,0],[0,2,1]];
+function hookOrder(trial) {
+  return hookOrders[(trial.rotation + trial.phase + hookOrders.length) % hookOrders.length];
+}
+function coveredHook(trial) {
+  const time = trial.elapsed - (.8 + trial.phase * 9.6);
+  return trial.phase >= 0 && time >= 2.6 && time % 3.45 < 1.03 ?
+    (Math.floor(time / 3.45) + trial.phase + trial.rotation) % 3 : -1;
+}
+function attachChain(trial,i) {
+  if (trial.phase < 0) return;
+  if (i < 3) {
+    if (!(trial.links & 1 << i)) {
+      trial.chain = trial.chain === i ? -1 : i;
+      note(178,.15,.09,.65,'triangle',127);
+    }
+    return;
+  }
+  const hook = i - 3;
+  const mark = hookOrder(trial)[hook];
+  if (trial.chain < 0 || trial.links & 1 << mark) return;
+  if (coveredHook(trial) === hook || mark !== trial.chain) {
+    trial.chainNotice = coveredHook(trial) === hook ? 'Wait for the tentacle to pull back.' : 'Match the stamped shapes.';
+    trial.flashUntil = trial.elapsed + .85;
+    noise(.12,610,.15,.75);
+    return;
+  }
+  trial.links |= 1 << mark;
+  trial.chain = -1;
+  trial.flashUntil = 0;
+  trial.score++;
+  note(258,.20,.18,.72,'triangle',164);
+  noise(.15,2100,.18,.74);
+}
 function startTrial(sheet) {
   const spec = trials[sheet - 1];
-  run.trial = {spec,sheet,elapsed:0,phase:-1,score:0,removed:0,entered:0,heard:-1,position:.5,
-    air:1,exposed:0,holding:false,flashUntil:0,lastBell:-1,lastPress:-Infinity,rotation:Math.floor(Math.random() * 3),
+  run.trial = {spec,sheet,elapsed:0,phase:-1,score:0,removed:0,entered:0,heard:-1,links:0,chain:-1,
+    air:1,exposed:0,holding:false,flashUntil:0,lastBell:-1,rotation:Math.floor(Math.random() * 3),
     patterns:[3,4,5].map(size => Array.from({length:size},() => Math.floor(Math.random() * 3)))};
   run.threat = null;
   pressed = false;
@@ -738,11 +779,21 @@ function watchingMimic(trial) {
   const time = trial.elapsed - 3;
   return time >= 0 && time % 5.4 >= .75 && time % 5.4 < 3.05;
 }
+function mimicTurn(trial) {
+  if (trial.elapsed < 3) return Math.PI;
+  const phase = (trial.elapsed - 3) % 5.4;
+  const ease = value => value * value * (3 - 2 * value);
+  if (phase < .75) return Math.PI * (1 - ease(phase / .75));
+  return Math.PI * ease(clamp((phase - 3.05) / .64));
+}
 function bellPhase(trial) {
-  return Math.floor((trial.elapsed - 2.5) / 5.1);
+  return Math.floor(trial.elapsed / 1.5);
 }
 function bellPosition(trial) {
-  return .5 + .46 * Math.sin((trial.elapsed - 2.5) * Math.PI * 2 / 3.0);
+  return .5 + .46 * Math.cos(trial.elapsed * Math.PI / 1.5);
+}
+function bellReady(trial) {
+  return Math.abs(bellPosition(trial) - .5) <= .16 && trial.lastBell !== bellPhase(trial);
 }
 function trialInput(i) {
   if (run.mode !== 'running' || !run.trial) return;
@@ -772,25 +823,26 @@ function trialInput(i) {
       }
       break;
     }
-    case 'latch':
-      trial.position = clamp(trial.position + (i === 0 ? -.18 : .18));
-      note(164,.12,.10,.8,'triangle',103);
+    case 'chains':
+      attachChain(trial,i);
       break;
     case 'breath':
       trial.holding = true;
       break;
     case 'bell': {
       const phase = bellPhase(trial);
-      if (phase < 0 || phase >= 5 || trial.lastBell === phase || trial.elapsed < trial.lastPress + .62) return;
-      trial.lastPress = trial.elapsed;
-      if (Math.abs(bellPosition(trial) - .5) <= .16) {
+      const previousPull = trial.bellPulledAt ?? -1;
+      trial.bellPulledAt = trial.elapsed;
+      trial.flashUntil = trial.elapsed + .62;
+      if (bellReady(trial)) {
         trial.lastBell = phase;
         trial.score++;
+        trial.bellNotice = 'Clean strike.';
         note(540,.44,.20,.65);
         note(796,.42,.14,.65,'triangle',735,.11);
       } else {
-        trial.flashUntil = trial.elapsed + .62;
-        noise(.13,530,.22,.7);
+        trial.bellNotice = trial.lastBell === phase ? 'Already rang. Let the clapper swing back.' : 'Dull strike. Aim for the center stripe.';
+        if (trial.elapsed - previousPull >= .12) noise(.13,530,.22,.7);
       }
       break;
     }
@@ -826,10 +878,17 @@ function trialTick(dt) {
       trial.heard = cue;
       break;
     }
-    case 'latch':
-      trial.position = clamp(trial.position + dt * (.19 * Math.sin(time * .69) + .072 * Math.sin(time * 1.8) + .047));
-      if (Math.abs(trial.position - .5) <= .16) trial.score += dt;
+    case 'chains': {
+      const phase = Math.min(2,Math.floor((time - .8) / 9.6));
+      if (phase !== trial.phase) {
+        trial.phase = phase;
+        trial.links = 0;
+        trial.chain = -1;
+        trial.flashUntil = 0;
+        noise(.34,1580,.27,.72);
+      }
       break;
+    }
     case 'breath': {
       const watching = watchingMimic(trial);
       if (watching !== trial.watching) {
@@ -846,7 +905,7 @@ function trialTick(dt) {
 function endTrial(trial) {
   const id = trial.spec.id;
   const passed = id === 'hands' ? trial.score >= 8 : id === 'echo' ? trial.score >= 2 :
-    id === 'latch' ? trial.score >= 15 : id === 'breath' ? trial.exposed <= 3.5 : trial.score >= 3;
+    id === 'chains' ? trial.score >= 6 : id === 'breath' ? trial.exposed <= 3.5 : trial.score >= 3;
   run.trial = null;
   run.openSheet = trial.sheet;
   run.nextThreat = run.elapsed + 8;
@@ -864,7 +923,7 @@ function renderTrial() {
   const id = trial.spec.id;
   const time = Math.max(0,Math.ceil(trialDuration - trial.elapsed));
   $('trial-time').textContent = time + 's';
-  let cue = '', score = '', mask = 0, demo = false;
+  let cue = '', score = '', mask = 0, done = 0, blocked = -1, demo = false;
   switch (id) {
     case 'hands':
       mask = handTargets(trial);
@@ -882,10 +941,28 @@ function renderTrial() {
       score = `${trial.score} patterns echoed · 2 needed`;
       break;
     }
-    case 'latch':
-      cue = 'Turn the wheel to keep the needle in green.';
-      score = `${Math.floor(trial.score)}s steady · 15s needed`;
+    case 'chains': {
+      const hooks = hookOrder(trial);
+      const cover = coveredHook(trial);
+      blocked = cover < 0 ? -1 : cover + 3;
+      done = trial.links;
+      hooks.forEach((mark,i) => {
+        if (trial.links & 1 << mark) done |= 1 << (i + 3);
+      });
+      if (trial.chain >= 0) mask = 1 << trial.chain;
+      cue = trial.phase < 0 ? 'Something is moving behind the hatch.' : trial.links === 7 ?
+        'Hatch secured. Watch for it to pull again.' :
+        trial.flashUntil > trial.elapsed ? trial.chainNotice : trial.chain >= 0 ?
+          `Hook the chain to the matching ${chainStamps[trial.chain]}.` : 'Pick a chain. Match it to a hook.';
+      score = `${trial.score} chains fastened · 6 needed`;
+      demo = trial.phase < 0;
+      for (const [i,button] of trialButtons.entries()) {
+        const mark = i < 3 ? i : hooks[i - 3];
+        const label = `${i + 1} · ${i < 3 ? 'Chain' : 'Hook'} with ${chainStamps[mark]}`;
+        if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label',label);
+      }
       break;
+    }
     case 'breath': {
       const watch = watchingMimic(trial);
       cue = watch ? 'It sees you. Hold the cloth or Space.' : (trial.elapsed >= 3 && (trial.elapsed - 3) % 5.4 < .75) ?
@@ -894,9 +971,11 @@ function renderTrial() {
       break;
     }
     case 'bell': {
-      const phase = bellPhase(trial);
-      cue = phase < 0 ? 'Wait for the swing.' : phase >= 5 || trial.lastBell === phase ? 'Wait for the next swing.' :
-        trial.flashUntil > trial.elapsed ? 'Missed. Watch the next pass.' : 'Pull the rope when the clapper crosses green.';
+      const ready = bellReady(trial);
+      mask = ready ? 1 : 0;
+      cue = ready ? 'Pull now. The clapper is over the stripe.' : trial.flashUntil > trial.elapsed ?
+        trial.bellNotice : trial.lastBell === bellPhase(trial) ? 'Already rang. Let the clapper swing back.' :
+          'Pull as the clapper crosses the center stripe.';
       score = `${trial.score} clean strikes · 3 needed`;
       break;
     }
@@ -905,7 +984,9 @@ function renderTrial() {
     button.toggleAttribute('data-lit',Boolean(mask & 1 << i));
     button.toggleAttribute('data-held',id === 'breath' && trial.holding);
     button.toggleAttribute('data-demo',demo);
-    button.disabled = demo;
+    button.toggleAttribute('data-fastened',Boolean(done & 1 << i));
+    button.toggleAttribute('data-blocked',blocked === i);
+    button.disabled = demo || Boolean(done & 1 << i);
   }
   if ($('trial-cue').textContent !== cue) $('trial-cue').textContent = cue;
   if ($('trial-score').textContent !== score) $('trial-score').textContent = score;
@@ -963,8 +1044,11 @@ function movementSound(threat) {
   const step = Math.floor(walkCycle(kind,progress) * 2);
   if (step > (threat.step ?? 0)) {
     threat.step = step;
-    noise(.13,kind.id === 'crawler' ? 1900 : 480,.16 + progress * .20,kind.pan,0,'lowpass');
-    note(108,.19,.085 + progress * .11,kind.pan,'triangle',50);
+    if (kind.id === 'seam') noise(.26,730,.17 + progress * .19,kind.pan);
+    else {
+      noise(.13,kind.id === 'crawler' ? 1900 : 480,.16 + progress * .20,kind.pan,0,'lowpass');
+      note(108,.19,.085 + progress * .11,kind.pan,'triangle',50);
+    }
   }
   if (kind.view === 'left') {
     const stage = progress >= .57 ? 2 : progress >= .20 ? 1 : 0;
@@ -993,6 +1077,7 @@ function paperUI() {
   const page = run.page, sheet = Math.floor(page / sheetSize);
   const finalPage = page === exam.length - 1;
   const locked = sheet > run.openSheet;
+  if (debugExam && !locked) run.answers[page] ??= exam[page][2];
   const answer = run.answers[page], wrong = run.wrongAnswers[page];
   const writing = Boolean(run.pending);
   const key = [page,answer,wrong.size,locked,writing,answerCount()].join('/');
@@ -1114,7 +1199,7 @@ function intro() {
       <button class="primary" id="begin">Sit the final <span aria-hidden="true">›</span></button>
       <button id="help">How to play <span aria-hidden="true">›</span></button>
     </div>
-    <p class="title-note">Horse anatomy · 12 minutes</p>
+    <p class="title-note">Horse anatomy · 12 minutes${debugExam ? ' · Debug' : ''}</p>
   </div>`,'title');
   $('begin').onclick = start;
   $('help').onclick = showHelp;
@@ -1445,11 +1530,9 @@ function worldText(value,location,color,size) {
   ctx.fillText(value,x,y);
 }
 const creatureColors = {
-  moth:{coat:'#3a3431',edge:'#88705a',shadow:'#201d21',skin:'#776854',eyes:'#efaa64'},
   mimic:{coat:'#40483d',edge:'#748472',shadow:'#232b25',skin:'#aca88d',eyes:'#d2ccad'},
   monitor:{coat:'#38382a',edge:'#746e53',shadow:'#1c2119',skin:'#8a8162',eyes:'#efd281'},
   mare:{coat:'#4e5240',edge:'#7c8368',shadow:'#252c24',skin:'#b3b69b',eyes:'#a7e2bc'},
-  seam:{coat:'#37292a',edge:'#79534a',shadow:'#1c161b',skin:'#8e6b56',eyes:'#e6a079'},
   professor:{coat:'#302a32',edge:'#7c5551',shadow:'#18151d',skin:'#d2bc9f',eyes:'#f2c484'}
 };
 const windowClimb = [
@@ -1501,14 +1584,13 @@ function walkCycle(kind,progress) {
 }
 function walkPose(kind,progress) {
   const windowSide = kind.view === 'left';
-  const side = kind.view !== 'front';
   const distance = windowSide ? clamp((progress - .62) / .38) : progress ** 1.3;
-  const start = windowSide ? [-3.31,-1.34,3.59] : side ? [3.83,-1.34,3.81] : [.04,-1.34,6.68];
-  const end = windowSide ? [-1.48,-1.34,1.62] : side ? [1.52,-1.34,1.56] : [.04,-1.34,1.92];
-  const middle = windowSide ? [-3.30,-1.34,2.42] : side ? [3.75,-1.34,2.47] : start;
+  const start = windowSide ? [-3.31,-1.34,3.59] : [.04,-1.34,6.68];
+  const end = windowSide ? [-1.48,-1.34,1.62] : [.04,-1.34,1.92];
+  const middle = windowSide ? [-3.30,-1.34,2.42] : start;
   const before = mixPoint(start,middle,distance), after = mixPoint(middle,end,distance);
-  const floor = side ? mixPoint(before,after,distance) : mixPoint(start,end,distance);
-  const forward = side ? direction(after[0] - before[0],after[2] - before[2]) : [0,0,-1];
+  const floor = windowSide ? mixPoint(before,after,distance) : mixPoint(start,end,distance);
+  const forward = windowSide ? direction(after[0] - before[0],after[2] - before[2]) : [0,0,-1];
   const pace = walkCycle(kind,progress);
   const bob = Math.abs(Math.sin(pace * Math.PI * 2)) * .055;
   const hip = offset(floor,forward,0,.83 + bob);
@@ -1518,8 +1600,7 @@ function walkPose(kind,progress) {
     const phase = pace + (sign === 1 ? .5 : 0);
     const [step,lift] = gait(phase,.80);
     feet.push(offset(floor,forward,sign * .16,lift,step));
-    hands.push(offset(hip,forward,sign * .38,kind.id === 'seam' ? .08 : -.03,
-      .06 - Math.sin(phase * 2 * Math.PI) * .18 + (kind.id === 'seam' ? progress * .24 : 0)));
+    hands.push(offset(hip,forward,sign * .38,-.03,.06 - Math.sin(phase * 2 * Math.PI) * .18));
   }
   return {hip,chest,hands,feet,forward};
 }
@@ -1559,13 +1640,10 @@ function mask(kind,head,forward,palette,progress) {
     return;
   }
   plane(palette.shadow,[[-.21,.16],[-.10,.25],[.10,.24],[.20,.13],[.18,-.12],[.08,-.23],[-.10,-.21],[-.20,-.08]]);
-  if (kind.id === 'moth') {
-    plane(palette.edge,[[-.20,.14],[-.25,.29],[-.12,.23],[.12,.22],[.22,.30],[.20,.13],[.09,-.15],[-.11,-.17]]);
-  }
   plane(palette.skin,[[-.15,.12],[-.05,.17],[.13,.13],[.14,-.10],[.04,-.17],[-.11,-.13]]);
   plane(palette.shadow,[[-.13,.07],[-.04,.05],[-.05,-.008],[-.13,.006]]);
   plane(palette.shadow,[[.035,.05],[.13,.07],[.12,.01],[.04,.0]]);
-  if (kind.id !== 'mimic' || progress > .67) {
+  if (progress > .67) {
     plane(palette.eyes,[[-.105,.036],[-.071,.037],[-.073,.017],[-.105,.018]]);
     plane(palette.eyes,[[.059,.036],[.098,.04],[.096,.019],[.058,.018]]);
   }
@@ -1599,13 +1677,17 @@ function person(kind,pose,progress) {
     limb(hands[i],offset(hands[i],forward,0,-.075,.052),.049,.032,palette.skin,palette.edge);
   };
   arm(far);
-  if (kind.id === 'moth') {
-    for (const sign of [-1,1]) shape(palette.shadow,[
-      offset(chest,forward,sign * .14,.03,-.08),offset(chest,forward,sign * (.44 + progress * .19),.22,-.12),
-      offset(hip,forward,sign * (.48 + progress * .19),-.18,-.18),offset(hip,forward,sign * .10,-.33,-.16)
-    ]);
+  const waist = [-1,1].map(sign => offset(hip,forward,sign*.21,-.12));
+  if (kind.id === 'mimic') {
+    shape(palette.shadow,[shoulders[far],offset(shoulders[far],forward,0,.02,-.16),
+      offset(waist[far],forward,0,0,-.16),waist[far]]);
+    if (pose.away) {
+      shape('#495044',[...shoulders.map(p => offset(p,forward,0,0,-.13)),
+        offset(waist[1],forward,0,0,-.13),offset(waist[0],forward,0,0,-.13)]);
+      limb(offset(chest,forward,0,-.04,-.15),offset(hip,forward,0,-.08,-.15),.024,.016,'#778371');
+    }
   }
-  shape(palette.coat,[...shoulders,offset(hip,forward,.21,-.12),offset(hip,forward,-.21,-.12)]);
+  if (!pose.away) shape(palette.coat,[...shoulders,waist[1],waist[0]]);
   shape(palette.edge,[shoulders[far],offset(chest,forward,(far ? 1 : -1) * .22,-.09,.019),
     offset(hip,forward,(far ? 1 : -1) * .16,-.075,.019),offset(hip,forward,(far ? 1 : -1) * .21,-.12)]);
   if (kind.id === 'professor') {
@@ -1665,31 +1747,115 @@ function crawler(progress) {
     limb(eye,offset(eye,forward,0,.045),.020,.017,'#e6a069');
   }
 }
-function creature(kind,progress,aside = 0,away = false) {
+function turnFigure(pose,angle) {
+  const [x,,z] = pose.hip, c = Math.cos(angle), s = Math.sin(angle);
+  const rotate = ([a,y,b]) => [x + (a-x)*c - (b-z)*s,y,z + (a-x)*s + (b-z)*c];
+  pose.chest = rotate(pose.chest);
+  pose.hands = pose.hands.map(rotate);
+  pose.feet = pose.feet.map(rotate);
+  const [fx,,fz] = pose.forward;
+  pose.forward = [fx*c - fz*s,0,fx*s + fz*c];
+  pose.feet[angle > Math.PI / 2 ? 0 : 1][1] += Math.sin(angle) * .12;
+  pose.away = Math.cos(angle) < 0;
+}
+function mothFigure(pose,progress) {
+  const {hip,chest,hands,feet,forward} = pose;
+  const torso = offset(chest,forward,0,-.10,.05);
+  const head = offset(chest,forward,0,.15,.21);
+  const across = (origin,x,y,z = 0) => offset(origin,forward,x,y,z);
+  if (progress > .53) groundShadow(hip,.73,.46);
+
+  for (const sign of [-1,1]) {
+    const i = sign > 0 ? 1 : 0;
+    const spread = .44 + clamp((progress - .38) / .60) * .64;
+    const wingRoot = across(torso,sign*.13,.14,-.13);
+    const shoulder = across(chest,sign * spread,.37,-.30);
+    const tip = across(hip,sign * (spread + .19),-.24,-.53);
+    const inner = across(hip,sign * .25,-.41,-.27);
+    shape('#755545',[wingRoot,shoulder,across(shoulder,sign * .15,-.11),tip,inner]);
+    shape('#392c2d',[wingRoot,across(shoulder,-sign * .06,-.08),across(tip,-sign * .05,.08),inner]);
+    limb(wingRoot,tip,.025,.012,'#aa7656');
+    limb(wingRoot,inner,.016,.012,'#695047');
+    limb(across(wingRoot,0,-.16),across(tip,-sign*.15,.19),.014,.012,'#725344');
+
+    const leg = across(hip,sign*.17,-.05,-.10);
+    const bend = across(mixPoint(leg,feet[i],.48),sign*.26,.03,-.19);
+    limb(leg,bend,.074,.042,'#362924','#8b6551');
+    limb(bend,feet[i],.042,.024,'#2a2422','#785744');
+    const grip = across(torso,sign*.23,-.08,.09);
+    const hooked = across(mixPoint(grip,hands[i],.5),sign*.18,-.07,.08);
+    limb(grip,hooked,.062,.044,'#4e382f','#a37053');
+    limb(hooked,hands[i],.046,.034,'#402f29','#a17654');
+    for (let claw = -1; claw <= 1; claw++) {
+      limb(hands[i],across(hands[i],claw*.034,-.071,.054),.025,.011,'#b28a62');
+    }
+  }
+  limb(hip,torso,.15,.19,'#43332f','#91705c');
+  limb(torso,head,.18,.14,'#584038','#af7d5c');
+  for (const sign of [-1,1]) {
+    const eye = across(head,sign*.10,.02,.105);
+    limb(eye,across(eye,sign*.012,.082,.008),.055,.047,'#df7752','#e9a768');
+    const antenna = across(head,sign*.09,.10,.02);
+    const bend = across(head,sign*.23,.29,-.05);
+    limb(antenna,bend,.024,.018,'#946b52');
+    limb(bend,across(bend,sign*.18,.08,-.01),.017,.010,'#b38960');
+  }
+}
+function tendril(root,bend,tip,width,phase) {
+  let previous = root;
+  for (let i = 1; i <= 12; i++) {
+    const t = i/12;
+    const point = mixPoint(mixPoint(root,bend,t),mixPoint(bend,tip,t),t);
+    point[1] += Math.sin(t*Math.PI) * Math.sin(t*9 + phase) * .11;
+    point[2] += Math.sin(t*Math.PI) * Math.cos(t*7 + phase) * .12;
+    const size = fraction => width * (1 - fraction * .90);
+    limb(previous,point,size(t - 1/12),size(t),'#4c2d34','#996757');
+    if (i % 2 === 0 && i < 11) {
+      const cup = [point[0]-.026,point[1]+size(t)*.28,point[2]];
+      limb(cup,[cup[0]-.034,cup[1]+.013,cup[2]+.021],size(t)*.44,size(t)*.38,'#bf9270','#d3ad87');
+    }
+    previous = point;
+  }
+}
+function seamCreature(progress,time) {
+  const x = 3.83, z = 3.79, opening = .05 + .19 * progress;
+  shape('#110e15',[[x,-.94,z-opening*.5],[x,-.57,z-opening],[x,.20,z-opening*1.2],
+    [x,1.22,z-opening*.28],[x,.73,z+opening],[x,-.66,z+opening*.8],[x,-.96,z+opening*.45]]);
+  const reach = .22 + progress ** 1.24 * 2.25;
+  for (let i = 0; i < 5; i++) {
+    const wave = time*2.4 + i*1.47;
+    const root = [x,.64 - i*.28,z + (i-2)*.026];
+    const tip = [x-reach*(.79+i*.052),mix(root[1],-.57 - (i%2)*.34,progress) + Math.sin(wave)*.16*progress,
+      mix(z + (i-2)*.31,1.67 + (i-2)*.14,progress*.89)];
+    const bend = [root[0]-reach*.48,root[1]+.22*Math.cos(wave),root[2]+.35*Math.sin(wave*.85)];
+    tendril(root,bend,tip,.09+i*.006,wave);
+  }
+}
+function creature(kind,progress,turn = 0) {
   if (kind.id === 'crawler') crawler(progress);
   else if (kind.id === 'mare') mare(kind,progress);
+  else if (kind.id === 'seam') seamCreature(progress,run.elapsed);
   else {
     const pose = kind.view === 'left' && progress < .62 ? climbPose(progress) : walkPose(kind,progress);
-    if (aside) for (const point of [pose.hip,pose.chest,...pose.hands,...pose.feet]) point[2] += aside;
-    pose.away = away;
-    person(kind,pose,progress);
+    if (kind.id === 'moth') mothFigure(pose,progress);
+    else {
+      if (turn) turnFigure(pose,turn);
+      person(kind,pose,progress);
+    }
   }
 }
 function trialFigures(trial) {
   const time = trial.elapsed;
-  const actor = (id,progress,aside = 0,away = false) =>
-    ({kind:threats.find(kind => kind.id === id),progress:clamp(progress),aside,away});
+  const actor = (id,progress,turn = 0) => ({kind:threats.find(kind => kind.id === id),progress:clamp(progress),turn});
   switch (trial.spec.id) {
-    case 'hands': {
-      const progress = .19 + time * .026 - trial.score * .047;
-      return [actor('moth',progress,.36),actor('mimic',progress - .13,-.33)];
-    }
+    case 'hands':
+      return [actor('moth',.19 + time * .026 - trial.score * .047)];
     case 'echo':
       return [actor('mare',.17 + time * .025 - trial.score * .17)];
-    case 'latch':
-      return [actor('seam',.10 + Math.abs(trial.position - .5) * 1.23 + time * .009)];
+    case 'chains':
+      return [actor('seam',.25 + time * .021 - trial.score * .043)];
     case 'breath':
-      return [actor('mimic',.66 + time * .004 + trial.exposed * .043,0,!watchingMimic(trial))];
+      return [actor('mimic',.66 + time * .004 + trial.exposed * .043,mimicTurn(trial))];
     case 'bell':
       return [actor('crawler',.15 + time * .028 - trial.score * .15)];
   }
@@ -1697,7 +1863,7 @@ function trialFigures(trial) {
 function drawFigure(figure) {
   ctx.save();
   ctx.globalAlpha = figure.opacity ?? 1;
-  creature(figure.kind,figure.progress,figure.aside,figure.away);
+  creature(figure.kind,figure.progress,figure.turn);
   ctx.restore();
 }
 function screenPoint(world) {
@@ -1749,31 +1915,60 @@ function hoofPlates(trial) {
     return screenPoint([x,y+.04,z-.04]);
   });
 }
-function latchFixture(trial) {
-  const x = 3.75, z = 3.74, center = [x,-.26,z];
-  const meterZ = fraction => mix(4.44,3.04,fraction);
-  side('#1d2019',x+.04,2.94,.39,4.54,.78);
-  side('#876746',x+.02,2.98,.43,4.50,.74);
-  side('#3f3327',x,3.04,.47,4.44,.70);
-  side('#779267',x-.01,meterZ(.66),.48,meterZ(.34),.69);
-  const at = meterZ(trial.position);
-  side('#f8d395',x-.018,at-.019,.44,at+.019,.73);
-
-  const radial = (r,angle) => [x,center[1] + r * Math.cos(angle),z + r * Math.sin(angle)];
-  const ring = Array.from({length:8},(_,i) => radial(.39,i * Math.PI / 4));
-  shape('#816346',ring);
-  shape('#2f3026',Array.from({length:8},(_,i) => radial(.302,i * Math.PI / 4)));
-  for (let i = 0; i < 4; i++) {
-    const angle = (trial.position - .5) * 5 + i * Math.PI / 2;
-    limb(center,radial(.35,angle),.055,.045,'#ad8b5e','#cfab75');
+function hatchStamp(mark,x,y,z,color) {
+  const shapes = [
+    [[0,.105],[-.106,-.075],[.106,-.075]],
+    [[-.084,.086],[.084,.086],[.084,-.086],[-.084,-.086]],
+    [[-.060,.094],[.060,.094],[.095,.060],[.095,-.060],[.060,-.094],[-.060,-.094],[-.095,-.060],[-.095,.060]]
+  ];
+  shape(color,shapes[mark].map(([a,b]) => [x,y+b,z-a]));
+  if (mark === 2) {
+    side('#332a24',x-.006,z-.046,y-.046,z+.046,y+.046);
   }
-  side('#ccab73',x-.025,z-.066,-.318,z+.066,-.198);
-  return [1,-1].map(sign => {
-    const grip = z + sign * .47;
-    side('#ad8859',x-.02,grip-.09,-.35,grip+.09,-.17);
-    side('#6e553c',x-.025,grip-.068,-.32,grip+.068,-.20);
-    return screenPoint([x-.028,-.26,grip]);
+}
+function drawChain(from,to,selected) {
+  let prev = from;
+  for (let i = 1; i <= 13; i++) {
+    const t = i / 13;
+    const point = mixPoint(from,to,t);
+    point[1] -= .13 * Math.sin(t * Math.PI);
+    limb(prev,point,.031,.031,'#493b32','#ba9463');
+    if (i % 2 === 0) limb(prev,mixPoint(prev,point,.65),.019,.020,selected ? '#e6bd81' : '#877056');
+    prev = point;
+  }
+}
+function chainFixture(trial) {
+  const x = 3.73, leftZ = 4.52, rightZ = 3.00;
+  const levels = [.84,.16,-.52];
+  const hooks = hookOrder(trial), block = coveredHook(trial);
+  side('#5a4236',x+.02,2.78,-.72,3.22,1.07);
+  side('#5a4236',x+.02,4.30,-.72,4.74,1.07);
+  const targets = [];
+  for (const [column,z] of [leftZ,rightZ].entries()) {
+    for (const [i,y] of levels.entries()) {
+      const mark = column === 0 ? i : hooks[i];
+      const done = Boolean(trial.links & 1 << mark);
+      const chosen = column === 0 && trial.chain === i;
+      side(chosen ? '#be945e' : '#765641',x,z-.184,y-.237,z+.184,y+.239);
+      side('#332a24',x-.01,z-.15,y-.211,z+.15,y+.203);
+      side(done ? '#758b65' : '#a27850',x-.016,z-.119,y-.16,z+.119,y-.087);
+      hatchStamp(mark,x-.024,y+.085,z,done ? '#bfd3a4' : '#efd39d');
+      targets.push(screenPoint([x-.04,y-.035,z]));
+    }
+  }
+  levels.forEach((y,i) => {
+    const tied = trial.links & 1 << i;
+    const from = [x-.037,y-.105,leftZ];
+    const to = tied ? [x-.037,levels[hooks.indexOf(i)]-.105,rightZ] :
+      [x-.28,y-.29,leftZ-.13 - (trial.chain === i ? .18 : 0)];
+    drawChain(from,to,trial.chain === i);
   });
+  if (block >= 0) {
+    const y = levels[block], wave = trial.elapsed * 3;
+    tendril([x+.03,y+.18,3.78],[x-.57,y-.25,3.30],
+      [x-.18,y+.11,rightZ-.08],.122,wave);
+  }
+  return targets;
 }
 function breathCloth(trial) {
   const x = Math.round(canvas.width * .45), y = canvas.height - (trial.holding ? 32 : 19);
@@ -1793,7 +1988,7 @@ function breathCloth(trial) {
 function ceilingBell(trial) {
   const x = 3.48, z = 3.72, position = bellPosition(trial);
   const arcZ = value => mix(4.49,2.95,value);
-  const inBand = Math.abs(position - .5) <= .16;
+  const ready = bellReady(trial);
   const support = [x,1.65,z], swing = [x,.57 + Math.abs(position-.5)*.37,arcZ(position)];
   limb([x,2.1,z],support,.036,.033,'#64503a','#95734e');
   side('#917044',x,z-.28,1.38,z+.28,1.45);
@@ -1802,8 +1997,9 @@ function ceilingBell(trial) {
   side('#3a3328',x+.02,2.91,.47,4.53,.55);
   side('#84a06b',x+.01,arcZ(.66),.48,arcZ(.34),.54);
   limb(support,swing,.028,.037,'#785c3d','#a78254');
-  side(inBand ? '#ffce84' : '#ba8a54',x-.02,swing[2]-.065,swing[1]-.08,swing[2]+.065,swing[1]+.036);
-  const grip = [x,-.24,z+.28];
+  side(ready ? '#ffe09e' : '#a48054',x-.02,swing[2]-.065,swing[1]-.08,swing[2]+.065,swing[1]+.036);
+  const tug = .17 * clamp(1 - (trial.elapsed - (trial.bellPulledAt ?? -1)) / .27);
+  const grip = [x,-.24-tug,z+.28];
   limb([x,1.42,z+.21],grip,.013,.022,'#bf9a68','#d3aa76');
   side('#c1a179',x-.02,grip[2]-.11,grip[1]-.063,grip[2]+.11,grip[1]+.045);
   return [screenPoint(grip)];
@@ -1815,7 +2011,7 @@ function drawTrialObjects() {
     switch (trial.spec.id) {
       case 'hands': points = windowHands(trial); break;
       case 'echo': points = hoofPlates(trial); break;
-      case 'latch': points = latchFixture(trial); break;
+      case 'chains': points = chainFixture(trial); break;
       case 'breath': points = breathCloth(trial); break;
       case 'bell': points = ceilingBell(trial); break;
     }
@@ -2031,7 +2227,7 @@ window.addEventListener('keydown',event => {
   if (run.trial) {
     const id = run.trial.spec.id;
     const index = event.code === 'Space' && (id === 'breath' || id === 'bell') ? 0 :
-      /^Digit[1-3]$/.test(event.code) ? Number(event.code.slice(-1)) - 1 : -1;
+      /^Digit[1-6]$/.test(event.code) ? Number(event.code.slice(-1)) - 1 : -1;
     if (index >= 0 && index < run.trial.spec.buttons.length) {
       event.preventDefault();
       if (!event.repeat) trialInput(index);
